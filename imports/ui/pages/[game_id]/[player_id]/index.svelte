@@ -16,6 +16,7 @@
   import type { ObserverEventDetails, Options } from 'svelte-inview';
   import { OptionsCollection } from "/imports/api/options";
   import { CardOptionsCollection, CardsCollection } from "/imports/api/cards";
+  import { BingoCollection } from '/imports/api/bingos'
   import { textfit } from 'svelte-textfit';
 
   let show = false
@@ -58,10 +59,13 @@ let newPlayerName
 let game_options = []
 let other_cards = []
 let player_parents = []
+let game
 
 $m: {
     Meteor.subscribe('cards', game_id)
+    Meteor.subscribe('bingos')
     card = CardsCollection.findOne({game_id: game_id, _id: player_id})
+    game = BingoCollection.findOne({_id:game_id})
     if(card){
       card_options = _.orderBy(CardOptionsCollection.find({game_id:game_id, card_id:card?._id}).fetch(), ['x','y'], ['asc','asc'])
     }
@@ -85,8 +89,14 @@ let parents = []
         class:invisible={!show}
         class:fade-in={show}
         class="flex flex-col items-center justify-center">
+        <div class="flex items-baseline">
+          <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">{game?.name}</h1>
+          <div class="btn btn-ghost">code: {game?.code}</div>
+        </div>
         <h1 class="text-center font-poppins text-3xl font-semibold md:text-5xl capitalize">Welcome {card?.name}</h1>
+        
         <a class="btn btn-link" href={`/${game_id}`}>Back</a>
+        
       </div>
       <div
         class:invisible={!show}
@@ -129,7 +139,7 @@ let parents = []
       <div
         class:invisible={!show}
         class:fade-in={show}
-        class="mt-10 grid gap-1 grid-cols-2 mb-10 px-1">
+        class="mt-10 grid gap-1 grid-cols-3 mb-10 px-1">
         {#each other_cards as card, idx}
             <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 hover:bg-green-400 text-center flex flex-col items-center" >
               <div class="text-center h-20 my-auto flex items-center" bind:this={player_parents[idx]}>
