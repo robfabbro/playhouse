@@ -7,6 +7,7 @@
   import Team from "/imports/ui/components/Team.svelte";
   import Testimonial from "/imports/ui/components/Testimonial.svelte";
   import Contact from "/imports/ui/components/Contact.svelte";
+  import PlayerMini from "/imports/ui/components/PlayerMini.svelte";
   import { params, redirect } from "@roxi/routify";
   import _ from 'lodash'
 
@@ -27,6 +28,8 @@
     (show = detail.inView);
 
   let {game_id, player_id} = $params
+
+$: player_id = $params.player_id
 
 let newOptionValue
 let playerModal
@@ -54,12 +57,16 @@ let card = {}
 let card_options = []
 let newPlayerName
 let game_options = []
+let other_cards = []
+let player_parents = []
+
 $m: {
     Meteor.subscribe('cards', game_id)
     card = CardsCollection.findOne({game_id: game_id, _id: player_id})
     if(card){
       card_options = _.orderBy(CardOptionsCollection.find({game_id:game_id, card_id:card?._id}).fetch(), ['x','y'], ['asc','asc'])
     }
+    other_cards = CardsCollection.find({game_id: game_id, _id: {$ne:player_id}}).fetch()
   }
 
 let toggle = (option)=>{
@@ -79,7 +86,7 @@ let parents = []
         class:invisible={!show}
         class:fade-in={show}
         class="flex flex-col items-center justify-center">
-        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">Welcome {card?.name}</h1>
+        <h1 class="text-center font-poppins text-3xl font-semibold md:text-5xl capitalize">Welcome {card?.name}</h1>
         <a class="btn btn-link" href={`/${game_id}`}>Back</a>
       </div>
       <div
@@ -109,3 +116,28 @@ let parents = []
       </div>
     </div>
     {/if}
+
+    <div
+      use:inview={options}
+      on:inview_change="{handleChange}"
+      class="flex flex-col items-center justify-center">
+      <div
+        class:invisible={!show}
+        class:fade-in={show}
+        class="flex items-center justify-center gap-5">
+        <h1 class="text-center font-poppins text-xl font-semibold ">Other Players</h1>
+      </div>
+      <div
+        class:invisible={!show}
+        class:fade-in={show}
+        class="mt-10 grid gap-1 grid-cols-2 mb-10 px-1">
+        {#each other_cards as card, idx}
+            <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 hover:bg-green-400 text-center flex flex-col items-center" >
+              <div class="text-center h-20 my-auto flex items-center" bind:this={player_parents[idx]}>
+                <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card.name}</h2>
+              </div>
+              <PlayerMini player_id={card._id} />
+            </a>
+        {/each}
+      </div>
+    </div>
