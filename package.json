@@ -1,0 +1,57 @@
+{
+  "name": "binster",
+  "private": true,
+  "scripts": {
+    "start": "run-p start:*",
+    "start:routify": "routify",
+    "start:meteor": "meteor run --settings settings-development.json",
+    "build-router": "routify -b",
+    "test": "meteor test --once --driver-package meteortesting:mocha",
+    "deploy": "DEPLOY_HOSTNAME=ap-southeast-2.galaxy-deploy.meteor.com meteor deploy techreative.com.au --settings settings-development.json --owner techreative",
+    "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
+    "visualize": "meteor --production --extra-packages bundle-visualizer"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.23.5",
+    "@tailwindcss/typography": "^0.5.10",
+    "@tmcw/togeojson-cli": "^3.0.1",
+    "@weblogin/trendchart-elements": "^1.1.0",
+    "autoprefixer": "^10.4.17",
+    "daisyui": "^4.6.0",
+    "dayjs": "^1.11.10",
+    "leaflet": "^1.9.4",
+    "leaflet-filelayer": "^1.2.0",
+    "leaflet-kml": "^1.0.1",
+    "lodash": "^4.17.21",
+    "meteor-node-stubs": "^1.2.7",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.33",
+    "pwa-asset-generator": "^6.3.1",
+    "svelte": "^3.59.2",
+    "svelte-inview": "^4.0.2",
+    "svelte-textfit": "^1.1.4",
+    "tailwindcss": "^3.3.5",
+    "tslib": "^2.6.2",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "svelte-motion": "^0.12.1",
+    "svelte-preprocess": "^5.0.0",
+    "typescript": "^4.9.5",
+    "@roxi/routify": "^2.18.11"
+  },
+  "meteor": {
+    "mainModule": {
+      "client": "client/main.ts",
+      "server": "server/main.ts"
+    },
+    "nodeModules": {
+      "recompile": {
+        "svelte": [
+          "legacy"
+        ]
+      }
+    },
+    "testModule": "tests/main.js"
+  }
+}

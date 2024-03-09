@@ -1,0 +1,224 @@
+<script lang="ts">
+  import { Meteor } from "meteor/meteor";
+  import NavBar from '/imports/ui/components/NavBar.svelte'
+  import Hero from '/imports/ui/components/Hero.svelte'
+  import LogoClouds from "/imports/ui/components/LogoClouds.svelte";
+  import Services from "/imports/ui/components/Services.svelte";
+  import Team from "/imports/ui/components/Team.svelte";
+  import Testimonial from "/imports/ui/components/Testimonial.svelte";
+  import Contact from "/imports/ui/components/Contact.svelte";
+  import { params, redirect } from "@roxi/routify";
+
+
+  import { inview } from 'svelte-inview';
+  import type { ObserverEventDetails, Options } from 'svelte-inview';
+  import { OptionsCollection } from "/imports/api/options";
+  import { CardsCollection } from "/imports/api/cards";
+  import { BingoCollection } from '/imports/api/bingos'
+  import { textfit } from 'svelte-textfit';
+
+  let show = false
+  const options: Options = {
+    rootMargin: '50px',
+    unobserveOnEnter: true,
+    threshold: .1
+  };
+  const handleChange = ({ detail }: CustomEvent<ObserverEventDetails>) =>
+    (show = detail.inView);
+
+  let {game_id, name} = $params
+
+let newOptionValue
+let playerModal
+let loading = false
+let saveCard = ()=>{
+  loading = true
+  Meteor.call('add_option', game_id, newOptionValue, (err,res)=>{
+    if(!err){
+      newOptionValue = ''
+      loading = false
+    }
+  })
+}
+
+let savePlayer = ()=>{
+  loading = true
+  Meteor.call('add_player', game_id, newPlayerName, (err,res)=>{
+    if(!err){
+      newPlayerName = ''
+      loading = false
+    }
+  })
+}
+let cards = []
+let newPlayerName
+let game_options = []
+let game
+$m: {
+    Meteor.subscribe('options', game_id)
+    Meteor.subscribe('cards', game_id)
+    Meteor.subscribe('bingos')
+    cards = CardsCollection.find({game_id: game_id}).fetch()
+    game_options = OptionsCollection.find({game_id: game_id}).fetch()
+    game = BingoCollection.findOne({_id:game_id})
+  }
+</script>
+
+    <div
+      use:inview={options}
+      on:inview_change="{handleChange}"
+      class="flex flex-col items-center justify-center">
+      <div
+        class:invisible={!show}
+        class:fade-in={show}
+        class="flex flex-col items-center justify-center">
+        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">{game?.name}</h1>
+        <a class="btn btn-link" href={`/`}>Back</a>
+      </div>
+    </div>
+<div class="flex items-center w-full justify-center">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Add your Options</h3>
+    <form on:submit|preventDefault={saveCard}>
+    <input bind:value={newOptionValue} type="text" placeholder="Enter your option description here" class="input input-bordered input-primary w-full" />
+    <div class="pt-2" >
+      <button class="btn btn-success" >
+        Go
+        {#if loading}
+        <svg
+          class="animate-spin ml-2 h-5 w-5"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+        {/if}
+      </button>
+    </div>
+  </form>
+  </div>
+</div>
+    <div
+      use:inview={options}
+      on:inview_change="{handleChange}"
+      class="flex flex-col items-center justify-center">
+      <div
+        class:invisible={!show}
+        class:fade-in={show}
+        class="flex items-center justify-center gap-5">
+        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Players</h1>
+        <button class="btn btn-info" on:click={()=>playerModal.showModal()}>
+          Add
+          {#if loading}
+          <svg
+            class="animate-spin ml-2 h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+          {/if}
+        </button>
+      </div>
+      <div
+        class:invisible={!show}
+        class:fade-in={show}
+        class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
+        {#each cards as card}
+            <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 hover:bg-green-400" >
+              <div class="text-center h-20 my-auto flex items-center" bind:this={card.parent}>
+                <h2 use:textfit={{mode:"multi",parent:card.parent}} class="font-poppins capitalize">{card.name}</h2>
+              </div>
+            </a>
+        {/each}
+      </div>
+    </div>
+    <div
+      use:inview={options}
+      on:inview_change="{handleChange}"
+      class="flex flex-col items-center justify-center">
+      <div
+        class:invisible={!show}
+        class:fade-in={show}
+        class="flex flex-col items-center justify-center">
+        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Options</h1>
+      </div>
+      <div
+        class:invisible={!show}
+        class:fade-in={show}
+        class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
+        {#each game_options as option}
+            <div class="bg-base-100 px-1 shadow-sm container rounded-lg" >
+              <div class="text-center h-20 my-auto flex items-center" bind:this={option.parent}>
+                <h2 use:textfit={{mode:"multi",parent:option.parent}} class="font-poppins">{option.name}</h2>
+              </div>
+            </div>
+        {/each}
+      </div>
+    </div>
+
+<!-- <Team /> -->
+
+<dialog class="modal" bind:this={playerModal}>
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Add a player</h3>
+    <p class="py-4" >Press ESC key or click outside to close</p>
+    <input bind:value={newPlayerName} type="text" placeholder="Enter the name of your player" class="input input-bordered input-primary w-full" />
+    <div class="pt-2" >
+      <button class="btn btn-success" on:click={savePlayer}>
+        Go
+        {#if loading}
+        <svg
+          class="animate-spin ml-2 h-5 w-5"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+        {/if}
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>

@@ -1,0 +1,35 @@
+{
+  "short_name": "BINGO",
+  "name": "BINGO - Fun For All Ages",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#E8E8E8",
+  "background_color": "#E8E8E8",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/logo/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/logo/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "allowJs": true,
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "/*": [
+        "./*"
+      ],
+      "meteor/mongo": [
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/local_collection_driver.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/collection.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/connection_options.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/doc_fetcher.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/mongo_driver.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/mongo_utils.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/observe_multiplex.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/oplog_observe_driver.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/oplog_tailing.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/oplog_v2_converter.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/polling_observe_driver.js",
+        "/Users/ben/.meteor/packages/mongo/1.16.8/web.browser/remote_collection_driver.js"
+      ],
+      "meteor/es5-shim": [
+        "/Users/ben/.meteor/packages/es5-shim/4.8.0/web.browser/client.js",
+        "/Users/ben/.meteor/packages/es5-shim/4.8.0/web.browser/console.js",
+        "/Users/ben/.meteor/packages/es5-shim/4.8.0/web.browser/cordova.js",
+        "/Users/ben/.meteor/packages/es5-shim/4.8.0/web.browser/export_globals.js",
+        "/Users/ben/.meteor/packages/es5-shim/4.8.0/web.browser/import_globals.js"
+      ],
+      "meteor/ecmascript": [
+        "/Users/ben/.meteor/packages/ecmascript/0.16.8/web.browser/ecmascript.js"
+      ],
+      "meteor/shell-server": [
+        "/Users/ben/.meteor/packages/shell-server/0.5.0/web.browser/main.js",
+        "/Users/ben/.meteor/packages/shell-server/0.5.0/web.browser/shell-server.js"
+      ],
+      "meteor/zodern:melte": [
+        "/Users/ben/.meteor/packages/zodern_melte/1.7.0/web.browser/tracker.js",
+        "/Users/ben/.meteor/packages/zodern_melte/1.7.0/web.browser/hmr-runtime.js",
+        "/Users/ben/.meteor/packages/zodern_melte/1.7.0/web.browser/plugin.js",
+        "/Users/ben/.meteor/packages/zodern_melte/1.7.0/web.browser/proxy-adapter.js"
+      ],
+      "meteor/hot-module-replacement": [
+        "/Users/ben/.meteor/packages/hot-module-replacement/0.5.3/web.browser/hot-api.js",
+        "/Users/ben/.meteor/packages/hot-module-replacement/0.5.3/web.browser/client.js",
+        "/Users/ben/.meteor/packages/hot-module-replacement/0.5.3/web.browser/server.js"
+      ],
+      "meteor/accounts-google": [
+        "/Users/ben/.meteor/packages/accounts-google/1.4.0/web.browser/notice.js",
+        "/Users/ben/.meteor/packages/accounts-google/1.4.0/web.browser/google.js"
+      ],
+      "meteor/littledata:synced-cron": [
+        "/Users/ben/.meteor/packages/littledata_synced-cron/1.5.1/web.browser/synced-cron-server.js"
+      ]
+    }
+  },
+  "typeAcquisition": {
+    "include": [
+      "meteor"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    ".meteor"
+  ]
+}
