@@ -47,9 +47,11 @@ let savePlayer = ()=>{
     if(!err){
       newPlayerName = ''
       loading = false
+      playerModal.close()
     }
   })
 }
+
 let cards = []
 let newPlayerName
 let game_options = []
@@ -72,8 +74,13 @@ $m: {
         class:invisible={!show}
         class:fade-in={show}
         class="flex flex-col items-center justify-center">
-        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">{game?.name}</h1>
-        <a class="btn btn-link" href={`/`}>Back</a>
+        <div class="flex items-baseline">
+          <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">{game?.name}</h1>
+          <div class="btn btn-ghost">code: {game?.code}</div>
+        </div>
+        
+        <a class="btn btn-link btn-sm" href={`/`}>Back</a>
+        
       </div>
     </div>
 <div class="flex items-center w-full justify-center">
@@ -189,6 +196,9 @@ $m: {
   <div class="modal-box">
     <h3 class="font-bold text-lg">Add a player</h3>
     <p class="py-4" >Press ESC key or click outside to close</p>
+    {#if game_options.length < 25}
+    <p class="py-4 text-lg font-semibold" >You need to add more options before you can add players.</p>
+    {:else}
     <input bind:value={newPlayerName} type="text" placeholder="Enter the name of your player" class="input input-bordered input-primary w-full" />
     <div class="pt-2" >
       <button class="btn btn-success" on:click={savePlayer}>
@@ -217,6 +227,7 @@ $m: {
         {/if}
       </button>
     </div>
+    {/if}
   </div>
   <form method="dialog" class="modal-backdrop">
     <button>close</button>

@@ -33,7 +33,7 @@ const options: Options = {
   
 let saveGame = (e) =>{
   loading = true
-  Meteor.call('newGame', newGameName, (err, res)=>{
+  Meteor.call('new_game', newGameName, (err, res)=>{
     if(!err){
       $goto(`/${res}`)
       console.log(res)
@@ -44,7 +44,7 @@ let gameFound = true
 
 let findGame = (e)=>{
   if(searchName){
-    let found = BingoCollection.findOne({$or:[{name: searchName.toLowerCase(), code:searchName.toLowerCase()}]})
+    let found = BingoCollection.findOne({$or:[{name: searchName.toLowerCase(), code: searchName.toLowerCase()}]})
     if(found){
       $goto(`/${found._id}`)
     }else{
@@ -66,7 +66,7 @@ let findGame = (e)=>{
         class="hero-content flex-col lg:flex-row-reverse " >
         
 
-      <img class="max-h-[500px] md:max-w-md" src="/bingoBongo.png" alt="bingo"/>
+      <img class="max-h-[70vh] md:max-w-md" src="/bingoBongo.png" alt="bingo"/>
       
         <div class="text-center lg:text-start md:max-w-[50%] xl:max-w-[80%]">
           <span class="badge badge-outline badge-lg">Awesome Fun</span>

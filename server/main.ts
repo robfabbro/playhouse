@@ -9,6 +9,7 @@ import { BingoCollection } from '/imports/api/bingos';
 import { CardsCollection } from '/imports/api/cards';
 import { OptionsCollection } from '/imports/api/options';
 import _ from 'lodash'
+import { Random } from 'meteor/random';
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -130,8 +131,9 @@ Meteor.methods({
         }
     })
   },
-  "newGame"(name){
-    let id = BingoCollection.insert({name:name.toLowerCase()})
+  "new_game"(name){
+    let code = Random.id(4)
+    let id = BingoCollection.insert({name:name.toLowerCase(), code:code.toLowerCase()})
     return id
   },
   'add_option'(game_id, name){
