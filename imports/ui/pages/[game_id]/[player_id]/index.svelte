@@ -55,8 +55,12 @@ let game_options = []
 $m: {
     Meteor.subscribe('cards', game_id)
     card = CardsCollection.findOne({game_id: game_id, _id: player_id})
-    
   }
+
+let toggle = (option)=>{
+  Meteor.call('toggle', card)
+}
+
 </script>
     
     {#if card?.card}
@@ -76,11 +80,11 @@ $m: {
         class:fade-in={show}
         class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
         {#each card.card as option}
-            <div class="bg-base-100 px-2 shadow-sm container rounded-lg" >
+            <button class="bg-base-100 px-2 shadow-sm container rounded-lg" on:click={()=>toggle(card)}>
               <div class="text-center h-20 my-auto flex items-center" bind:this={option.parent}>
                 <h2 use:textfit={{mode:"multi",parent:option.parent}} class="font-poppins">{option.option?.name}</h2>
               </div>
-            </div>
+            </button>
         {/each}
       </div>
     </div>

@@ -6,7 +6,7 @@ import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 import {HTTP} from 'meteor/http'
 import { BingoCollection } from '/imports/api/bingos';
-import { CardsCollection } from '/imports/api/cards';
+import { CardOptionsCollection, CardsCollection } from '/imports/api/cards';
 import { OptionsCollection } from '/imports/api/options';
 import _ from 'lodash'
 import { Random } from 'meteor/random';
@@ -40,21 +40,10 @@ const calcDiffWeeks = (rubbish)=>{
   return false
 }
 
-Meteor.publish('transactions.all', function publishTransactionsAll() {
-  return TransactionCollection.find()
-})
-
-Meteor.publish('categories.all', function publishCategoriesAll() {
-  return CategoryCollection.find()
-})
-
-Meteor.publish('zones.all', function publishCategoriesAll() {
-  return ZoneCollection.find()
-})
-
 Meteor.publish('cards', function(game_id){
-  return CardsCollection.find({game_id:game_id})
+  return [CardsCollection.find({game_id:game_id}), CardOptionsCollection.find({game_id:game_id})]
 })
+
 Meteor.publish('options', function(game_id){
   return OptionsCollection.find({game_id:game_id})
 })
@@ -159,6 +148,16 @@ Meteor.methods({
       }
       y = y + 1
     }
-    CardsCollection.insert({game_id: game_id, name:name.toLowerCase(), card:cards})
+    let card_id = CardsCollection.insert({game_id: game_id, name:name.toLowerCase()})
+    for(let card of cards){
+      CardOptionsCollection.insert({
+        game_id:game_id,
+        card_id: card_id,
+        ...card
+      })
+    }
+  }, 
+  'toggle'(card_option){
+    CardOptionsCollection.update({_id:card_option._id}, {$set:{marked:!card_option.marked}})
   }
 })
