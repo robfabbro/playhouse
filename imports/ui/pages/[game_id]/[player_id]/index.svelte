@@ -13,7 +13,7 @@
   import { inview } from 'svelte-inview';
   import type { ObserverEventDetails, Options } from 'svelte-inview';
   import { OptionsCollection } from "/imports/api/options";
-  import { CardsCollection } from "/imports/api/cards";
+  import { CardOptionsCollection, CardsCollection } from "/imports/api/cards";
   import { textfit } from 'svelte-textfit';
 
   let show = false
@@ -50,20 +50,26 @@ let savePlayer = ()=>{
   })
 }
 let card = {}
+let card_options = []
 let newPlayerName
 let game_options = []
 $m: {
     Meteor.subscribe('cards', game_id)
     card = CardsCollection.findOne({game_id: game_id, _id: player_id})
+    if(card){
+      card_options = CardOptionsCollection.find({game_id:game_id, card_id:card?._id}).fetch()  
+    }
   }
 
 let toggle = (option)=>{
   Meteor.call('toggle', card)
 }
 
+let parents = []
+
 </script>
     
-    {#if card?.card}
+    {#if card?.name}
     <div
       use:inview={options}
       on:inview_change="{handleChange}"
@@ -79,10 +85,10 @@ let toggle = (option)=>{
         class:invisible={!show}
         class:fade-in={show}
         class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
-        {#each card.card as option}
-            <button class="bg-base-100 px-2 shadow-sm container rounded-lg" on:click={()=>toggle(card)}>
-              <div class="text-center h-20 my-auto flex items-center" bind:this={option.parent}>
-                <h2 use:textfit={{mode:"multi",parent:option.parent}} class="font-poppins">{option.option?.name}</h2>
+        {#each card_options as option, idx}
+            <button class="bg-base-100 px-2 shadow-sm container rounded-lg" on:click={()=>toggle(option)}>
+              <div class="text-center h-20 my-auto flex items-center" bind:this={parents[idx]}>
+                <h2 use:textfit={{mode:"multi", parent:parents[idx]}} class="font-poppins">{option.option.name}</h2>
               </div>
             </button>
         {/each}
