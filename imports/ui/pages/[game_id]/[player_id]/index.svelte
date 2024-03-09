@@ -27,8 +27,7 @@
   const handleChange = ({ detail }: CustomEvent<ObserverEventDetails>) =>
     (show = detail.inView);
 
-  let {game_id, player_id} = $params
-
+$: game_id = $params.game_id
 $: player_id = $params.player_id
 
 let newOptionValue
