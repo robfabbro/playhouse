@@ -44,13 +44,20 @@ let gameFound = true
 
 let findGame = (e)=>{
   if(searchName){
-    let found = BingoCollection.findOne({$or:[{name: searchName.toLowerCase(), code: searchName.toLowerCase()}]})
+    console.log('SEARCH NAME', searchName.toLowerCase())
+    
+    let found = BingoCollection.findOne({$or:[{name: searchName.toLowerCase()},{code: searchName.toLowerCase()}]})
+    console.log(found)
     if(found){
       $goto(`/${found._id}`)
     }else{
       gameFound = false
     }
   }
+}
+
+$m: {
+  Meteor.subscribe('bingos')
 }
 
 </script>

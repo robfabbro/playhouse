@@ -87,42 +87,8 @@ $m: {
         
       </div>
     </div>
-<div class="flex items-center w-full justify-center">
-  <div class="modal-box">
-    <h3 class="font-bold text-lg">Add your Options</h3>
-    <form on:submit|preventDefault={saveCard}>
-    <input bind:value={newOptionValue} type="text" placeholder="Enter your option description here" class="input input-bordered input-primary w-full" />
-    <div class="pt-2" >
-      <button class="btn btn-success" >
-        Go
-        {#if loading}
-        <svg
-          class="animate-spin ml-2 h-5 w-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          />
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          />
-        </svg>
-        {/if}
-      </button>
-    </div>
-  </form>
-  </div>
-</div>
 
+    {#if game_options?.length >=25 }
     <div
       use:inview={options}
       on:inview_change="{handleChange}"
@@ -173,6 +139,61 @@ $m: {
         {/each}
       </div>
     </div>
+    {:else}
+    <div
+      use:inview={options}
+      on:inview_change="{handleChange}"
+      class="flex flex-col items-center justify-center">
+
+      <div
+        class:invisible={!show}
+        class:fade-in={show}
+        class="mt-10 flex items-center justify-center mb-10 px-1">
+        <div class=" text-xl">
+          Add at least 25 options to start adding players
+        </div>
+      </div>
+    </div>
+    {/if}
+
+    {#if cards?.length <=0 }
+    <div class="flex items-center w-full justify-center">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">Add your Options</h3>
+        <form on:submit|preventDefault={saveCard}>
+        <input bind:value={newOptionValue} type="text" placeholder="Enter your option description here" class="input input-bordered input-primary w-full" />
+        <div class="pt-2 flex items-center justify-between" >
+          <div>{game_options?.length} options, only {game_options.length <25 ? 25-game_options.length : 0} more to start</div>
+          <button class="btn btn-success" >
+            Go
+            {#if loading}
+            <svg
+              class="animate-spin ml-2 h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            {/if}
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+    {/if}
 
     <div
       use:inview={options}
