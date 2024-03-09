@@ -31,6 +31,9 @@
 let newOptionValue
 let playerModal
 let loading = false
+
+let player_parents = []
+let option_parents = []
 let saveCard = ()=>{
   loading = true
   Meteor.call('add_option', game_id, newOptionValue, (err,res)=>{
@@ -157,10 +160,10 @@ $m: {
         class:invisible={!show}
         class:fade-in={show}
         class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
-        {#each cards as card}
+        {#each cards as card, idx}
             <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 hover:bg-green-400" >
-              <div class="text-center h-20 my-auto flex items-center" bind:this={card.parent}>
-                <h2 use:textfit={{mode:"multi",parent:card.parent}} class="font-poppins capitalize">{card.name}</h2>
+              <div class="text-center h-20 my-auto flex items-center" bind:this={player_parents[idx]}>
+                <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card.name}</h2>
               </div>
             </a>
         {/each}
@@ -180,10 +183,10 @@ $m: {
         class:invisible={!show}
         class:fade-in={show}
         class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
-        {#each game_options as option}
+        {#each game_options as option, idx}
             <div class="bg-base-100 px-1 shadow-sm container rounded-lg" >
-              <div class="text-center h-20 my-auto flex items-center" bind:this={option.parent}>
-                <h2 use:textfit={{mode:"multi",parent:option.parent}} class="font-poppins">{option.name}</h2>
+              <div class="text-center h-20 my-auto flex items-center" bind:this={option_parents[idx]}>
+                <h2 use:textfit={{mode:"multi",parent:option_parents[idx]}} class="font-poppins">{option.name}</h2>
               </div>
             </div>
         {/each}
