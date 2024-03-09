@@ -16,9 +16,9 @@
   },
   "galaxy.meteor.com": {
     "env": {
-        "MONGO_URL": "mongodb+srv://techreative:F5jKMH6jDYWNYoEp@production.vgfwm.mongodb.net/techreative?retryWrites=true&w=majority",
+        "MONGO_URL": "mongodb+srv://techreative:F5jKMH6jDYWNYoEp@production.vgfwm.mongodb.net/bingo?retryWrites=true&w=majority",
         "MAIL_URL": "smtp://AKIAT4RQ2DYSVZ54AL5Y:BGdELh3lMvYAeqna%2FgPRNLy4ll5hA3Lq4zAylkBhDCgY@email-smtp.ap-southeast-2.amazonaws.com:587",
-        "ROOT_URL": "https://techreative.com.au"
+        "ROOT_URL": "https://bingo.techreative.com.au"
     }
   }
 }
