@@ -8,6 +8,7 @@
   import Testimonial from "/imports/ui/components/Testimonial.svelte";
   import Contact from "/imports/ui/components/Contact.svelte";
   import { params, redirect } from "@roxi/routify";
+  import PlayerMini from "/imports/ui/components/PlayerMini.svelte"
 
 
   import { inview } from 'svelte-inview';
@@ -121,6 +122,7 @@ $m: {
   </form>
   </div>
 </div>
+
     <div
       use:inview={options}
       on:inview_change="{handleChange}"
@@ -159,16 +161,19 @@ $m: {
       <div
         class:invisible={!show}
         class:fade-in={show}
-        class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
+        class="mt-10 grid gap-1 grid-cols-2 mb-10 px-1">
         {#each cards as card, idx}
-            <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 hover:bg-green-400" >
+            <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 hover:bg-green-400 text-center flex flex-col items-center" >
               <div class="text-center h-20 my-auto flex items-center" bind:this={player_parents[idx]}>
                 <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card.name}</h2>
               </div>
+              <PlayerMini player_id={card._id} />
             </a>
+            
         {/each}
       </div>
     </div>
+
     <div
       use:inview={options}
       on:inview_change="{handleChange}"

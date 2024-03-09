@@ -8,6 +8,7 @@
   import Testimonial from "/imports/ui/components/Testimonial.svelte";
   import Contact from "/imports/ui/components/Contact.svelte";
   import { params, redirect } from "@roxi/routify";
+  import _ from 'lodash'
 
 
   import { inview } from 'svelte-inview';
@@ -57,12 +58,12 @@ $m: {
     Meteor.subscribe('cards', game_id)
     card = CardsCollection.findOne({game_id: game_id, _id: player_id})
     if(card){
-      card_options = CardOptionsCollection.find({game_id:game_id, card_id:card?._id}).fetch()  
+      card_options = _.orderBy(CardOptionsCollection.find({game_id:game_id, card_id:card?._id}).fetch(), ['x','y'], ['asc','asc'])
     }
   }
 
 let toggle = (option)=>{
-  Meteor.call('toggle', card)
+  Meteor.call('toggle', option)
 }
 
 let parents = []
@@ -86,7 +87,7 @@ let parents = []
         class:fade-in={show}
         class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
         {#each card_options as option, idx}
-            <button class="bg-base-100 px-2 shadow-sm container rounded-lg" on:click={()=>toggle(option)}>
+            <button class="bg-base-100 px-2 shadow-sm container rounded-lg" class:bg-green-500={option.marked} on:click={()=>toggle(option)}>
               <div class="text-center h-20 my-auto flex items-center" bind:this={parents[idx]}>
                 <h2 use:textfit={{mode:"multi", parent:parents[idx]}} class="font-poppins">{option.option.name}</h2>
               </div>
