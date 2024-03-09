@@ -83,7 +83,7 @@ let findGame = (e)=>{
             </button>
             <button
               type="button"
-              on:click={()=>categoryModal.showModal()}
+              on:click={()=>findModal.showModal()}
               class="btn btn-accent md:btn-lg rounded-full font-poppins shadow-md">
               Join Game
             </button>
