@@ -64,3 +64,7 @@
   -webkit-backface-visibility: hidden; /* Safari */
   backface-visibility: hidden;
 }
+
+.outline-text {
+  text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+}

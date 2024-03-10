@@ -67,17 +67,17 @@ $m: {
       use:inview={options}
       on:inview_change="{handleChange}"
       id="home"
-      class="hero py-10 flex justify-center">
+      class="hero flex justify-center items-center p-0 m-0">
       {#if show}
       <div
-        class="hero-content flex-col lg:flex-row-reverse " >
-        
-
-      <img class="max-h-[70vh] md:max-w-md" src="/bingoBongo.png" alt="bingo"/>
+        class="hero-content p-0 flex-col lg:flex-row-reverse" 
+        >
+        <img class="h-screen w-screen absolute bg-cover object-cover" src="/bingoBongo.png" alt="bingo"/>
       
-        <div class="text-center lg:text-start md:max-w-[50%] xl:max-w-[80%]">
-          <span class="badge badge-outline badge-lg">Awesome Fun</span>
-          <h1 class="font-poppins text-3xl font-black uppercase md:text-7xl">
+        <div class="text-center lg:text-start md:max-w-[50%] xl:max-w-[80%] min-h-screen z-1 flex items-center justify-center z-10">
+          <div class="flex flex-col">
+          <span class="badge badge-error badge-lg">Awesome Fun</span>
+          <h1 class="font-poppins text-3xl font-black uppercase md:text-7xl text-center outline-text">
             BINGO
           </h1>
           
@@ -94,6 +94,7 @@ $m: {
               class="btn btn-accent md:btn-lg rounded-full font-poppins shadow-md">
               Join Game
             </button>
+          </div>
           </div>
         </div>
       </div>
