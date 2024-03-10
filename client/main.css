@@ -66,5 +66,5 @@
 }
 
 .outline-text {
-  text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+  text-shadow: -1px -1px 0 #FF44CC, 1px -1px 0 #FF44CC, -1px 1px 0 #FF44CC, 1px 1px 0 #FF44CC;
 }
