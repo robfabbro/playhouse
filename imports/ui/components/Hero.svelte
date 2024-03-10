@@ -77,7 +77,7 @@ $m: {
         <div class="text-center lg:text-start md:max-w-[50%] xl:max-w-[80%] min-h-screen z-1 flex items-center justify-center z-10">
           <div class="flex flex-col">
           <span class="badge badge-error badge-lg">Awesome Fun</span>
-          <h1 class="font-poppins text-3xl font-black uppercase md:text-7xl text-center outline-text">
+          <h1 class="font-poppins text-7xl font-black uppercase md:text-7xl text-center outline-text">
             BINGO
           </h1>
           
