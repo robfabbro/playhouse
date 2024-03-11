@@ -158,6 +158,8 @@ Meteor.methods({
     }
   }, 
   'toggle'(card_option){
-    CardOptionsCollection.update({_id:card_option._id}, {$set:{marked:!card_option.marked}})
+    if(card_option && card_option._id){
+      CardOptionsCollection.update({_id:card_option._id}, {$set:{marked:!card_option.marked}})
+    }
   }
 })
