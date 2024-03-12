@@ -63,10 +63,6 @@ $m: {
     }
   }
 
-let toggle = (option)=>{
-  Meteor.call('toggle', option)
-}
-
 let parents = []
 
 </script>

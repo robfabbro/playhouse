@@ -1,7 +1,6 @@
 <script lang="ts">
 
 // import React, { useState } from "react"
-// import { Toggle } from "react-hook-theme"
 // import "react-hook-theme/dist/styles/style.css"
 
 const navigation = [
@@ -73,7 +72,7 @@ const goTo = (e, target) =>{
         </div>
 
         <div class="navbar-end h-10 scale-75">
-          <!-- <Toggle /> -->
+          
         </div>
       </div>
     </div>

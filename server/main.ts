@@ -1,4 +1,3 @@
-import { Options } from './../.meteor/local/.build422760.build/programs/.build662945.server/assets/packages/mongo/mongo.d';
 import { Meteor } from 'meteor/meteor';
 import webpush  from 'web-push';
 import dayjs from 'dayjs';
@@ -158,7 +157,9 @@ Meteor.methods({
     }
   }, 
   'toggle'(card_option){
+    console.log("called toggle", card_option)
     if(card_option && card_option._id){
+      
       CardOptionsCollection.update({_id:card_option._id}, {$set:{marked:!card_option.marked}})
     }
   }
