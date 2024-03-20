@@ -128,7 +128,7 @@ Meteor.methods({
     OptionsCollection.insert({game_id: game_id, name:name})
   },
   'add_player'(game_id, name){
-    let options = _.shuffle(OptionsCollection.find({game_id:game_id}, {limit:25}).fetch())
+    let options = _.shuffle(OptionsCollection.find({game_id:game_id}).fetch())
     let cards = []
     
     let y = 0
