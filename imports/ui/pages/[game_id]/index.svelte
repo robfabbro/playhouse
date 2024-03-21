@@ -17,6 +17,7 @@
   import { CardsCollection } from "/imports/api/cards";
   import { BingoCollection } from '/imports/api/bingos'
   import { textfit } from 'svelte-textfit';
+  import { onMount } from "svelte";
 
   let show = false
   const options: Options = {
@@ -67,6 +68,18 @@ $m: {
     cards = CardsCollection.find({game_id: game_id}).fetch()
     game_options = OptionsCollection.find({game_id: game_id}).fetch()
     game = BingoCollection.findOne({_id:game_id})
+    
+    if(game){
+      let games = localStorage.getItem("past_games");
+      if(games){
+        games = JSON.parse(games)
+        games.push(game)
+        localStorage.setItem("past_games", JSON.stringify(games))
+      }else{
+        localStorage.setItem("past_games", JSON.stringify([game]))
+      }
+    }
+    
   }
 </script>
 

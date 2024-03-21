@@ -59,6 +59,12 @@ let findGame = (e)=>{
 $m: {
   Meteor.subscribe('bingos')
 }
+let past_games
+
+let games = localStorage.getItem('past_games')
+if(games){
+  past_games = JSON.parse(games)
+}
 
 </script>
 
@@ -177,6 +183,18 @@ $m: {
             {/if}
           </button>
         </div>
+        {#if past_games}
+        <div class="divider" >past games</div>
+        <div class="pt-2 flex flex-wrap" >
+          {#each past_games as game}
+          <a href={`/${game._id}`}>
+            <button class="btn btn-md" type="button">
+              {game.name}
+            </button>
+          </a>
+          {/each}
+        </div>
+        {/if}
       </div>
       <form method="dialog" class="modal-backdrop">
         <button>close</button>
