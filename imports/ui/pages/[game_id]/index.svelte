@@ -74,7 +74,8 @@ $m: {
       let games = localStorage.getItem("past_games");
       if(games){
         games = JSON.parse(games)
-        games = _.uniqBy(games.push(game), '_id')
+        games.push(game)
+        games = _.uniqBy(games, '_id')
         localStorage.setItem("past_games", JSON.stringify(games))
       }else{
         localStorage.setItem("past_games", JSON.stringify([game]))
