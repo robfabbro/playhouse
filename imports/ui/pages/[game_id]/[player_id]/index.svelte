@@ -19,7 +19,7 @@
   import { BingoCollection } from '/imports/api/bingos'
   import { textfit } from 'svelte-textfit';
 
-  let show = false
+  let show = true
   const options: Options = {
     rootMargin: '50px',
     unobserveOnEnter: true,
@@ -106,7 +106,7 @@ let parents = []
         {#each card_options as option}
             <button class="bg-base-100 px-2 shadow-sm container rounded-lg" class:bg-green-500={option.marked} on:click={()=>toggle(option)}>
               <div class="text-center h-20 my-auto flex items-center" bind:this={parents[option._id]}>
-                <h2 use:textfit={{mode:"multi", parent:parents[option._id]}} class="font-poppins">{option.option.name}</h2>
+                <h2 use:textfit={{mode:"multi", parent:parents[option._id]}} class="font-poppins">{option.option?.name}</h2>
               </div>
             </button>
         {/each}
@@ -141,16 +141,16 @@ let parents = []
         class:invisible={!show}
         class:fade-in={show}
         class="mt-10 grid gap-1 grid-cols-3 mb-10 px-1">
-            <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 text-center flex flex-col items-center outline-double outline-pink-600" >
+            <a href={`/${game_id}/${card?._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 text-center flex flex-col items-center outline-double outline-pink-600" >
               <div class="text-center h-20 my-auto flex items-center" bind:this={card_parent}>
-                <h2 use:textfit={{mode:"multi",parent:card_parent}} class="font-poppins capitalize">{card.name}</h2>
+                <h2 use:textfit={{mode:"multi",parent:card_parent}} class="font-poppins capitalize">{card?.name}</h2>
               </div>
-              <PlayerMini player_id={card._id} />
+              <PlayerMini player_id={card?._id} />
             </a>
         {#each other_cards as card, idx}
             <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 text-center flex flex-col items-center" >
               <div class="text-center h-20 my-auto flex items-center" bind:this={player_parents[idx]}>
-                <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card.name}</h2>
+                <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card?.name}</h2>
               </div>
               <PlayerMini player_id={card._id} />
             </a>

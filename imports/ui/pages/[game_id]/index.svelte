@@ -144,7 +144,7 @@ $m: {
         {#each cards as card, idx}
             <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 hover:bg-green-400 text-center flex flex-col items-center" >
               <div class="text-center h-20 my-auto flex items-center" bind:this={player_parents[idx]}>
-                <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card.name}</h2>
+                <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card?.name}</h2>
               </div>
               <PlayerMini player_id={card._id} />
             </a>
@@ -225,7 +225,7 @@ $m: {
         {#each game_options as option, idx}
             <div class="bg-base-100 px-1 shadow-sm container rounded-lg" >
               <div class="text-center h-20 my-auto flex items-center" bind:this={option_parents[idx]}>
-                <h2 use:textfit={{mode:"multi",parent:option_parents[idx]}} class="font-poppins">{option.name}</h2>
+                <h2 use:textfit={{mode:"multi",parent:option_parents[idx]}} class="font-poppins">{option?.name}</h2>
               </div>
             </div>
         {/each}
