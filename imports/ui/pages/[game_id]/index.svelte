@@ -18,6 +18,7 @@
   import { BingoCollection } from '/imports/api/bingos'
   import { textfit } from 'svelte-textfit';
   import { onMount } from "svelte";
+  import _ from 'lodash'
 
   let show = false
   const options: Options = {
@@ -74,6 +75,7 @@ $m: {
       if(games){
         games = JSON.parse(games)
         games.push(game)
+        games = _.uniqBy(games, '_id')
         localStorage.setItem("past_games", JSON.stringify(games))
       }else{
         localStorage.setItem("past_games", JSON.stringify([game]))

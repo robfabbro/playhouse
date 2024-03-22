@@ -9,6 +9,7 @@ import { inview } from 'svelte-inview';
 import type { ObserverEventDetails, Options } from 'svelte-inview';
 import { goto } from "@roxi/routify"
   import { BingoCollection } from '/imports/api/bingos';
+import _ from 'lodash'
 
 let show = false
 
