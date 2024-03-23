@@ -14,6 +14,7 @@
       ]
     },
     "preserveSymlinks": true, // required by zodern:types
+    "resolveJsonModule": true,
     "preserveValueImports": true // otherwise TS will remove imported components
   },
   "exclude": ["./.meteor/**", "./packages/**"] // this may solve VS Code Svelte plugin warnings

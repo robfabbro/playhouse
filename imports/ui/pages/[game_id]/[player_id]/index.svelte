@@ -10,6 +10,8 @@
   import PlayerMini from "/imports/ui/components/PlayerMini.svelte";
   import { params, redirect } from "@roxi/routify";
   import _ from 'lodash'
+  
+  import confettiConfig from '/imports/ui/components/confetti.json'
 
 
   import { inview } from 'svelte-inview';
@@ -18,6 +20,8 @@
   import { CardOptionsCollection, CardsCollection } from "/imports/api/cards";
   import { BingoCollection } from '/imports/api/bingos'
   import { textfit } from 'svelte-textfit';
+  import { onMount } from "svelte";
+  import { loadFull } from 'tsparticles'
 
   let show = true
   const options: Options = {
@@ -61,21 +65,47 @@ let other_cards = []
 let player_parents = []
 let card_parent
 let game
+let bingo = false
+
+let ParticlesComponent: any
+	onMount(async () => {
+		const module = await import('/imports/ui/components/Particles.svelte')
+		ParticlesComponent = module.default
+	})
+	let onParticlesLoaded = (event: any) => {
+		const particlesContainer = event.detail.particles
+	}
+	let particlesInit = async (main: any) => {
+		await loadFull(main)
+	}
 
 $m: {
     Meteor.subscribe('cards', game_id)
     Meteor.subscribe('bingos')
     card = CardsCollection.findOne({game_id: game_id, _id: player_id})
     game = BingoCollection.findOne({_id:game_id})
+
     if(card){
       card_options = _.orderBy(CardOptionsCollection.find({game_id:game_id, card_id:card?._id}).fetch(), ['x','y'], ['asc','asc'])
+      if(card.bingo){
+        bingo = true
+      }else{
+        bingo = false
+      }
     }
     other_cards = CardsCollection.find({game_id: game_id, _id: {$ne:player_id}}).fetch()
   }
 
 let toggle = (option) => {
-  Meteor.call('toggle', option)
+  if(option.card_id == player_id){
+    Meteor.call('toggle', option)
+  }
 }
+
+const goBingo = () => {
+  bingo = !bingo
+}
+
 
 let parents = []
 
@@ -97,6 +127,7 @@ let parents = []
         <h1 class="text-center font-poppins text-3xl font-semibold md:text-5xl capitalize">Welcome {card?.name}</h1>
         
         <a class="btn btn-link" href={`/${game_id}`}>Back</a>
+        <button class="btn btn-link" on:click={goBingo}>Bingo</button>
         
       </div>
       <div
@@ -157,3 +188,14 @@ let parents = []
         {/each}
       </div>
     </div>
+
+    {#if bingo}
+      <svelte:component
+        this={ParticlesComponent}
+        id="tsparticles"
+        options={confettiConfig.options}
+        on:particlesLoaded={onParticlesLoaded}
+        {particlesInit}
+      />
+    {/if}
+  
