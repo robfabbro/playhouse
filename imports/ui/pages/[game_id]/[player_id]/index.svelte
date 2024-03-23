@@ -127,7 +127,6 @@ let parents = []
         <h1 class="text-center font-poppins text-3xl font-semibold md:text-5xl capitalize">Welcome {card?.name}</h1>
         
         <a class="btn btn-link" href={`/${game_id}`}>Back</a>
-        <button class="btn btn-link" on:click={goBingo}>Bingo</button>
         
       </div>
       <div
