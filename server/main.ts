@@ -119,9 +119,9 @@ Meteor.methods({
         }
     })
   },
-  "new_game"(name){
+  "new_game"(name, size){
     let code = Random.id(4)
-    let id = BingoCollection.insert({name:name.toLowerCase(), code:code.toLowerCase()})
+    let id = BingoCollection.insert({name:name.toLowerCase(), code:code.toLowerCase(), size: size})
     return id
   },
   'add_option'(game_id, name){
@@ -129,13 +129,14 @@ Meteor.methods({
   },
   'add_player'(game_id, name){
     let options = _.shuffle(OptionsCollection.find({game_id:game_id}).fetch())
+    let gameSize = BingoCollection.findOne({_id: game_id}).size
     let cards = []
     
     let y = 0
     let z = 0
-    while(y < 5){
+    while(y < gameSize){
       let x = 0
-      while(x < 5){
+      while(x < gameSize){
         cards.push({
           option:options[z],
           x:x, 
@@ -156,8 +157,9 @@ Meteor.methods({
       })
     }
   }, 
-  'toggle'(card_option){
+  'toggle'(card_option, game_id){
     console.log("called toggle", card_option)
+    let gameSize = BingoCollection.findOne({_id: game_id}).size
     if(card_option && card_option._id){
       CardOptionsCollection.update({_id:card_option._id}, {$set:{marked:!card_option.marked}})
     }
@@ -165,28 +167,28 @@ Meteor.methods({
     let player_cards = CardOptionsCollection.find({card_id:player._id}).fetch()
     let rows = []
     let diags = [0,0]
-    for(let x = 0; x < 5; x = x+1){
+    for(let x = 0; x < gameSize; x = x+1){
       rows[x] = 0
-      for(let y = 0; y < 5; y = y+1){
+      for(let y = 0; y < gameSize; y = y+1){
         let val = player_cards.find(p=>(p.x == x && p.y == y))
         rows[x] = val.marked ? rows[x] + 1 : rows[x]
         if(x == y && val.marked){
           diags[0] = diags[0] + 1
         }
-        if((x + y) == 4 && val.marked){
+        if((x + y) == (gameSize - 1) && val.marked){
           diags[1] = diags[1] + 1
         }
       }
     }
     let cols = []
-    for(let y = 0; y < 5; y = y+1){
+    for(let y = 0; y < gameSize; y = y+1){
       cols[y] = 0
-      for(let x = 0; x < 5; x = x+1){
+      for(let x = 0; x < gameSize; x = x+1){
         let val = player_cards.find(p=>(p.x == x && p.y == y))
         cols[y] = val.marked ? cols[y] + 1 : cols[y]
       }
     }
-    if(Math.max(...rows, ...cols, ...diags) >= 5){
+    if(Math.max(...rows, ...cols, ...diags) >= gameSize){
       CardsCollection.update({_id:card_option.card_id}, {$set:{bingo:true}})
     }else{
       CardsCollection.update({_id:card_option.card_id}, {$set:{bingo:false}})

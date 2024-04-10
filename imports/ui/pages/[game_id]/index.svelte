@@ -103,7 +103,8 @@ $m: {
       </div>
     </div>
 
-    {#if game_options?.length >=25 }
+    {#if game}
+    {#if game_options?.length >= (game.size * game.size) }
     <div
       use:inview={options}
       on:inview_change="{handleChange}"
@@ -165,7 +166,7 @@ $m: {
         class:fade-in={show}
         class="mt-10 flex items-center justify-center mb-10 px-1">
         <div class=" text-xl">
-          Add at least 25 options to start adding players
+          Add at least {game.size * game.size} options to start adding players
         </div>
       </div>
     </div>
@@ -178,7 +179,7 @@ $m: {
         <form on:submit|preventDefault={saveCard}>
         <input bind:value={newOptionValue} type="text" placeholder="Enter your option description here" class="input input-bordered input-primary w-full" />
         <div class="pt-2 flex items-center justify-between" >
-          <div>{game_options?.length} options, only {game_options.length <25 ? 25-game_options.length : 0} more to start</div>
+          <div>{game_options?.length} options, only {game_options.length < (game.size * game.size) ? (game.size * game.size) -game_options.length : 0} more to start</div>
           <button class="btn btn-success" >
             Go
             {#if loading}
@@ -209,6 +210,7 @@ $m: {
       </div>
     </div>
     {/if}
+    {/if}
 
     <div
       use:inview={options}
@@ -237,10 +239,11 @@ $m: {
 <!-- <Team /> -->
 
 <dialog class="modal" bind:this={playerModal}>
+  {#if game}
   <div class="modal-box">
     <h3 class="font-bold text-lg">Add a player</h3>
     <p class="py-4" >Press ESC key or click outside to close</p>
-    {#if game_options.length < 25}
+    {#if game_options.length < (game.size * game.size)}
     <p class="py-4 text-lg font-semibold" >You need to add more options before you can add players.</p>
     {:else}
     <input bind:value={newPlayerName} type="text" placeholder="Enter the name of your player" class="input input-bordered input-primary w-full" />
@@ -276,4 +279,5 @@ $m: {
   <form method="dialog" class="modal-backdrop">
     <button>close</button>
   </form>
+  {/if}
 </dialog>

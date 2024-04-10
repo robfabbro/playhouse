@@ -98,7 +98,7 @@ $m: {
 
 let toggle = (option) => {
   if(option.card_id == player_id){
-    Meteor.call('toggle', option)
+    Meteor.call('toggle', option, game_id)
   }
 }
 
@@ -132,7 +132,7 @@ let parents = []
       <div
         class:invisible={!show}
         class:fade-in={show}
-        class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
+        class={`mt-10 grid gap-1 grid-cols-${game?.size} mb-10 px-1`}>
         {#each card_options as option}
             <button class="bg-base-100 px-2 shadow-sm container rounded-lg" class:bg-green-500={option.marked} on:click={()=>toggle(option)}>
               <div class="text-center h-20 my-auto flex items-center" bind:this={parents[option._id]}>

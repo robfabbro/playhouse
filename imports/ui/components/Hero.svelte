@@ -23,18 +23,19 @@ const options: Options = {
     unobserveOnEnter: true,
     threshold: 0.5
   };
-  const handleChange = ({ detail }: CustomEvent<ObserverEventDetails>) =>
+const handleChange = ({ detail }: CustomEvent<ObserverEventDetails>) =>
     (show = detail.inView);
 
-    let categoryModal
-    let findModal
-    let newGameName = ''
-    let searchName = ''
-    let loading = false
+let categoryModal
+let findModal
+let newGameName = ''
+let searchName = ''
+let loading = false
+let gameSize = 5
   
 let saveGame = (e) =>{
   loading = true
-  Meteor.call('new_game', newGameName, (err, res)=>{
+  Meteor.call('new_game', newGameName, gameSize, (err, res)=>{
     if(!err){
       $goto(`/${res}`)
       console.log(res)
@@ -119,8 +120,13 @@ if(games){
         <h3 class="font-bold text-lg">Start a Game</h3>
         <p class="py-4" >Press ESC key or click outside to close</p>
         <input bind:value={newGameName} type="text" placeholder="Enter the name of your game" class="input input-bordered input-primary w-full" />
-        <div class="pt-2" >
-          <button class="btn btn-success" on:click={saveGame}>
+        <div class="flex pt-4 w-ful justify-between">
+          <button class={`btn btn-outline w-1/4 ${gameSize == 5 ? "btn-active" : ""}`} on:click={() => gameSize = 5}>5x5</button>
+          <button class={`btn btn-outline w-1/4 ${gameSize == 4 ? "btn-active" : ""}`} on:click={() => gameSize = 4}>4x4</button>
+          <button class={`btn btn-outline w-1/4 ${gameSize == 3 ? "btn-active" : ""}`} on:click={() => gameSize = 3}>3x3</button>
+        </div>
+        <div class="pt-4" >
+          <button class="btn btn-success w-full" on:click={saveGame}>
             Go
             {#if loading}
             <svg
@@ -157,8 +163,8 @@ if(games){
         <h3 class="font-bold text-lg">Find a Game</h3>
         <p class="py-4" >Press ESC key or click outside to close</p>
         <input bind:value={searchName} type="text" placeholder="Enter the game code or name" class="input input-bordered input-primary w-full" />
-        <div class="pt-2" >
-          <button class="btn btn-success" on:click={findGame}>
+        <div class="pt-4" >
+          <button class="btn btn-success w-full" on:click={findGame}>
             Join
             {#if loading}
             <svg

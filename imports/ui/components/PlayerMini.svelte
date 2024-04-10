@@ -16,6 +16,7 @@
   import { OptionsCollection } from "/imports/api/options";
   import { CardOptionsCollection, CardsCollection } from "/imports/api/cards";
   import { textfit } from 'svelte-textfit';
+  import { BingoCollection } from "/imports/api/bingos";
 
   let show = false
   const options: Options = {
@@ -55,11 +56,17 @@ let card = {}
 let card_options = []
 let newPlayerName
 let game_options = []
+let gameSize = 5
 $m: {
     Meteor.subscribe('cards', game_id)
+    Meteor.subscribe('bingos')
     card = CardsCollection.findOne({game_id: game_id, _id: player_id})
+    let game = BingoCollection.findOne({_id: game_id})
     if(card){
       card_options = _.orderBy(CardOptionsCollection.find({game_id:game_id, card_id:card?._id}).fetch(), ['x','y'], ['asc','asc'])
+    }
+    if(game){
+      gameSize = game.size
     }
   }
 
@@ -75,7 +82,7 @@ let parents = []
       <div
         class:invisible={!show}
         class:fade-in={show}
-        class="mt-10 grid gap-1 grid-cols-5 mb-10 px-1">
+        class={`mt-10 grid gap-1 grid-cols-${gameSize} mb-10 px-1`}>
         {#each card_options as option, idx}
             <button class="bg-base-200 px-1 shadow-sm container rounded-lg" class:bg-green-500={option.marked}>
               <div class="text-center h-5 w-3 my-auto flex items-center" >
