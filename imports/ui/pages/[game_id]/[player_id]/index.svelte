@@ -10,6 +10,7 @@
   import PlayerMini from "/imports/ui/components/PlayerMini.svelte";
   import { params, redirect } from "@roxi/routify";
   import _ from 'lodash'
+  import moment from 'moment'
   
   import confettiConfig from '/imports/ui/components/confetti.json'
 
@@ -78,6 +79,14 @@ let ParticlesComponent: any
 	let particlesInit = async (main: any) => {
 		await loadFull(main)
 	}
+
+  const placingth = (placing) => {
+      if ([11, 12, 13].includes(placing)) {
+        return `${placing}` + 'th'
+      } else {
+        return `${placing}` + (placing % 10 === 1 ? 'st' : placing % 10 === 2 ? 'nd' : placing % 10 === 3 ? 'rd' : 'th')
+      }
+    }
 
 $m: {
     Meteor.subscribe('cards', game_id)
@@ -171,16 +180,24 @@ let parents = []
         class:invisible={!show}
         class:fade-in={show}
         class="mt-10 grid gap-1 grid-cols-3 mb-10 px-1">
-            <a href={`/${game_id}/${card?._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 text-center flex flex-col items-center outline-double outline-pink-600" >
-              <div class="text-center h-20 my-auto flex items-center" bind:this={card_parent}>
+            <a href={`/${game_id}/${card?._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 text-center flex flex-col gap-4 items-center outline-double outline-pink-600" >
+              <div class="text-center h-20 my-auto flex flex-col items-center" bind:this={card_parent}>
                 <h2 use:textfit={{mode:"multi",parent:card_parent}} class="font-poppins capitalize">{card?.name}</h2>
+                {#if card?.bingo}
+                <h2 class="font-poppins capitalize text-base font-bold">{placingth(card?.bingo_position)}</h2>
+                <h2 class="font-poppins capitalize text-sm">{moment(card?.bingo_at).format('hh:mm A - DD/MM')}</h2>
+                {/if}
               </div>
               <PlayerMini player_id={card?._id} />
             </a>
         {#each other_cards as card, idx}
-            <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 text-center flex flex-col items-center" >
-              <div class="text-center h-20 my-auto flex items-center" bind:this={player_parents[idx]}>
+            <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 gap-4 text-center flex flex-col items-center" >
+              <div class="text-center h-20 my-auto flex flex-col items-center" bind:this={player_parents[idx]}>
                 <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card?.name}</h2>
+                {#if card?.bingo}
+                <h2 class="font-poppins capitalize text-base font-bold">{placingth(card?.bingo_position)}</h2>
+                <h2 class="font-poppins capitalize text-sm">{moment(card?.bingo_at).format('hh:mm A - DD/MM')}</h2>
+                {/if}
               </div>
               <PlayerMini player_id={card._id} />
             </a>

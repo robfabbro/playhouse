@@ -127,6 +127,11 @@ Meteor.methods({
   'add_option'(game_id, name){
     OptionsCollection.insert({game_id: game_id, name:name})
   },
+  'reorder_results'(game_id){
+    CardsCollection.find({game_id:game_id, bingo:true}, {sort: {bingo_at: 1}}).fetch().forEach((player, idx)=>{
+      CardsCollection.update({_id:player._id}, {$set:{bingo_position: idx + 1}})
+    })
+  },
   'add_player'(game_id, name){
     let options = _.shuffle(OptionsCollection.find({game_id:game_id}).fetch())
     let gameSize = BingoCollection.findOne({_id: game_id}).size
@@ -189,9 +194,10 @@ Meteor.methods({
       }
     }
     if(Math.max(...rows, ...cols, ...diags) >= gameSize){
-      CardsCollection.update({_id:card_option.card_id}, {$set:{bingo:true}})
+      CardsCollection.update({_id:card_option.card_id}, {$set:{bingo:true, bingo_at: new Date()}})
     }else{
-      CardsCollection.update({_id:card_option.card_id}, {$set:{bingo:false}})
+      CardsCollection.update({_id:card_option.card_id}, {$set:{bingo:false, bingo_at: null, bingo_position: null}})
     }
+    Meteor.call('reorder_results', game_id)
   }
 })

@@ -9,8 +9,7 @@
   import Contact from "/imports/ui/components/Contact.svelte";
   import { params, redirect } from "@roxi/routify";
   import PlayerMini from "/imports/ui/components/PlayerMini.svelte"
-
-
+  import moment from 'moment'
   import { inview } from 'svelte-inview';
   import type { ObserverEventDetails, Options } from 'svelte-inview';
   import { OptionsCollection } from "/imports/api/options";
@@ -46,6 +45,13 @@ let saveCard = ()=>{
     }
   })
 }
+const placingth = (placing) => {
+      if ([11, 12, 13].includes(placing)) {
+        return `${placing}` + 'th'
+      } else {
+        return `${placing}` + (placing % 10 === 1 ? 'st' : placing % 10 === 2 ? 'nd' : placing % 10 === 3 ? 'rd' : 'th')
+      }
+    }
 
 let savePlayer = ()=>{
   loading = true
@@ -145,13 +151,16 @@ $m: {
         class:fade-in={show}
         class="mt-10 grid gap-1 grid-cols-3 mb-10 px-1">
         {#each cards as card, idx}
-            <a href={`/${game_id}/${card._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 hover:bg-green-400 text-center flex flex-col items-center" >
-              <div class="text-center h-20 my-auto flex items-center" bind:this={player_parents[idx]}>
-                <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card?.name}</h2>
-              </div>
-              <PlayerMini player_id={card._id} />
-            </a>
-            
+          <a href={`/${game_id}/${card?._id}`} class="bg-base-100 px-1 shadow-sm container rounded-lg active:bg-green-400 text-center flex flex-col gap-4 items-center" >
+            <div class="text-center h-20 my-auto flex flex-col items-center" bind:this={player_parents[idx]}>
+              <h2 use:textfit={{mode:"multi",parent:player_parents[idx]}} class="font-poppins capitalize">{card?.name}</h2>
+              {#if card?.bingo}
+              <h2 class="font-poppins capitalize text-base font-bold">{placingth(card?.bingo_position)}</h2>
+              <h2 class="font-poppins capitalize text-sm">{moment(card?.bingo_at).format('hh:mm A - DD/MM')}</h2>
+              {/if}
+            </div>
+            <PlayerMini player_id={card._id} />
+          </a>
         {/each}
       </div>
     </div>
@@ -240,11 +249,14 @@ $m: {
 
 <dialog class="modal" bind:this={playerModal}>
   {#if game}
-  <div class="modal-box">
+  <div class="modal-box flex flex-col gap-4">
     <h3 class="font-bold text-lg">Add a player</h3>
-    <p class="py-4" >Press ESC key or click outside to close</p>
+    <p class="">Press ESC key or click outside to close</p>
+    {#if cards.length === 0}
+    <p class="text-red-800">Note: You will no longer be able to add more options once you add a player</p>
+    {/if}
     {#if game_options.length < (game.size * game.size)}
-    <p class="py-4 text-lg font-semibold" >You need to add more options before you can add players.</p>
+    <p class="text-lg font-semibold" >You need to add more options before you can add players.</p>
     {:else}
     <input bind:value={newPlayerName} type="text" placeholder="Enter the name of your player" class="input input-bordered input-primary w-full" />
     <div class="pt-2" >
