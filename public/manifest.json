@@ -1,6 +1,6 @@
 {
-  "short_name": "BINGO",
-  "name": "BINGO - Fun For All Ages",
+  "short_name": "Kelly Pool",
+  "name": "Kelly Pool - Where Every Shot Counts!",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#E8E8E8",
@@ -8,25 +8,25 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/bingo.png",
+      "src": "/favicon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/bingo.png",
+      "src": "/favicon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/bingo.png",
+      "src": "/favicon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/bingo.png",
+      "src": "/favicon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

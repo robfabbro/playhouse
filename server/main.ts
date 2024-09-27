@@ -1,203 +1,94 @@
 import { Meteor } from 'meteor/meteor';
-import webpush  from 'web-push';
-import dayjs from 'dayjs';
-import timezone from 'dayjs/plugin/timezone'
-import utc from 'dayjs/plugin/utc'
 import {HTTP} from 'meteor/http'
-import { BingoCollection } from '/imports/api/bingos';
-import { CardOptionsCollection, CardsCollection } from '/imports/api/cards';
-import { OptionsCollection } from '/imports/api/options';
-import _ from 'lodash'
+import { GameCollection } from '/imports/api/games';
+import { PlayersCollection } from '/imports/api/players';
 import { Random } from 'meteor/random';
+import _ from 'lodash'
 
-dayjs.extend(utc)
-dayjs.extend(timezone)
-
-webpush.setVapidDetails(
-  `mailto:${'ben@techreative.com.au'}`,
-  Meteor.settings.public.vapid,
-  Meteor.settings.private.vapid
-)
-
-let melbourne = 'Australia/Melbourne'
-
-const calcDiffWeeks = (rubbish)=>{
-  if(!rubbish){
-    return false
-  }
-
-  if(rubbish.schedule == 'weekly'){
-    return true
-  }
-
-  if(rubbish.schedule == 'fortnightly'){
-    const tomorrow = dayjs().tz(melbourne).add(1, 'day')
-    let diff = tomorrow.diff(dayjs(rubbish.start_date).tz(melbourne),'weeks')
-    return diff % 2 == 0
-  }
-
-  return false
-}
-
-Meteor.publish('cards', function(game_id){
-  return [CardsCollection.find({game_id:game_id}), CardOptionsCollection.find({game_id:game_id})]
+Meteor.publish('players', function(game_id){
+  return [PlayersCollection.find({game_id:game_id})]
 })
 
-Meteor.publish('options', function(game_id){
-  return OptionsCollection.find({game_id:game_id})
-})
-
-Meteor.publish('bingos', function(){
-  return BingoCollection.find()
+Meteor.publish('games', function(){
+  return GameCollection.find()
 })
 
 Meteor.methods({
-  "form_fill"(name, email, message){
-    HTTP.post("https://techreative.webhook.office.com/webhookb2/cea742d6-3ea8-4616-9d0b-8f464c433f76@89f77634-b5c8-46e8-b522-4d8fe636eed2/IncomingWebhook/89d9069cdf5947aba18df9c427fc1cee/da573cb8-c5cb-41cd-aed2-c280113454a0",
-      {data:{
-        "type":"message",
-        "attachments":[
-            {
-              "contentType":"application/vnd.microsoft.card.adaptive",
-              "contentUrl":null,
-              "content":{
-                "type": "AdaptiveCard",
-                "body": [
-                    {
-                        "type": "TextBlock",
-                        "size": "Medium",
-                        "weight": "Bolder",
-                        "text": "Website Form Filled"
-                    },
-                    {
-                        "type": "ColumnSet",
-                        "columns": [
-                            {
-                                "type": "Column",
-                                "items": [
-                                    {
-                                        "type": "TextBlock",
-                                        "weight": "Bolder",
-                                        "text": `${name}`,
-                                        "wrap": true
-                                    },
-                                    {
-                                      "type": "TextBlock",
-                                      "spacing": "None",
-                                      "text": `${email}`,
-                                      "isSubtle": true,
-                                      "wrap": true
-                                  }
-                                ],
-                                "width": "stretch"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "TextBlock",
-                        "text": `This user has just filled out the contact form!`,
-                        "wrap": true
-                    }
-                    {
-                      "type": "TextBlock",
-                      "text": `${message}`,
-                      "wrap": true
-                  }
-                ],
-                "actions": [
-                    {
-                        "type": "Action.OpenUrl",
-                        "title": "Wohoo",
-                        "url": `https://techreative.com.au`
-                    },
-                ],
-                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                "version": "1.4"
-              }
-            }
-          ]
-        }
-    })
-  },
-  "new_game"(name, size){
+  "new_game"(name){
     let code = Random.id(4)
-    let id = BingoCollection.insert({name:name.toLowerCase(), code:code.toLowerCase(), size: size})
+    let id = GameCollection.insert({name:name.toLowerCase(), code:code.toLowerCase()})
     return id
   },
-  'add_option'(game_id, name){
-    OptionsCollection.insert({game_id: game_id, name:name})
-  },
-  'reorder_results'(game_id){
-    CardsCollection.find({game_id:game_id, bingo:true}, {sort: {bingo_at: 1}}).fetch().forEach((player, idx)=>{
-      CardsCollection.update({_id:player._id}, {$set:{bingo_position: idx + 1}})
-    })
-  },
-  'add_player'(game_id, name){
-    let options = _.shuffle(OptionsCollection.find({game_id:game_id}).fetch())
-    let gameSize = BingoCollection.findOne({_id: game_id}).size
-    let cards = []
-    
-    let y = 0
-    let z = 0
-    while(y < gameSize){
-      let x = 0
-      while(x < gameSize){
-        cards.push({
-          option:options[z],
-          x:x, 
-          y:y,
-          marked: false
-        })
-        x = x + 1
-        z = z + 1
-      }
-      y = y + 1
-    }
-    let card_id = CardsCollection.insert({game_id: game_id, name:name.toLowerCase()})
-    for(let card of cards){
-      CardOptionsCollection.insert({
-        game_id:game_id,
-        card_id: card_id,
-        ...card
-      })
-    }
+  'add_player'(game_id, name, code){
+    PlayersCollection.insert({game_id: game_id, name:name, code:code})
   }, 
-  'toggle'(card_option, game_id){
-    console.log("called toggle", card_option)
-    let gameSize = BingoCollection.findOne({_id: game_id}).size
-    if(card_option && card_option._id){
-      CardOptionsCollection.update({_id:card_option._id}, {$set:{marked:!card_option.marked}})
-    }
-    let player = CardsCollection.findOne({_id:card_option.card_id})
-    let player_cards = CardOptionsCollection.find({card_id:player._id}).fetch()
-    let rows = []
-    let diags = [0,0]
-    for(let x = 0; x < gameSize; x = x+1){
-      rows[x] = 0
-      for(let y = 0; y < gameSize; y = y+1){
-        let val = player_cards.find(p=>(p.x == x && p.y == y))
-        rows[x] = val.marked ? rows[x] + 1 : rows[x]
-        if(x == y && val.marked){
-          diags[0] = diags[0] + 1
-        }
-        if((x + y) == (gameSize - 1) && val.marked){
-          diags[1] = diags[1] + 1
-        }
+  'sink_ball'(game_id, ball_to_sink){
+
+    // Step 1: Update the game by adding the ball to the sunk balls array
+    GameCollection.update({_id:game_id}, {$push:{sunk_balls:ball_to_sink}})
+
+    // Step 2: Update the player (who has this ball) balls array so that the ball is marked as sunk
+    let player = PlayersCollection.findOne({game_id:game_id, balls:{$elemMatch:{ball:ball_to_sink}}})
+    let player_balls = player.balls.map((ball)=>{
+      if(ball.ball == ball_to_sink){
+        ball.status = "sunk"
+        ball.sunk_time = new Date()
+      }
+      return ball
+    }) 
+    PlayersCollection.update({_id:player._id}, {$set:{balls:player_balls}})
+
+
+    // Step 3: Get the game mode of the game
+    let game = GameCollection.findOne({_id:game_id})
+    let game_mode = game.game_mode
+
+    // Step 4: If the game mode is "stay_alive", mark the player as finished if they have no balls left
+    if(game_mode == "stay_alive"){
+      let alive_balls = player_balls.filter((ball)=>ball.status == "alive")
+      if(alive_balls.length == 0){
+        PlayersCollection.update({_id:player._id}, {$set:{finished_at: new Date()}})
+      }
+    } 
+
+    // Step 5: If the game mode is "sink_all", mark the player as finished if all their balls are sunk
+    if(game_mode == "sink_all"){
+      let sunk_balls = player_balls.filter((ball)=>ball.status == "sunk")
+      if(sunk_balls.length == player_balls.length){
+        PlayersCollection.update({_id:player._id}, {$set:{finished_at: new Date()}})
       }
     }
-    let cols = []
-    for(let y = 0; y < gameSize; y = y+1){
-      cols[y] = 0
-      for(let x = 0; x < gameSize; x = x+1){
-        let val = player_cards.find(p=>(p.x == x && p.y == y))
-        cols[y] = val.marked ? cols[y] + 1 : cols[y]
-      }
+
+    // Step 6: If all but one player is finished, end the game
+    let players = PlayersCollection.find({game_id:game_id}).fetch()
+    let finished_players = players.filter((player)=>player.finished_at)
+    if(players.length - finished_players.length <= 1){
+      GameCollection.update({_id:game_id}, {$set:{end_time:new Date()}})
     }
-    if(Math.max(...rows, ...cols, ...diags) >= gameSize){
-      CardsCollection.update({_id:card_option.card_id}, {$set:{bingo:true, bingo_at: new Date()}})
-    }else{
-      CardsCollection.update({_id:card_option.card_id}, {$set:{bingo:false, bingo_at: null, bingo_position: null}})
-    }
-    Meteor.call('reorder_results', game_id)
-  }
+
+  }, 
+  'start_game'(game_id, game_mode){
+
+    // Step 1: Update the game with a start time, game mode and sunk balls array
+    GameCollection.update({_id:game_id}, {$set:{game_mode:game_mode, start_time:new Date(), sunk_balls:[]}})
+
+    // Step 2: Get all the players for the game
+    let players = PlayersCollection.find({game_id:game_id}).fetch()
+
+    // Step 3: Find out how many balls each player gets
+    let balls_per_player = Math.floor(15 / players.length)
+
+    // Step 4: For each player, add a random ball (1-15) to their hand, no player can have the same ball
+    let balls = _.shuffle(_.range(1,16))
+    players.forEach((player, index)=>{
+      let player_balls = balls.slice(index*balls_per_player, (index+1)*balls_per_player)
+      player_balls = player_balls.sort((a, b) => a - b).map((ball) => {
+        return {ball:ball, status:"alive"}
+      })
+
+      PlayersCollection.update({_id:player._id}, {$set:{balls:player_balls}})
+    })
+    
+
+  },
 })

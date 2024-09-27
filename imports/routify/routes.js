@@ -1,11 +1,11 @@
 
 /**
  * @roxi/routify 2.18.15
- * File generated Sat Mar 23 2024 17:14:20 GMT+1100 (Australian Eastern Daylight Time)
+ * File generated Fri Sep 27 2024 18:14:32 GMT+1000 (Australian Eastern Standard Time)
  */
 
 export const __version = "2.18.15"
-export const __timestamp = "2024-03-23T06:14:20.344Z"
+export const __timestamp = "2024-09-27T08:14:32.918Z"
 
 //buildRoutes
 import { buildClientTree } from "@roxi/routify/runtime/buildRoutes"
@@ -22,7 +22,7 @@ export const _tree = {
   "filepath": "/_layout.svelte",
   "root": true,
   "ownMeta": {},
-  "absolutePath": "/Users/ben/tech_bingo/imports/ui/pages/_layout.svelte",
+  "absolutePath": "/Users/robfabbro/kelly_pool/imports/ui/pages/_layout.svelte",
   "children": [
     {
       "isFile": false,
@@ -32,57 +32,8 @@ export const _tree = {
       "name": "[game_id]",
       "ext": "",
       "badExt": false,
-      "absolutePath": "/Users/ben/tech_bingo/imports/ui/pages/[game_id]",
+      "absolutePath": "/Users/robfabbro/kelly_pool/imports/ui/pages/[game_id]",
       "children": [
-        {
-          "isFile": false,
-          "isDir": true,
-          "file": "[player_id]",
-          "filepath": "/[game_id]/[player_id]",
-          "name": "[player_id]",
-          "ext": "",
-          "badExt": false,
-          "absolutePath": "/Users/ben/tech_bingo/imports/ui/pages/[game_id]/[player_id]",
-          "children": [
-            {
-              "isFile": true,
-              "isDir": false,
-              "file": "index.svelte",
-              "filepath": "/[game_id]/[player_id]/index.svelte",
-              "name": "index",
-              "ext": "svelte",
-              "badExt": false,
-              "absolutePath": "/Users/ben/tech_bingo/imports/ui/pages/[game_id]/[player_id]/index.svelte",
-              "importPath": "../ui/pages/[game_id]/[player_id]/index.svelte",
-              "isLayout": false,
-              "isReset": false,
-              "isIndex": true,
-              "isFallback": false,
-              "isPage": true,
-              "ownMeta": {},
-              "meta": {
-                "recursive": true,
-                "preload": false,
-                "prerender": true
-              },
-              "path": "/:game_id/:player_id/index",
-              "id": "__game_id__player_id_index",
-              "component": () => import('../ui/pages/[game_id]/[player_id]/index.svelte').then(m => m.default)
-            }
-          ],
-          "isLayout": false,
-          "isReset": false,
-          "isIndex": false,
-          "isFallback": false,
-          "isPage": false,
-          "ownMeta": {},
-          "meta": {
-            "recursive": true,
-            "preload": false,
-            "prerender": true
-          },
-          "path": "/:game_id/:player_id"
-        },
         {
           "isFile": true,
           "isDir": false,
@@ -91,7 +42,7 @@ export const _tree = {
           "name": "index",
           "ext": "svelte",
           "badExt": false,
-          "absolutePath": "/Users/ben/tech_bingo/imports/ui/pages/[game_id]/index.svelte",
+          "absolutePath": "/Users/robfabbro/kelly_pool/imports/ui/pages/[game_id]/index.svelte",
           "importPath": "../ui/pages/[game_id]/index.svelte",
           "isLayout": false,
           "isReset": false,
@@ -130,7 +81,7 @@ export const _tree = {
       "name": "index",
       "ext": "svelte",
       "badExt": false,
-      "absolutePath": "/Users/ben/tech_bingo/imports/ui/pages/index.svelte",
+      "absolutePath": "/Users/robfabbro/kelly_pool/imports/ui/pages/index.svelte",
       "importPath": "../ui/pages/index.svelte",
       "isLayout": false,
       "isReset": false,
