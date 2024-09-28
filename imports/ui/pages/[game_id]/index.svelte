@@ -35,6 +35,8 @@
 	let playerToViewCodeOptions;
 	let playerToViewShowBalls = false;
 	let ballToSink;
+	let isAdmin = false;
+	let playerAffectedBySink = null;
 
 	let player_parents = [];
 	let option_parents = [];
@@ -67,6 +69,7 @@
 
 	const closeSinkBallModal = () => {
 		ballToSink = null;
+		playerAffectedBySink = null;
 		sinkBallModal.close();
 	};
 
@@ -168,7 +171,9 @@
 		Meteor.call("sink_ball", game_id, ballToSink, (err, res) => {
 			if (!err) {
 				loading = false;
-				closeSinkBallModal();
+				console.log({ res });
+				playerAffectedBySink = res;
+				// closeSinkBallModal();
 			}
 		});
 	};
@@ -195,6 +200,11 @@
 			)
 			.sort((a, b) => b.finished_at - a.finished_at);
 		game = GameCollection.findOne({ _id: game_id });
+
+		if (localStorage.getItem("admin_games")) {
+			let adminGames = JSON.parse(localStorage.getItem("admin_games"));
+			isAdmin = adminGames.includes(game_id);
+		}
 
 		ballsAlive = _.range(1, 16).filter((ball) => {
 			let sunkBalls = game?.sunk_balls || [];
@@ -318,13 +328,18 @@
 				</button>
 			{/if}
 			<!-- Add Player Header -->
+		</div>
 
-			<!-- Players Before Game Start -->
-			{#if !game?.start_time}
+		<!-- Players Before Game Start -->
+		{#if !game?.start_time}
+			<div
+				class:invisible={!show}
+				class:fade-in={show}
+				class="flex items-center justify-center gap-5"
+			>
 				<div class="mt-6 grid gap-1 grid-cols-3 mb-10 px-1">
 					{#each players as player, idx}
-						<a
-							href={`/${game_id}/${player?._id}`}
+						<div
 							class="w-full bg-base-100 px-1 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32"
 						>
 							<div
@@ -373,13 +388,12 @@
 									</div>
 								</div>
 							{/if}
-						</a>
+						</div>
 					{/each}
 				</div>
-			{/if}
-			<!-- Players Before Game Start -->
-		</div>
-
+			</div>
+		{/if}
+		<!-- Players Before Game Start -->
 		<!-- Game When Started -->
 		{#if game?.start_time}
 			<div
@@ -457,10 +471,10 @@
 									<div
 										class:invisible={!show}
 										class:fade-in={show}
-										class={`flex gap-1 mb-4 px-1`}
+										class={`flex flex-wrap gap-1 mb-4 px-1`}
 									>
 										{#each player?.balls || [] as ball, idx}
-											{#if alivePlayers?.length === 1}
+											{#if alivePlayers?.length === 1 || ball.status === "sunk"}
 												<div
 													class:w-12={player?.balls?.length < 3}
 													class:h-12={player?.balls?.length < 3}
@@ -803,44 +817,90 @@
 					/>
 				</svg>
 			</button>
-			<h3 class="font-bold text-lg">Sink Ball</h3>
-			<div class="flex flex-wrap items-center justify-center gap-2">
-				<img
-					src={`/assets/pool_balls/${ballToSink}.svg`}
-					alt={`Ball ${ballToSink}`}
-					class="h-20 w-20"
-				/>
-			</div>
-			<div class="mt-6">
-				<button
-					class="btn bg-[#50B9AB] md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
-					on:click={sinkBall}
-				>
-					Sink this Ball!
-					{#if loading}
-						<svg
-							class="animate-spin ml-2 h-5 w-5"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-						>
-							<circle
-								class="opacity-25"
-								cx="12"
-								cy="12"
-								r="10"
-								stroke="currentColor"
-								stroke-width="4"
-							/>
-							<path
-								class="opacity-75"
-								fill="currentColor"
-								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-							/>
-						</svg>
+			{#if playerAffectedBySink === null}
+				<h3 class="font-bold text-lg">Sink Ball</h3>
+				<div class="flex flex-wrap items-center justify-center gap-2">
+					<img
+						src={`/assets/pool_balls/${ballToSink}.svg`}
+						alt={`Ball ${ballToSink}`}
+						class="h-20 w-20"
+					/>
+				</div>
+
+				<div class="mt-6">
+					<button
+						class="btn bg-[#50B9AB] md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
+						on:click={sinkBall}
+					>
+						Sink this Ball!
+						{#if loading}
+							<svg
+								class="animate-spin ml-2 h-5 w-5"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								/>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								/>
+							</svg>
+						{/if}
+					</button>
+				</div>
+			{:else}
+				<h3 class="font-bold text-lg">Ball Sunk</h3>
+				<div class="mt-6">
+					<p class="text-center">
+						{playerAffectedBySink?.name || "No one's"}'s ball has been sunk!
+					</p>
+					{#if playerAffectedBySink?.finished_at}
+						<p class="text-center">
+							And this player {game?.game_mode === "stay_alive"
+								? "been eliminated!"
+								: "finished!"}
+						</p>
 					{/if}
-				</button>
-			</div>
+
+					<button
+						class="mt-6 btn bg-[#50B9AB] md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
+						on:click={closeSinkBallModal}
+					>
+						Close!
+						{#if loading}
+							<svg
+								class="animate-spin ml-2 h-5 w-5"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								/>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								/>
+							</svg>
+						{/if}
+					</button>
+				</div>
+			{/if}
 		</div>
 		<form method="dialog" class="modal-backdrop">
 			<button on:click={closeSinkBallModal}>close</button>

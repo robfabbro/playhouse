@@ -30,7 +30,14 @@
 		Meteor.call("new_game", newGameName, (err, res) => {
 			if (!err) {
 				$goto(`/${res}`);
-				console.log(res);
+				let adminGames = localStorage.getItem("admin_games");
+				if (adminGames) {
+					let games = JSON.parse(adminGames);
+					games.push(res);
+					localStorage.setItem("admin_games", JSON.stringify(games));
+				} else {
+					localStorage.setItem("admin_games", JSON.stringify([res]));
+				}
 			}
 		});
 	};

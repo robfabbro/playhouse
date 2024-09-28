@@ -29,22 +29,26 @@ Meteor.methods({
 
     // Step 2: Update the player (who has this ball) balls array so that the ball is marked as sunk
     let player = PlayersCollection.findOne({game_id:game_id, balls:{$elemMatch:{ball:ball_to_sink}}})
-    let player_balls = player.balls.map((ball)=>{
-      if(ball.ball == ball_to_sink){
-        ball.status = "sunk"
-        ball.sunk_time = new Date()
-      }
-      return ball
-    }) 
-    PlayersCollection.update({_id:player._id}, {$set:{balls:player_balls}})
+    let player_balls = player?.balls || []
 
+    if(player){
+      player_balls = player.balls.map((ball)=>{
+        if(ball.ball == ball_to_sink){
+          ball.status = "sunk"
+          ball.sunk_time = new Date()
+        }
+        return ball
+      }) 
+      PlayersCollection.update({_id:player._id}, {$set:{balls:player_balls}})
+    }
+      
 
     // Step 3: Get the game mode of the game
     let game = GameCollection.findOne({_id:game_id})
     let game_mode = game.game_mode
 
     // Step 4: If the game mode is "stay_alive", mark the player as finished if they have no balls left
-    if(game_mode == "stay_alive"){
+    if(game_mode == "stay_alive" && player){
       let alive_balls = player_balls.filter((ball)=>ball.status == "alive")
       if(alive_balls.length == 0){
         PlayersCollection.update({_id:player._id}, {$set:{finished_at: new Date()}})
@@ -52,11 +56,12 @@ Meteor.methods({
     } 
 
     // Step 5: If the game mode is "sink_all", mark the player as finished if all their balls are sunk
-    if(game_mode == "sink_all"){
+    if(game_mode == "sink_all" && player){
       let sunk_balls = player_balls.filter((ball)=>ball.status == "sunk")
       if(sunk_balls.length == player_balls.length){
         PlayersCollection.update({_id:player._id}, {$set:{finished_at: new Date()}})
       }
+      player = PlayersCollection.findOne({_id:player._id})
     }
 
     // Step 6: If all but one player is finished, end the game
@@ -66,6 +71,7 @@ Meteor.methods({
       GameCollection.update({_id:game_id}, {$set:{end_time:new Date()}})
     }
 
+    return player
   }, 
   'start_game'(game_id, game_mode){
 
