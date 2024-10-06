@@ -1,11 +1,11 @@
 
 /**
  * @roxi/routify 2.18.15
- * File generated Sat Sep 28 2024 18:37:59 GMT+1000 (Australian Eastern Standard Time)
+ * File generated Mon Oct 07 2024 10:27:15 GMT+1100 (Australian Eastern Daylight Time)
  */
 
 export const __version = "2.18.15"
-export const __timestamp = "2024-09-28T08:37:59.071Z"
+export const __timestamp = "2024-10-06T23:27:15.099Z"
 
 //buildRoutes
 import { buildClientTree } from "@roxi/routify/runtime/buildRoutes"
@@ -22,7 +22,7 @@ export const _tree = {
   "filepath": "/_layout.svelte",
   "root": true,
   "ownMeta": {},
-  "absolutePath": "/Users/robfabbro/kelly_pool/imports/ui/pages/_layout.svelte",
+  "absolutePath": "/Users/ben/kelly-pool/imports/ui/pages/_layout.svelte",
   "children": [
     {
       "isFile": false,
@@ -32,7 +32,7 @@ export const _tree = {
       "name": "[game_id]",
       "ext": "",
       "badExt": false,
-      "absolutePath": "/Users/robfabbro/kelly_pool/imports/ui/pages/[game_id]",
+      "absolutePath": "/Users/ben/kelly-pool/imports/ui/pages/[game_id]",
       "children": [
         {
           "isFile": true,
@@ -42,7 +42,7 @@ export const _tree = {
           "name": "index",
           "ext": "svelte",
           "badExt": false,
-          "absolutePath": "/Users/robfabbro/kelly_pool/imports/ui/pages/[game_id]/index.svelte",
+          "absolutePath": "/Users/ben/kelly-pool/imports/ui/pages/[game_id]/index.svelte",
           "importPath": "../ui/pages/[game_id]/index.svelte",
           "isLayout": false,
           "isReset": false,
@@ -76,12 +76,37 @@ export const _tree = {
     {
       "isFile": true,
       "isDir": false,
+      "file": "camera.svelte",
+      "filepath": "/camera.svelte",
+      "name": "camera",
+      "ext": "svelte",
+      "badExt": false,
+      "absolutePath": "/Users/ben/kelly-pool/imports/ui/pages/camera.svelte",
+      "importPath": "../ui/pages/camera.svelte",
+      "isLayout": false,
+      "isReset": false,
+      "isIndex": false,
+      "isFallback": false,
+      "isPage": true,
+      "ownMeta": {},
+      "meta": {
+        "recursive": true,
+        "preload": false,
+        "prerender": true
+      },
+      "path": "/camera",
+      "id": "_camera",
+      "component": () => import('../ui/pages/camera.svelte').then(m => m.default)
+    },
+    {
+      "isFile": true,
+      "isDir": false,
       "file": "index.svelte",
       "filepath": "/index.svelte",
       "name": "index",
       "ext": "svelte",
       "badExt": false,
-      "absolutePath": "/Users/robfabbro/kelly_pool/imports/ui/pages/index.svelte",
+      "absolutePath": "/Users/ben/kelly-pool/imports/ui/pages/index.svelte",
       "importPath": "../ui/pages/index.svelte",
       "isLayout": false,
       "isReset": false,
