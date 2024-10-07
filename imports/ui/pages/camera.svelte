@@ -135,7 +135,7 @@
 					<h1
 						class="font-poppins text-7xl font-black uppercase md:text-7xl text-center outline-text md:whitespace-nowrap"
 					>
-						Kelly Pool
+						Kelly Cam
 					</h1>
 					<div class="w-full flex justify-center items-center">
 						<div class="relative w-full h-full">
