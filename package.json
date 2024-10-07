@@ -23,6 +23,7 @@
     "autoprefixer": "^10.4.17",
     "daisyui": "^4.6.0",
     "dayjs": "^1.11.10",
+    "http-proxy": "^1.18.1",
     "leaflet": "^1.9.4",
     "leaflet-filelayer": "^1.2.0",
     "leaflet-kml": "^1.0.1",

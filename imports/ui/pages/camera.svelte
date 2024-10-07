@@ -77,12 +77,30 @@
 	let imageSrc
 	let canvas
 	let poolSrc
-
+	let cameras = []
+	let cameraId
+	let playing = false
+	let interval
 
 	const play = async () => {
-		let stream = await navigator.mediaDevices.getUserMedia({video: true, audio: false})
+		console.log(cameraId)
+		playing = true
+		let stream = await navigator.mediaDevices.getUserMedia({video: {deviceId:cameraId}, audio: false})
+	
 		videoStream.srcObject = stream
 		videoStream.play()
+		if(!interval){
+			interval = Meteor.setInterval(() => {
+				cap()
+			}, 1000);
+		}
+	}
+
+	const stop = async () => {
+		if(interval){
+			clearTimeout(interval)
+			interval = null
+		}
 	}
 
 	const cap = async () =>{
@@ -94,6 +112,12 @@
 		let data = await Meteor.callAsync('test_cv',canvas.toDataURL('image/png'))
 		imageSrc.src = data
 	}
+
+	onMount(async ()=>{
+		let devices = await navigator.mediaDevices.enumerateDevices()
+		cameras = devices.filter((v)=>v.kind == "videoinput")
+	})
+
 </script>
 
 <div
@@ -124,6 +148,11 @@
 					<img class="w-full" alt="you" bind:this={imageSrc}/>
 					<!-- <img class="w-full" bind:this={poolSrc} src="/pool1.jpg"/> -->
 					<canvas class="w-full hidden" bind:this={canvas} />
+					<select bind:value={cameraId}>
+						{#each cameras as camera}
+						<option value={camera.deviceId}>{camera.label}</option>
+						{/each}
+					</select>
 					<div class="flex gap-2 max-lg:justify-center">
 						<button
 							type="button"
@@ -134,9 +163,10 @@
 						</button>
 						<button
 							type="button"
+							on:click={stop}
 							class="btn btn-accent md:btn-lg rounded-full font-poppins shadow-lg border-black"
 						>
-							PAUSE
+							STOP
 						</button>
 						<button
 							type="button"

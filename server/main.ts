@@ -165,26 +165,56 @@ const findSimilarPointOnCenterSpiral = (image, diff = 20, angleSteps = 100, radi
 }
 
 // segmenting by skin color (has to be adjusted)
-const colourUpper = (hue: number, L, S) => new cv.Vec3(hue <= 169 ? hue+10 : hue, L <= 205 ? L + 50 : 255, S <= 205 ? S + 50 : 255);
-const colourLower = (hue: number, L, S) => new cv.Vec3(hue >= 10 ? hue-10 : hue, L > 50 ? L-50 : 0, S > 50 ? S-50 : 0);
+const colourUpper = (hue: number, L, S, adj) => new cv.Vec3(hue <= 169 ? hue+10 : hue, Math.min(255, L+adj), Math.min(255,S+adj));
+const colourLower = (hue: number, L, S, adj) => new cv.Vec3(hue >= 10 ? hue-10 : hue, Math.max(0,L-adj), Math.max(0,S-adj));
 
 
 const makeMask = (img: Mat, point) => {
   
   // convert to HLS (whites become super green, blacks become super red)
   // however since we already filled the table with white we can skip.
-  const imgHLS = img.cvtColor(cv.COLOR_BGR2HLS);
-  // const imgHLS = img
-  let mask = new cv.Mat(img.rows+2, img.cols+2, cv.CV_8U)
-  let img3 = imgHLS.cvtColor(cv.COLOR_BGR2GRAY).canny(30,255).copyMakeBorder(1, 1, 1, 1, cv.BORDER_REPLICATE)
-  let contours = img3.findContours(cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+  let img2 = img.cvtColor(cv.COLOR_BGR2HLS);
+  
+  // return img2
+  let mask = new cv.Mat(img2.rows+2, img2.cols+2, cv.CV_8U)
+  // img = img.adaptiveThreshold(120 ,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 1, 0.9)
+  img2 = img2.blur(new cv.Size(10, 10)) //.threshold(150,255,cv.THRESH_BINARY)
+  // return img
+  let col = img2.at(point.y, point.x)
+  img2 = img2.inRange(colourLower(col.x, col.y, col.z, 80), colourUpper(col.x, col.y, col.z, 80));
+  // return img
+  // let img3 = img.cvtColor(cv.COLOR_BGR2GRAY).canny(100,180).copyMakeBorder(1, 1, 1, 1, cv.BORDER_REPLICATE)
+  // return img3
+  let contours = img2.findContours(cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+  // return img
+
+  let contour = contours.sort((c0, c1) => c1.area - c0.area)[0]
+
+  console.log(contour)
+  img.drawContours([contour.getPoints()],0,new cv.Vec3(255,0,0), {thickness:5})
+  
+    let hull = contour.convexHull()
+
+    hull = hull.approxPolyDPContour(10, true)
+    const maxPointDist = 150;
+    const hullIndices = getRoughHull(hull, maxPointDist);
+    img.drawContours([hull.getPoints()],0,new cv.Vec3(0,255,0), {thickness:5})
+    
+    for(let a of hullIndices){
+      img.drawCircle(
+        a.pt, 20, new cv.Vec3(255,255,0), 4, cv.LINE_4
+      )
+    }
+  
+  return img
+  // return imgHLS
   // img3.drawContours([contours[0].getPoints()],0,new cv.Vec3(0,255,0), {thickness:5})  
-  let {returnValue, rect} = imgHLS.floodFill(point, new Vec3(255,255,255), img3, new cv.Vec3(10,10,10), new cv.Vec3(10,10,10))
+  let {returnValue, rect} = img.floodFill(point, new Vec3(255,255,255), img3, new cv.Vec3(5,5,5), new cv.Vec3(10,10,10))
   // console.log(rect)
-  return imgHLS
+  return img
   console.log(point)
   // console.log("colour is", imgHLS.at(point.y, point.x))
-  let col = imgHLS.at(point.y, point.x)
+  // let col = imgHLS.at(point.y, point.x)
   console.log(col)
 
   imgHLS.drawCircle(point, 100, col, 10, cv.LINE_4)
@@ -447,3 +477,38 @@ Meteor.methods({
 
   },
 })
+
+if (Meteor.isDevelopment) {
+  const httpProxy = require('http-proxy');
+
+  const SSL = function(key, cert, port) {
+    const [, , host, targetPort] = Meteor.absoluteUrl().match(/([a-zA-Z]+):\/\/([\-\w\.]+)(?:\:(\d{0,5}))?/);
+    console.log(host, targetPort)
+
+    const proxy = httpProxy
+      .createServer({
+        target: {
+          host,
+          port: 3000,
+        },
+        ssl: {
+          key,
+          cert,
+        },
+        ws: true,
+        xfwd: true,
+        secure: true
+      })
+      .listen(port);
+
+    proxy.on('error', err => {
+      console.log(`HTTP-PROXY NPM MODULE ERROR: ${err}`);
+    });
+
+    // console.log('PROXY RUNNING ON', port, proxy);
+    console.log("SSL Proxy running on: https://localhost:"+port+"/")
+
+  };
+
+  SSL(Assets.getText('localhost.key'), Assets.getText('localhost.cert'), 9000);
+}
