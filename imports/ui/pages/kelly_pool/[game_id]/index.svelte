@@ -1,12 +1,10 @@
 <script lang="ts">
 	import { Meteor } from "meteor/meteor";
-	import Hero from "/imports/ui/components/Hero.svelte";
 	import { params, redirect, goto } from "@roxi/routify";
 	import moment from "moment";
 	import { inview } from "svelte-inview";
 	import type { ObserverEventDetails, Options } from "svelte-inview";
-	import { PlayersCollection } from "/imports/api/players";
-	import { GameCollection } from "/imports/api/games";
+	import { KellyGameCollection, KellyPlayerCollection } from "/imports/api/kelly_pool/collections";
 	import { textfit } from "svelte-textfit";
 	import { onMount } from "svelte";
 	import _ from "lodash";
@@ -85,7 +83,7 @@
 			showPlayerCode = false;
 			unlockAddPlayer = false;
 			let unclaimedCodes = playerCodes.filter((code) => {
-				return !PlayersCollection.find({
+				return !KellyPlayerCollection.find({
 					game_id: game_id,
 					code: code,
 				}).count();
@@ -190,7 +188,7 @@
 	$m: {
 		Meteor.subscribe("players", game_id);
 		Meteor.subscribe("games");
-		players = PlayersCollection.find({ game_id: game_id }).fetch();
+		players = KellyPlayerCollection.find({ game_id: game_id }).fetch();
 		alivePlayers = players.filter(
 			(player) => !player?.balls?.every((ball) => ball?.status === "sunk")
 		);
@@ -199,7 +197,7 @@
 				player?.balls?.every((ball) => ball?.status === "sunk")
 			)
 			.sort((a, b) => b.finished_at - a.finished_at);
-		game = GameCollection.findOne({ _id: game_id });
+		game = KellyGameCollection.findOne({ _id: game_id });
 
 		if (localStorage.getItem("admin_games")) {
 			let adminGames = JSON.parse(localStorage.getItem("admin_games"));

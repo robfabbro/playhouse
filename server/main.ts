@@ -1,12 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 import {HTTP} from 'meteor/http'
-import { GameCollection } from '/imports/api/games';
-import { PlayersCollection } from '/imports/api/players';
+import { KellyGameCollection, KellyPlayerCollection } from '/imports/api/kelly_pool/collections';
 import { Random } from 'meteor/random';
 import _ from 'lodash'
 const fs = require('fs');
-import cv, { inpaint } from '@u4/opencv4nodejs'
-import { Mat, Rect, Net, Vec3, Contour, Point2 } from '@u4/opencv4nodejs';
+// import cv, { inpaint } from '@u4/opencv4nodejs'
+// import { Mat, Rect, Net, Vec3, Contour, Point2 } from '@u4/opencv4nodejs';
 
 interface PointWithIdx {
   pt: Point2;
@@ -363,11 +362,11 @@ const findCorners = (img: Mat) => {
 }
 
 Meteor.publish('players', function(game_id){
-  return [PlayersCollection.find({game_id:game_id})]
+  return [KellyPlayerCollection.find({game_id:game_id})]
 })
 
 Meteor.publish('games', function(){
-  return GameCollection.find()
+  return KellyGameCollection.find()
 })
 
 
@@ -395,19 +394,19 @@ Meteor.methods({
   },
   "new_game"(name){
     let code = Random.id(4)
-    let id = GameCollection.insert({name:name.toLowerCase(), code:code.toLowerCase()})
+    let id = KellyGameCollection.insert({name:name.toLowerCase(), code:code.toLowerCase()})
     return id
   },
   'add_player'(game_id, name, code){
-    PlayersCollection.insert({game_id: game_id, name:name, code:code})
+    KellyPlayerCollection.insert({game_id: game_id, name:name, code:code})
   }, 
   'sink_ball'(game_id, ball_to_sink){
 
     // Step 1: Update the game by adding the ball to the sunk balls array
-    GameCollection.update({_id:game_id}, {$push:{sunk_balls:ball_to_sink}})
+    KellyGameCollection.update({_id:game_id}, {$push:{sunk_balls:ball_to_sink}})
 
     // Step 2: Update the player (who has this ball) balls array so that the ball is marked as sunk
-    let player = PlayersCollection.findOne({game_id:game_id, balls:{$elemMatch:{ball:ball_to_sink}}})
+    let player = KellyPlayerCollection.findOne({game_id:game_id, balls:{$elemMatch:{ball:ball_to_sink}}})
     let player_balls = player?.balls || []
 
     if(player){
@@ -418,19 +417,19 @@ Meteor.methods({
         }
         return ball
       }) 
-      PlayersCollection.update({_id:player._id}, {$set:{balls:player_balls}})
+      KellyPlayerCollection.update({_id:player._id}, {$set:{balls:player_balls}})
     }
       
 
     // Step 3: Get the game mode of the game
-    let game = GameCollection.findOne({_id:game_id})
+    let game = KellyGameCollection.findOne({_id:game_id})
     let game_mode = game.game_mode
 
     // Step 4: If the game mode is "stay_alive", mark the player as finished if they have no balls left
     if(game_mode == "stay_alive" && player){
       let alive_balls = player_balls.filter((ball)=>ball.status == "alive")
       if(alive_balls.length == 0){
-        PlayersCollection.update({_id:player._id}, {$set:{finished_at: new Date()}})
+        KellyPlayerCollection.update({_id:player._id}, {$set:{finished_at: new Date()}})
       }
     } 
 
@@ -438,16 +437,16 @@ Meteor.methods({
     if(game_mode == "sink_all" && player){
       let sunk_balls = player_balls.filter((ball)=>ball.status == "sunk")
       if(sunk_balls.length == player_balls.length){
-        PlayersCollection.update({_id:player._id}, {$set:{finished_at: new Date()}})
+        KellyPlayerCollection.update({_id:player._id}, {$set:{finished_at: new Date()}})
       }
-      player = PlayersCollection.findOne({_id:player._id})
+      player = KellyPlayerCollection.findOne({_id:player._id})
     }
 
     // Step 6: If all but one player is finished, end the game
-    let players = PlayersCollection.find({game_id:game_id}).fetch()
+    let players = KellyPlayerCollection.find({game_id:game_id}).fetch()
     let finished_players = players.filter((player)=>player.finished_at)
     if(players.length - finished_players.length <= 1){
-      GameCollection.update({_id:game_id}, {$set:{end_time:new Date()}})
+      KellyGameCollection.update({_id:game_id}, {$set:{end_time:new Date()}})
     }
 
     return player
@@ -455,10 +454,10 @@ Meteor.methods({
   'start_game'(game_id, game_mode){
 
     // Step 1: Update the game with a start time, game mode and sunk balls array
-    GameCollection.update({_id:game_id}, {$set:{game_mode:game_mode, start_time:new Date(), sunk_balls:[]}})
+    KellyGameCollection.update({_id:game_id}, {$set:{game_mode:game_mode, start_time:new Date(), sunk_balls:[]}})
 
     // Step 2: Get all the players for the game
-    let players = PlayersCollection.find({game_id:game_id}).fetch()
+    let players = KellyPlayerCollection.find({game_id:game_id}).fetch()
 
     // Step 3: Find out how many balls each player gets
     let balls_per_player = Math.floor(15 / players.length)
@@ -471,7 +470,7 @@ Meteor.methods({
         return {ball:ball, status:"alive"}
       })
 
-      PlayersCollection.update({_id:player._id}, {$set:{balls:player_balls}})
+      KellyPlayerCollection.update({_id:player._id}, {$set:{balls:player_balls}})
     })
     
 

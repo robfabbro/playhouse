@@ -6,7 +6,7 @@
 	import { inview } from "svelte-inview";
 	import type { ObserverEventDetails, Options } from "svelte-inview";
 	import { goto } from "@roxi/routify";
-	import { GameCollection } from "/imports/api/games";
+	import { KellyGameCollection } from "/imports/api/kelly_pool/collections";
 	import _ from "lodash";
 
 	let show = false;
@@ -47,7 +47,7 @@
 		if (searchName) {
 			console.log("SEARCH NAME", searchName.toLowerCase());
 
-			let found = GameCollection.findOne({
+			let found = KellyGameCollection.findOne({
 				$or: [
 					{ name: searchName.toLowerCase() },
 					{ code: searchName.toLowerCase() },

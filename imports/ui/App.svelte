@@ -4,6 +4,6 @@
 	import { Router } from "@roxi/routify";
 </script>
 
-<div class="bg-gray-100 h-screen">
+<div class="bg-white h-screen">
 	<Router {routes} />
 </div>
