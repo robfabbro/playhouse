@@ -50,17 +50,18 @@
 	let loading = false;
 
 	let saveGame = (e) => {
+		console.log('saving wolf game')
 		loading = true;
-		Meteor.call("werewolf.new_game", newGameName, (err, res) => {
+		Meteor.call("wolf.new_game", newGameName, (err, res) => {
 			if (!err) {
-				$goto(`/${res}`);
-				let adminGames = localStorage.getItem("admin_games");
+				$goto(`/werewolf/${res}`);
+				let adminGames = localStorage.getItem("wolf_admin_games");
 				if (adminGames) {
 					let games = JSON.parse(adminGames);
 					games.push(res);
-					localStorage.setItem("admin_games", JSON.stringify(games));
+					localStorage.setItem("wolf_admin_games", JSON.stringify(games));
 				} else {
-					localStorage.setItem("admin_games", JSON.stringify([res]));
+					localStorage.setItem("wolf_admin_games", JSON.stringify([res]));
 				}
 			}
 		});
@@ -79,7 +80,7 @@
 			});
 			console.log(found);
 			if (found) {
-				$goto(`/${found._id}`);
+				$goto(`/werewolf/${found._id}`);
 			} else {
 				gameFound = false;
 			}
@@ -87,11 +88,11 @@
 	};
 
 	$m: {
-		Meteor.subscribe("games");
+		Meteor.subscribe("wolf.games");
 	}
 	let past_games;
 
-	let games = localStorage.getItem("past_games");
+	let games = localStorage.getItem("wolf_past_games");
 	if (games) {
 		past_games = JSON.parse(games);
 	}

@@ -139,7 +139,7 @@
 	let savePlayer = () => {
 		loading = true;
 		Meteor.call(
-			"add_player",
+			"kelly.add_player",
 			game_id,
 			newPlayerName,
 			newPlayerCode,
@@ -155,7 +155,7 @@
 
 	let startGame = () => {
 		loading = true;
-		Meteor.call("start_game", game_id, selectedMode, (err, res) => {
+		Meteor.call("kelly.start_game", game_id, selectedMode, (err, res) => {
 			if (!err) {
 				loading = false;
 				selectedMode = "stay_alive";
@@ -166,7 +166,7 @@
 
 	let sinkBall = () => {
 		loading = true;
-		Meteor.call("sink_ball", game_id, ballToSink, (err, res) => {
+		Meteor.call("kelly.sink_ball", game_id, ballToSink, (err, res) => {
 			if (!err) {
 				loading = false;
 				console.log({ res });
@@ -186,8 +186,8 @@
 	let ballsAlive = _.range(1, 16);
 
 	$m: {
-		Meteor.subscribe("players", game_id);
-		Meteor.subscribe("games");
+		Meteor.subscribe("kelly.players", game_id);
+		Meteor.subscribe("kelly.games");
 		players = KellyPlayerCollection.find({ game_id: game_id }).fetch();
 		alivePlayers = players.filter(
 			(player) => !player?.balls?.every((ball) => ball?.status === "sunk")
@@ -199,8 +199,8 @@
 			.sort((a, b) => b.finished_at - a.finished_at);
 		game = KellyGameCollection.findOne({ _id: game_id });
 
-		if (localStorage.getItem("admin_games")) {
-			let adminGames = JSON.parse(localStorage.getItem("admin_games"));
+		if (localStorage.getItem("kelly_admin_games")) {
+			let adminGames = JSON.parse(localStorage.getItem("kelly_admin_games"));
 			isAdmin = adminGames.includes(game_id);
 		}
 
@@ -210,14 +210,14 @@
 		});
 
 		if (game) {
-			let games = localStorage.getItem("past_games");
+			let games = localStorage.getItem("kelly_past_games");
 			if (games) {
 				games = JSON.parse(games);
 				games.push(game);
 				games = _.uniqBy(games, "_id");
-				localStorage.setItem("past_games", JSON.stringify(games));
+				localStorage.setItem("kelly_past_games", JSON.stringify(games));
 			} else {
-				localStorage.setItem("past_games", JSON.stringify([game]));
+				localStorage.setItem("kelly_past_games", JSON.stringify([game]));
 			}
 		}
 
