@@ -68,3 +68,7 @@
 .outline-text {
   text-shadow: -3px -3px 0 #50B9AB, 3px -3px 0 #50B9AB, -3px 3px 0 #50B9AB, 3px 3px 0 #50B9AB;
 }
+
+.zilche-text {
+  text-shadow: -3px -3px 0 rgb(129 140 248), 3px -3px 0 rgb(129 140 248), -3px 3px 0 rgb(129 140 248), 3px 3px 0 rgb(129 140 248);
+}
