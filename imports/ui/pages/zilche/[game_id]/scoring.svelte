@@ -91,20 +91,20 @@
 	};
 
 	const openAddPlayerModal = () => {
-		if (!game?.end_time) {
+		if (!game?.finished) {
 			addPlayerModal.showModal();
 		}
 	};
 
 	const openSinkBallModal = (ball) => {
-		if (!game?.end_time) {
+		if (!game?.finished) {
 			ballToSink = ball;
 			sinkBallModal.showModal();
 		}
 	};
 
 	const openViewPlayerModal = (player) => {
-		if (!game?.end_time) {
+		if (!game?.finished) {
 			playerToView = player;
 			let nonPlayerCodes = playerCodes.filter((code) => {
 				return code !== player.code;
@@ -456,7 +456,7 @@
 	<!-- Start Game Button -->
 
 	<!-- Scoring Mode Button -->
-	{#if game?.start_time && !game?.end_time}
+	{#if game?.start_time && !game?.finished}
 		<div
 			use:inview={options}
 			on:inview_change={handleChange}

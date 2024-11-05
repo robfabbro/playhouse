@@ -81,7 +81,7 @@
 			>{player?.placing || ""}</span
 		>
 		<div class="card-body flex flex-col justify-between">
-			{#if (!game?.final_round || game.turn % players.length <= idx) && !game?.finished}
+			{#if (!game?.final_round || player?.order > game?.order_of_first_finished) && !game?.finished}
 				<div
 					class="font-semibold font-poppins capitalize text-center"
 					class:text-sm={player?.name?.length >= 11}
@@ -96,29 +96,17 @@
 				</div>
 
 				<div class="flex flex-col items-center justify-center pt-4">
-					{#if editingScore == false}
-						<div
-							class={`w-full flex justify-center text-3xl font-poppins cursor-pointer ${is_turn ? "text-black" : ""}`}
-							on:click|stopPropagation={() => (editingScore = true)}
-							on:keydown={() => {}}
-						>
-							{#key `${player.score}-${idx}`}
-								{#each String(playerScore).split("") as num, i}
-									<Digit {num} {i} />
-								{/each}
-							{/key}
-						</div>
-					{:else}
-						<input
-							bind:value={currentScore}
-							class="input input-sm input-bordered input-text"
-							type="text"
-						/>
-						<button
-							class="btn btn-sm btn-secondary"
-							on:click|stopPropagation={() => confirmScore()}>Confirm</button
-						>
-					{/if}
+					<div
+						class={`w-full flex justify-center text-3xl font-poppins cursor-pointer ${is_turn ? "text-black" : ""}`}
+						on:click|stopPropagation={() => (editingScore = true)}
+						on:keydown={() => {}}
+					>
+						{#key `${player.score}-${idx}`}
+							{#each String(playerScore).split("") as num, i}
+								<Digit {num} {i} />
+							{/each}
+						{/key}
+					</div>
 				</div>
 
 				<!-- Stored Score -->
@@ -156,7 +144,7 @@
 				</div>
 				<div class="flex justify-around gap-2">
 					<button
-						on:click={() => incrementScore(player._id)}
+						on:click={() => incrementScore()}
 						disabled={!is_turn && currentScore == 0 && !editingScore}
 						class="btn btn-sm bg-green-400 border-green-800">Add</button
 					>
@@ -166,27 +154,29 @@
 							class="btn btn-sm btn-accent">- Score</button
 						>
 					{/if}
-					{#if is_turn && player?.counter == 0 && game.last_score.value > 0 && game.scores.length > 0 && game.scores.slice(-1)[0]?.player != player?._id}
-						<button
-							on:click={() => stealScore(player?._id)}
-							class:btn-disabled={!is_turn}
-							class="btn btn-sm btn-error text-xl"
-							>Steal: {game.last_score.value}</button
-						>
-					{/if}
 
 					<button
-						on:click={() => addScore(player._id, 0)}
+						on:click={() => addScore(0)}
 						class:btn-disabled={!is_turn}
 						class="btn btn-sm bg-red-400 border-red-800">Zilche</button
 					>
 				</div>
 				<div>
+					{#if is_turn && player?.counter == 0 && game?.last_score?.value > 0 && game.scores?.length > 0 && game?.scores.slice(-1)[0]?.player != player?._id}
+						<div class="flex flex-col justify-end items-center card-actions">
+							<button
+								on:click={() => stealScore()}
+								class:btn-disabled={!is_turn}
+								class="btn bg-orange-600 border-2 border-orange-950 mt-6 text-orange-950 w-full h-auto text-xl"
+							>
+								STEAL&nbsp; {game?.last_score?.value}
+							</button>
+						</div>
+					{/if}
 					{#if player.stored_score}
 						<div class="flex flex-col justify-end items-center card-actions">
 							<button
-								on:click={() =>
-									addScore(player._id, player.stored_score, player.counter)}
+								on:click={() => addScore(player.stored_score, player.counter)}
 								class="btn bg-indigo-600 mt-6 text-white w-full h-auto text-xl"
 							>
 								Confirm:&nbsp; {player.stored_score}
@@ -203,14 +193,14 @@
 				<span class="text-center text-xl"
 					>Biggest Roll Lost: {_.max(
 						player.lost_scores.map((s) => s.value)
-					)}</span
+					) || "N/A"}</span
 				>
 				<span class="text-center text-xl"
 					>Total Scores Lost: {_.sum(
 						player.lost_scores.map((s) => s.value)
 					)}</span
 				>
-				<span class="text-center text-xl">Zilches: {player?.total_zilches}</span
+				<span class="text-center text-xl">Zilches: {player?.zilches}</span
 				>
 			{/if}
 		</div>

@@ -4,6 +4,21 @@ import {
 	ZilchePlayerCollection,
 } from "/imports/api/zilche/collections";
 import { Random } from "meteor/random";
+import _ from "lodash";
+
+const placingth = (n) => {
+	let s = ["th", "st", "nd", "rd"],
+		v = n % 100;
+	return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+const giphy = {
+	baseURL: "https://api.giphy.com/v1/gifs/",
+	apiKey: "0UTRbFtkMxAplrohufYco5IY74U8hOes",
+	type: "random",
+	rating: "pg-13",
+	robGif: "bRKmwTzInZtN2hd1hL",
+};
 
 Meteor.methods({
 	"zilche.new_game"(name) {
@@ -11,6 +26,9 @@ Meteor.methods({
 		let id = ZilcheGameCollection.insert({
 			name: name.toLowerCase(),
 			code: code.toLowerCase(),
+			scores: [],
+			zilcheCount: 0,
+			round: 1,
 		});
 		return id;
 	},
@@ -33,7 +51,10 @@ Meteor.methods({
 			order: order,
 			turn: is_first_player,
 			score: 0,
+			lost_scores: [],
 			scores: [],
+			stored_score: 0,
+			counter: 0,
 			zilches: 0,
 			placing: "--",
 		});
@@ -64,105 +85,162 @@ Meteor.methods({
 		);
 	},
 	"zilche.stealScore": function (game_id, player_id) {
+		// Step 1: Get the last score of the game
 		let game = ZilcheGameCollection.findOne({ _id: game_id });
 		let stolenScore = game?.last_score.value;
-		let stolenCounter = game?.last_score.counter;
-		game?.players.map((p) => {
-			if (p._id == player_id) {
-				p.stored_score = stolenScore;
-				p.counter = stolenCounter;
-			}
+		let stolenCounter = game?.last_score.counter || 0;
+
+		// Step 2: Update the player with the stolen score and counter
+		ZilchePlayerCollection.update(
+			{ _id: player_id },
+			{ $set: { stored_score: stolenScore, counter: stolenCounter } }
+		);
+
+		// Step 4: Find the players rankings based on the players score + stored score
+		let players = ZilchePlayerCollection.find({ game_id: game_id }).map((p) => {
+			p.scoreToRank = p.score + p.stored_score;
 			return p;
 		});
-		ZilcheGameCollection.update(
-			{ _id: game_id },
-			{ $set: { players: game.players } }
-		);
+		players = _.orderBy(players, ["scoreToRank"], ["desc"]);
+
+		//Step 5: Update the player placings
+		players.forEach((p, idx) => {
+			let placing = placingth(idx + 1);
+			let tiedPlayer = players
+				.filter((pl) => p._id !== pl._id)
+				.findIndex((player) => player.scoreToRank == p.scoreToRank);
+
+			if (tiedPlayer >= 0) {
+				placing = "T-" + placingth(tiedPlayer + 1);
+			}
+
+			if (p.turn || p.placing != "--") {
+				ZilchePlayerCollection.update(
+					{ _id: p._id },
+					{ $set: { placing: placing } }
+				);
+			}
+		});
 	},
 	"zilche.storeScore": function (player_id, score) {
-    let player = ZilchePlayerCollection.findOne({_id: player_id});
+		let player = ZilchePlayerCollection.findOne({ _id: player_id });
 
-    if (player.stored_score) {
-      player.stored_score = player.stored_score + score;
-    } else {
-      player.stored_score = score;
-    }
+		// Step 1: If the player already has a stored score, add the new score to it
+		if (player.stored_score) {
+			player.stored_score = player.stored_score + score;
+		} else {
+			player.stored_score = score;
+		}
 
-    if (player.counter) {
-      player.counter = player.counter + 1;
-    } else {
-      player.counter = 1;
-    }
+		// Step 2: If the player already has a counter, increment it
+		if (player.counter) {
+			player.counter = player.counter + 1;
+		} else {
+			player.counter = 1;
+		}
 
-    ZilchePlayerCollection.update(
-      { _id: player_id },
-      { $set: { stored_score: player.stored_score, counter: player.counter } }
-    );
+		// Step 4: Update the current player with the new stored score and counter
+		ZilchePlayerCollection.update(
+			{ _id: player_id },
+			{ $set: { stored_score: player.stored_score, counter: player.counter } }
+		);
+
+		// Step 4: Find the players rankings based on the players score + stored score
+		let players = ZilchePlayerCollection.find({ game_id: player?.game_id }).map(
+			(p) => {
+				p.scoreToRank = p.score + p.stored_score;
+				return p;
+			}
+		);
+		players = _.orderBy(players, ["scoreToRank"], ["desc"]);
+
+		//Step 5: Update the player placings
+		players.forEach((p, idx) => {
+			let placing = placingth(idx + 1);
+			let tiedPlayer = players
+				.filter((pl) => p._id !== pl._id)
+				.findIndex((player) => player.scoreToRank == p.scoreToRank);
+
+			if (tiedPlayer >= 0) {
+				placing = "T-" + placingth(tiedPlayer + 1);
+			}
+
+			if (p.turn || p.placing != "--") {
+				ZilchePlayerCollection.update(
+					{ _id: p._id },
+					{ $set: { placing: placing } }
+				);
+			}
+		});
 	},
 	"zilche.addScore": function (game_id, player_id, counter, score) {
+		console.log({ score });
+
+		// Step 1: Get Game Data
 		let game = ZilcheGameCollection.findOne({ _id: game_id });
+		let player = ZilchePlayerCollection.findOne({ _id: player_id });
+		let allPlayers = ZilchePlayerCollection.find({
+			game_id: player?.game_id,
+		}).fetch();
+
+		// Step 2: Determine if the score is a zilche, first score, big score, triple zilche, or over ten thousand
 		score = parseInt(score);
 		let score_id = Random.id();
 		let first_score = false;
 		let big_score = false;
 		let triple_zilche = false;
 		let over_ten_thousand = false;
-		game?.players.map((p, idx) => {
-			if (p._id == player_id) {
-				if (score == 0) {
-					p.zilches = p.zilches + 1;
-					p.total_zilches = p.total_zilches + 1;
-					p.lost_scores.push({
-						_id: score_id,
-						value: p.stored_score,
-					});
-					if (p.zilches >= 3) {
-						p.score = p.score - 500 * (p.zilches - 2);
-					}
-					if (p.zilches % 3 == 0 && p.zilches != 0) {
-						triple_zilche = true;
-					}
-				} else if (score > 0) {
-					p.zilches = 0;
-					if (score > 0 && !p.first_score) {
-						p.first_score = true;
-						first_score = true;
-					}
-					if (score > 1000) {
-						big_score = true;
-					}
 
-					p.scores.push({
-						_id: score_id,
-						value: score,
-					});
-				}
-				p.score = p.score + score;
-				p.stored_score = 0;
-				p.counter = 0;
-
-				if (p.score >= 10000) {
-					over_ten_thousand = true;
-					game.final_round = true;
-				}
-
-				//update round if the player scoring is the last player
-				if (idx + 1 == game?.players.length) {
-					if (game?.final_round) {
-						game.finished = true;
-					} else {
-						game.round = game?.round + 1;
-					}
-				}
-
-				//only update the turn if player scored is there turn (for editing reasons)
-				if (game?.turn % game?.players.length == idx) {
-					game.turn = game?.turn + 1;
-				}
+		// Step 2.1:
+		// 1. If the score is a zilche, increment the zilche count (player and game) and add the score to the player's lost scores
+		// 2. If the score is a score, add the score to the player's scores, and determine if the score is a big score
+		if (score == 0) {
+			game.zilcheCount = game.zilcheCount + 1;
+			player.zilches = player.zilches + 1;
+			player.lost_scores.push({
+				_id: score_id,
+				value: player.stored_score,
+			});
+			if (game.zilceCount % 3 == 0 && player.zilches != 0) {
+				triple_zilche = true;
 			}
-			return p;
-		});
+		} else if (score > 0) {
+			if (score > 0 && !player.first_score) {
+				player.first_score = true;
+				first_score = true;
+			}
+			if (score > 1500) {
+				big_score = true;
+			}
 
+			player.scores.push({
+				_id: score_id,
+				value: score,
+			});
+		}
+
+		// Step 3: Reset the players score
+		player.score = player.score + score;
+		player.stored_score = 0;
+		player.counter = 0;
+
+		// Step 4: If the player has reached over 10,000 points, set the final round to true
+		if (player.score >= 10000) {
+			over_ten_thousand = true;
+			game.final_round = true;
+		}
+
+		//Step 5: Increment the Round this is the last player of the round, and if the round is final, mark the game as finished
+		if (player.order == allPlayers.length) {
+			if (game?.final_round) {
+				game.finished = true;
+        game.order_of_first_finished = player.order;
+			} else {
+				game.round = game?.round + 1;
+			}
+		}
+
+		//Step 6: Update the Scores in the Game Object
 		if (score >= 0) {
 			game?.scores.push({
 				_id: score_id,
@@ -178,21 +256,81 @@ Meteor.methods({
 			};
 		}
 
+		// Step 7: Update the Game Object
 		ZilcheGameCollection.update(
 			{ _id: game_id },
 			{
 				$set: {
 					last_score: game?.last_score,
 					scores: game?.scores,
-					players: game?.players,
-					turn: game?.turn,
 					round: game?.round,
 					final_round: game?.final_round,
 					finished: game?.finished,
+          order_of_first_finished: game?.order_of_first_finished,
 				},
 			}
 		);
 
+		// Step 8: Update the Player Object
+		ZilchePlayerCollection.update(
+			{ _id: player_id },
+			{
+				$set: {
+					score: player?.score,
+					scores: player?.scores,
+					stored_score: player?.stored_score,
+					counter: player?.counter,
+					zilches: player?.zilches,
+					first_score: player?.first_score,
+					turn: false,
+				},
+			}
+		);
+
+		// Step 9: Change the turn to the next player
+		let nextPlayer = ZilchePlayerCollection.findOne({
+			game_id: game_id,
+			order: player.order + 1,
+		});
+
+		if (!nextPlayer) {
+			nextPlayer = ZilchePlayerCollection.update(
+				{
+					game_id: game_id,
+					order: 1,
+				},
+				{ $set: { turn: true } }
+			);
+		} else {
+			ZilchePlayerCollection.update(
+				{ _id: nextPlayer._id },
+				{ $set: { turn: true } }
+			);
+		}
+
+		let players = ZilchePlayerCollection.find(
+			{ game_id: game_id },
+			{ sort: { score: -1 } }
+		).fetch();
+
+		// Step 10: Rerank the players
+		players.forEach((p, idx) => {
+			let placing = placingth(idx + 1);
+			let tiedPlayer = players.filter(pl => pl._id !== p._id).findIndex(
+				(player) => player.score == p.score
+			);
+
+			if (tiedPlayer >= 0) {
+				placing = "T-" + placingth(tiedPlayer + 1);
+			}
+
+			ZilchePlayerCollection.update(
+				{ _id: p._id },
+				{ $set: { placing: placing } }
+			);
+		});
+
+		// Step 11: Get the Giphy
 		if (Meteor.isServer) {
 			if (over_ten_thousand) {
 				let gifurl = encodeURI(

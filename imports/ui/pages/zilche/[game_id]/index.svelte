@@ -88,13 +88,13 @@
 	};
 
 	const openAddPlayerModal = () => {
-		if (!game?.end_time) {
+		if (!game?.finished) {
 			addPlayerModal.showModal();
 		}
 	};
 
 	const openChoosePoisonModal = (ball) => {
-		if (!game?.end_time) {
+		if (!game?.finished) {
 			choosePoisonModal.showModal();
 		}
 	};
@@ -533,7 +533,7 @@
 	<!-- Start Game Button -->
 
 	<!-- Scoring Mode Button -->
-	{#if game?.start_time && !game?.end_time}
+	{#if game?.start_time && !game?.finished}
 		<div
 			use:inview={options}
 			on:inview_change={handleChange}
