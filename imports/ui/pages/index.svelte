@@ -98,18 +98,29 @@
 		<div class="font-poppins text-2xl font-black uppercase mx-10">Welcome to the <span class="text-red-300">clownhouse<span></div>
 	</div>
 
-	<!-- <div class="flex justify-around">
+	<div class="flex justify-around">
 		<img
-			src="Legend_1.jpeg"
+			src={`Legends_1.jpeg`}
 			alt={`Muppets`}
-			class="h-full w-1/2 animate-bounce"
+			class="h-64 w-64 m-8 animate-spin hover:animate-none"
 		/>
 		<img
 			src="BenHead10.jpeg"
 			alt={`Whoo`}
-			class="h-full w-1/2 animate-spin"
+			class="h-64 w-64 m-8 animate-bounce hover:animate-none"
 		/>
-	</div> -->
+		<img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnk3NHpvcW9nNHAxcmQ1ejE3ZnU3bjhhenFya2N6ZjkzdGhyYnBsNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bRKmwTzInZtN2hd1hL/giphy.webp" alt="giph" class="h-128 w-128 my-8 object-contain rounded-md"/>
+		<img
+			src="alexcute.jpg"
+			alt={`Whoo`}
+			class="h-64 w-64 m-8 animate-pulse hover:animate-none"
+		/>
+		<img
+			src="yeslee.jpg"
+			alt={`Whoo`}
+			class="h-64 w-64 m-8 animate-ping hover:animate-none"
+		/>
+	</div>
 
 	<div class="grid grid-cols-2 gap-4">
 

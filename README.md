@@ -1,7 +1,22 @@
+WELCOME TO THE CLOWNHOUSE 🤡
+
+
+
+
+Spaghetti to get OPENCV working (to process images of the pool table for Kelly Pool)
+
 brew update
+
+
 brew install opencv@4
+
+
 brew link --force opencv@4
+
+
 brew install cmake
+
+
 
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 ln -s /opt/homebrew/Cellar/opencv/4.10.0_9/include/opencv4/opencv2 /opt/homebrew/Cellar/opencv/4.10.0_9/include/opencv2
