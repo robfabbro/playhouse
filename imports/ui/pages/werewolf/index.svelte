@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Meteor } from "meteor/meteor";
 	import { loadFull } from "tsparticles";
-	import particlesHome from "/imports/ui/particles/particlesHome.json";
+	import particlesHome from "/imports/ui/particles/particlesWolf.json";
 	import Particles, { particlesInit } from "/imports/ui/particles/particles.ts";
 	import { quintOut } from "svelte/easing";
 	import { onMount } from "svelte";
@@ -50,7 +50,7 @@
 	let loading = false;
 
 	let saveGame = (e) => {
-		console.log('saving wolf game')
+		console.log("saving wolf game");
 		loading = true;
 		Meteor.call("wolf.new_game", newGameName, (err, res) => {
 			if (!err) {
@@ -263,7 +263,7 @@
 			<div class="divider">past games</div>
 			<div class="pt-2 flex flex-wrap gap-2">
 				{#each past_games as game}
-					<a href={`/${game._id}`}>
+					<a href={`/werewolf/${game._id}`}>
 						<button class="btn btn-md border-black" type="button">
 							{game.name}
 						</button>
