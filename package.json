@@ -4,7 +4,7 @@
   "scripts": {
     "start": "run-p start:*",
     "start:routify": "routify",
-    "start:meteor": "meteor run --settings settings-development.json",
+    "start:meteor": "meteor run --settings settings-development.json --port 6000",
     "build-router": "routify -b",
     "test": "meteor test --once --driver-package meteortesting:mocha",
     "deploy": "DEPLOY_HOSTNAME=ap-southeast-2.galaxy-deploy.meteor.com meteor deploy bingo.techreative.com.au --settings settings-development.json --owner techreative",

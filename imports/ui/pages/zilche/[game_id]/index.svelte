@@ -362,19 +362,19 @@
 					<!-- Poison Icon -->
 
 					<!-- Poison Value -->
-					<span class="font-poppins text-2xl font-bold capitalize">
+					<span class="font-poppins text-lg md:text-2xl font-bold capitalize">
 						{game?.poison}
 					</span>
 					<!-- Poison Value -->
 				</button>
 
-				<p class="font-poppins text-2xl">
-					ZILCHES:
+				<p class="font-poppins text-lg md:text-2xl">
+					Zilches:
 					<span class="font-bold">
 						{game?.zilcheCount}
 					</span>
 				</p>
-				<p class="font-poppins text-2xl px-4">
+				<p class="font-poppins text-lg md:text-2xl px-4">
 					Round:
 					<span class="font-bold">
 						{game?.round || 1}

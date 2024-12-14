@@ -72,3 +72,20 @@
 .zilche-text {
   text-shadow: -3px -3px 0 rgb(129 140 248), 3px -3px 0 rgb(129 140 248), -3px 3px 0 rgb(129 140 248), 3px 3px 0 rgb(129 140 248);
 }
+
+
+.animate-wave {
+  animation: wave 1s infinite;
+}
+
+@keyframes wave {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
