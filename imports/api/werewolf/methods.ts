@@ -18,7 +18,12 @@ Meteor.methods({
 		return id;
 	},
 	"wolf.add_player"(game_id, name, code) {
-		WolfPlayerCollection.insert({ game_id: game_id, name: name, code: code });
+		WolfPlayerCollection.insert({
+			game_id: game_id,
+			name: name,
+			code: code,
+			dead: false,
+		});
 	},
 	"wolf.sink_ball"(game_id, ball_to_sink) {
 		// Step 1: Update the game by adding the ball to the sunk balls array
@@ -87,6 +92,33 @@ Meteor.methods({
 
 		return player;
 	},
+	"wolf.vote_player"(game_id, voter_id, nominated_id) {
+		let voter = WolfPlayerCollection.findOne({ _id: voter_id });
+		let nomintated = WolfPlayerCollection.findOne({ _id: nominated_id });
+		let game = WolfGameCollection.findOne({ _id: game_id });
+		let last_round = WolfRoundCollection.findOne({
+			game_id: game_id,
+			completed: false,
+		});
+		let living_wolves = WolfPlayerCollection.find({
+			game_id: game_id,
+			role: "werewolf",
+			dead: false,
+		}).fetch();
+
+		if (voter?.role == "werewolf") {
+			if (last_round.werewolf_nominated[voter_id] == nominated_id) {
+				delete last_round.werewolf_nominated[voter_id];
+			} else {
+				last_round.werewolf_nominated[voter_id] = nominated_id;
+			}
+
+			WolfRoundCollection.update(
+				{ _id: last_round._id },
+				{ $set: { werewolf_nominated: last_round.werewolf_nominated } }
+			);
+		}
+	},
 	"wolf.start_game"(game_id, game_mode) {
 		// Step 1: Get all the players for the game
 		let players = WolfPlayerCollection.find({ game_id: game_id }).fetch();
@@ -136,6 +168,8 @@ Meteor.methods({
 			game_id: game_id,
 			cycle: "night",
 			completed: false,
+			werewolf_nominated: {},
+			villager_nominated: {},
 			created_at: new Date(),
 		});
 	},

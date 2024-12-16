@@ -200,7 +200,7 @@
 		rounds = WolfRoundCollection.find({ game_id: game_id }).fetch();
 		last_round = WolfRoundCollection.findOne({
 			game_id: game_id,
-			open: true,
+			completed: false,
 		});
 		alivePlayers = players.filter(
 			(player) => !player?.balls?.every((ball) => ball?.status === "sunk")
@@ -420,7 +420,7 @@
 				</h1>
 
 				<div
-					class="mt-6 flex flex-row flex-wrap gap-1 mb-10 px-8 items-center justify-center"
+					class="mt-6 flex flex-row flex-wrap gap-1 px-8 items-center justify-center"
 				>
 					{#each rounds as round}
 						{#if round?.cycle == "night"}
@@ -449,24 +449,10 @@
 							</svg>
 						{/if}
 					{/each}
-					<!-- {#each ballsAlive as ball}
-						<button
-							class="rounded-full bg-black text-white btn btn-lg btn-circle p-0"
-							on:click={() => openSinkBallModal(ball)}
-						>
-							<img
-								src={`/assets/pool_balls/${ball}.svg`}
-								alt={`Ball ${ball}`}
-								class="h-full w-full"
-							/>
-						</button>
-					{/each} -->
 				</div>
-				<!-- Remaining Balls -->
-
 				<!-- Remaining Players -->
 				<h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">
-					{alivePlayers?.length !== 1 ? "Remaining Players" : " The Winner"}
+					Players
 				</h1>
 
 				<div
