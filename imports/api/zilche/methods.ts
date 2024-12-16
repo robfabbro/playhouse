@@ -212,12 +212,11 @@ Meteor.methods({
 			if (score > 1500) {
 				big_score = true;
 			}
-
-			player.scores.push({
-				_id: score_id,
-				value: score,
-			});
 		}
+		player.scores.push({
+			_id: score_id,
+			value: score,
+		});
 
 		// Step 3: Reset the players score
 		player.score = player.score + score;
@@ -434,5 +433,25 @@ Meteor.methods({
 				}, 6000);
 			}
 		}
+	},
+	"zilche.editIndividualScore": function (player_id, score_id, value) {
+		// Step 1: Get the player
+		let player = ZilchePlayerCollection.findOne({ _id: player_id });
+
+		// Step 2: Get the scores of the player
+		let scores = player.scores;
+
+		// Step 3: Find the score that needs to be updated and update the score
+		let scoreIndex = scores.findIndex((s) => s._id == score_id);
+		scores[scoreIndex].value = value;
+
+		// Step 5: Recalcutate the player's score
+		let score = _.sumBy(scores, "value");
+
+		// Step 6: Update the player
+		ZilchePlayerCollection.update(
+			{ _id: player_id },
+			{ $set: { score, scores } }
+		);
 	},
 });

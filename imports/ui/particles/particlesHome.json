@@ -55,7 +55,7 @@
       "color": "#3b82f6",
       "distance": 150,
       "enable": false,
-      "opacity": 0.5,
+      "opacity": 0.9,
       "width": 1
     },
     "move": {
@@ -81,17 +81,41 @@
       "options": {
         "images": [
           {
-            "name": "Techreative Burst",
-            "src": "/assets/pool_balls/1.svg",
+            "name": "Aidan and Ian",
+            "src": "/assets/home/AidanIan.jpeg",
             "height": 48,
             "width": 48
+          },
+          {
+            "name": "Lee",
+            "src": "/assets/home/Lee.jpg",
+            "height": 48,
+            "width": 48
+          },
+          {
+            "name": "Alex",
+            "src": "/assets/home/Alex.jpg",
+            "height": 48,
+            "width": 48
+          },
+          {
+            "name": "Ben",
+            "src": "/assets/home/Ben.jpeg",
+            "height": 48,
+            "width": 48
+          },
+          {
+            "name": "RobGif",
+            "src": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnk3NHpvcW9nNHAxcmQ1ejE3ZnU3bjhhenFya2N6ZjkzdGhyYnBsNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bRKmwTzInZtN2hd1hL/giphy.webp",
+            "height": 48,
+            "width": 64
           }
         ]
       },
       "type": "images"
     },
     "size": {
-      "value": { "min": 48, "max": 48 }
+      "value": { "min": 64, "max": 64 }
     }
   },
   "detectRetina": true
