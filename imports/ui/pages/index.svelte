@@ -38,6 +38,11 @@
       route: "/bingo",
       logo: "bingo",
     },
+    {
+      name: "Secret Santa",
+      route: "/secret_santa",
+      logo: "present",
+    },
   ];
 
   let onParticlesLoaded = (event: any) => {
@@ -49,14 +54,12 @@
   });
 </script>
 
-
-
 <Particles
-	id="tsparticles"
-	class="put your classes here"
-	style=""
-	options={particlesHome}
-	on:particlesLoaded={onParticlesLoaded}
+  id="tsparticles"
+  class="put your classes here"
+  style=""
+  options={particlesHome}
+  on:particlesLoaded={onParticlesLoaded}
 />
 <div class="min-h-screen flex flex-col items-center z-50 pb-32 gap-8">
   <!-- ian what is this -->
@@ -82,7 +85,7 @@
     <img src="alexcute.jpg" alt={`Whoo`} class="h-64 w-64 m-8 animate-pulse hover:animate-none" />
     <img src="yeslee.jpg" alt={`Whoo`} class="h-64 w-64 m-8 animate-pulse hover:animate-none" />
   </div> -->
-	<span class="z-50 text-xl sm:text-2xl md:text-3xl lg:text-5xl bg-white rounded-lg px-4 py-2">PICK A GAME</span>
+  <span class="z-50 text-xl sm:text-2xl md:text-3xl lg:text-5xl bg-white rounded-lg px-4 py-2">PICK A GAME</span>
 
   <div class="grid grid-cols-2 gap-4 mx-4 z-50">
     {#each games as game}
@@ -166,6 +169,17 @@
               ></path></g
             ></svg
           >
+        {:else if game.logo === "present"}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="w-12 h-12 sm:w-24 sm:h-24 md:w-36 md:h-36 lg:w-48 lg:h-48"
+          >
+            <path
+              d="M9.375 3a1.875 1.875 0 0 0 0 3.75h1.875v4.5H3.375A1.875 1.875 0 0 1 1.5 9.375v-.75c0-1.036.84-1.875 1.875-1.875h3.193A3.375 3.375 0 0 1 12 2.753a3.375 3.375 0 0 1 5.432 3.997h3.943c1.035 0 1.875.84 1.875 1.875v.75c0 1.036-.84 1.875-1.875 1.875H12.75v-4.5h1.875a1.875 1.875 0 1 0-1.875-1.875V6.75h-1.5V4.875C11.25 3.839 10.41 3 9.375 3ZM11.25 12.75H3v6.75a2.25 2.25 0 0 0 2.25 2.25h6v-9ZM12.75 12.75v9h6.75a2.25 2.25 0 0 0 2.25-2.25v-6.75h-9Z"
+            />
+          </svg>
         {/if}
 
         <h1 class="font-poppins text-xl sm:text-2xl md:text-3xl lg:text-5xl font-black uppercase">{game.name}</h1>

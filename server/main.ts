@@ -5,6 +5,8 @@ import "/imports/api/werewolf/methods";
 import "/imports/api/werewolf/publications";
 import "/imports/api/zilche/methods";
 import "/imports/api/zilche/publications";
+import "/imports/api/secret_santa/methods";
+import "/imports/api/secret_santa/publications";
 
 import { Meteor } from 'meteor/meteor';
 
