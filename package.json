@@ -7,7 +7,7 @@
     "start:meteor": "meteor run --settings settings-development.json --port 3000",
     "build-router": "routify -b",
     "test": "meteor test --once --driver-package meteortesting:mocha",
-    "deploy": "DEPLOY_HOSTNAME=ap-southeast-2.galaxy-deploy.meteor.com meteor deploy bingo.techreative.com.au --settings settings-development.json --owner techreative",
+    "deploy": "DEPLOY_HOSTNAME=ap-southeast-2.galaxy-deploy.meteor.com meteor deploy playhouse.techreative.com.au --settings settings-development.json --owner techreative",
     "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
     "visualize": "meteor --production --extra-packages bundle-visualizer"
   },
