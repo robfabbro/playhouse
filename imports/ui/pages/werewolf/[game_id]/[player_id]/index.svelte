@@ -41,6 +41,12 @@
   let player_parents = [];
   let option_parents = [];
   let current_player = null;
+  let seconds = 0;
+  let minutes = 0;
+  let interval = null;
+  let current_round_id = null;
+  let new_round = false;
+  let newRoundModal;
 
   const playerCodes = ["🍎", "🍊", "⚽️", "🏀", "🏈", "🎾", "🎱", "🍓", "🍆", "🌞", "🌝", "🐸", "🐷", "🚗", "💎"];
 
@@ -179,27 +185,60 @@
       game_id: game_id,
       completed: false,
     });
+
+    if (last_round?.end_at && !interval) {
+      interval = setInterval(() => {
+        if (last_round?.end_at) {
+          let now = moment();
+          let end = moment(last_round?.end_at);
+
+          seconds = -now.diff(end, "seconds") % 60;
+          minutes = -now.diff(end, "minutes");
+
+          seconds = seconds > 0 ? seconds : 0;
+          minutes = minutes > 0 ? minutes : 0;
+        }
+      }, 1000);
+    }
+
+    if (last_round?._id) {
+      if (!current_round_id) {
+        current_round_id = last_round?._id;
+        new_round = true;
+        newRoundModal?.showModal();
+        Meteor.setTimeout(() => {
+          new_round = false;
+          newRoundModal?.close();
+        }, 5000);
+      } else if (current_round_id !== last_round?._id) {
+        new_round = true;
+        newRoundModal?.showModal();
+        Meteor.setTimeout(() => {
+          new_round = false;
+          newRoundModal?.close();
+        }, 5000);
+        current_round_id = last_round?._id;
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+      }
+    }
+
     current_player = WolfPlayerCollection.findOne({ _id: player_id });
 
     my_vote = last_round?.werewolf_nominated[player_id];
     wolf_votes = last_round?.werewolf_nominated ? Object.entries(last_round?.werewolf_nominated) : [];
-    console.log({ my_vote, wolf_votes });
+    villager_votes = last_round?.villager_nominated ? Object.entries(last_round?.villager_nominated) : [];
 
-    alivePlayers = other_players.filter((player) => !player?.balls?.every((ball) => ball?.status === "sunk"));
-    deadPlayers = other_players
-      .filter((player) => player?.balls?.every((ball) => ball?.status === "sunk"))
-      .sort((a, b) => b.finished_at - a.finished_at);
+    alivePlayers = other_players;
+
     game = WolfGameCollection.findOne({ _id: game_id });
 
     if (localStorage.getItem("wolf_admin_games")) {
       let adminGames = JSON.parse(localStorage.getItem("wolf_admin_games"));
       isAdmin = adminGames.includes(game_id);
     }
-
-    ballsAlive = _.range(1, 16).filter((ball) => {
-      let sunkBalls = game?.sunk_balls || [];
-      return !sunkBalls.includes(ball);
-    });
 
     if (game) {
       let games = localStorage.getItem("wolf_past_games");
@@ -212,9 +251,13 @@
         localStorage.setItem("wolf_past_games", JSON.stringify([game]));
       }
     }
-
-    console.log({ player_parents });
   }
+
+  onMount(() => {
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  });
 </script>
 
 <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-20 pb-4">
@@ -356,7 +399,11 @@
                 />
               </svg>
               <h3>Sleepy Time.. I wonder what will happen</h3>
-              <h3>ok who do we think is the villages: <span>{faker.person.jobType()}</span></h3>
+              <h3>
+                Ok who do we think is the villages: <span class="text-xl font-strong text-green-600"
+                  >{round.villager_role}</span
+                >
+              </h3>
             {:else}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -379,6 +426,25 @@
           Welcome <span class="text-purple-600 underline">{current_player.name}</span>
         </h1>
 
+        <div class="flex gap-5">
+          <div>
+            <span class="countdown font-mono text-4xl" class:text-red-500={minutes === 0 && seconds < 30}>
+              <span style="--value:{minutes};"></span>
+            </span>
+            min
+          </div>
+          <div>
+            <span
+              class="countdown font-mono text-4xl"
+              class:text-red-500={minutes === 0 && seconds < 30}
+              class:animate-shake={minutes === 0 && seconds < 10}
+            >
+              <span style="--value:{seconds};"></span>
+            </span>
+            sec
+          </div>
+        </div>
+
         <div
           class:invisible={!show}
           class:fade-in={show}
@@ -387,7 +453,7 @@
           class:grid-cols-1={alivePlayers?.length === 1}
           class:grid-cols-3={alivePlayers?.length > 2}
         >
-          {#each alivePlayers as player, idx}
+          {#each other_players as player, idx}
             <button
               class="w-full bg-base-100 px-1 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32 bg-cover bg-center btn"
               style:background-image={player.dead ? "url('/claw.png')" : ""}
@@ -399,14 +465,52 @@
                   {#each wolf_votes as [wolf, eaten]}
                     {#if eaten == player._id}
                       <svg
-                        xmlns="http://www.w3.org/2000/svg"
+                        stroke="currentColor"
+                        fill="currentColor"
+                        stroke-width="0"
+                        viewBox="0 0 512 512"
                         class="w-8 h-8 absolute top-0 right-0"
                         class:text-red-500={wolf === player_id}
-                        viewBox="0 0 512 512"
+                        xmlns="http://www.w3.org/2000/svg"
                         ><path
-                          fill="currentColor"
-                          d="M267.7 471.5l10.6 15.8 5.3-12.3 5.3 7V512c21.1-7.9 21.1-66.9 25.5-97.2 4.6-31.9-.9-92.8 81.4-149.1-8.9-23.6-12-49.4-2.6-80.1C421 189 447 196.2 456.4 239.7l-30.4 8.4c11.2 23 17 46.8 13.2 72.1L412 313.2l-6.2 33.4-18.5-7-8.8 33.4-19.4-7 26.4 21.1 8.8-28.2L419 364.2l7-35.6 26.4 14.5c.3-20 7-58.1-8.8-84.5l26.4 5.3c4-22.1-2.4-39.2-7.9-56.7l22.4 9.7c-.4-25.1-29.9-56.8-61.6-58.5-20.2-1.1-56.7-25.2-54.1-51.9 2-19.9 17.5-42.6 43.1-49.7-44 36.5-9.7 67.3 5.3 73.5 4.4-11.4 17.5-69.1 0-130.2-40.4 22.9-89.7 65.1-93.2 147.8l-58 38.7-3.5 93.3L369.8 220l7 7-17.6 3.5-44 38.7-15.8-5.3-28.1 49.3-3.5 119.6 21.1 15.8-32.6 15.8-32.6-15.8 21.1-15.8-3.5-119.6-28.2-49.3-15.8 5.3-44-38.7-17.6-3.5 7-7 107.3 59.8-3.5-93.3-58.1-38.7C185 65.1 135.8 22.9 95.3 0c-17.5 61.1-4.4 118.8 0 130.2 15-6.2 49.3-37 5.3-73.5 25.7 7.1 41.2 29.8 43.1 49.7 2.6 26.7-33.9 50.8-54.1 51.9-31.7 1.7-61.2 33.4-61.6 58.5l22.4-9.7c-5.5 17.5-11.9 34.7-7.9 56.7l26.4-5.3c-15.8 26.4-9.1 64.4-8.8 84.5l26.4-14.5 7 35.6 24.6-5.3 8.8 28.2L153.4 366 134 373l-8.8-33.4-18.5 7-6.2-33.4-27.3 7c-3.8-25.4 2-49.1 13.2-72.1l-30.4-8.4c9.4-43.5 35.5-50.8 63.3-54.1 9.4 30.6 6.2 56.5-2.6 80.1 82.3 56.3 76.8 117.2 81.4 149.1 4.4 30.4 4.5 89.3 25.5 97.2v-29.8l5.3-7 5.3 12.3 10.6-15.8 11.4 21.1 11.4-21.1zm79.2-95L331.1 366c7.5-4.4 13.8-8.4 19.4-12.3-.6 7.2-.3 13.8-3.5 22.8zm28.2-49.3c-.4 10.9-.9 21.7-1.8 31.7-7.9-1.9-15.6-3.8-21.1-7 8.2-7.9 15.6-16.3 22.9-24.7zm24.6 5.3c0-13.4-2.1-24.2-5.3-33.4a235 235 0 0 1 -18.5 27.3zm3.5-80.9c19.4 12.8 27.8 33.7 29.9 56.3-12.3-4.5-24.6-9.3-37-10.6 5.1-12 6.7-28.1 7-45.7zm-1.8-45.7c.8 14.3 1.8 28.8 1.8 42.2 19.2-8.1 29.8-9.7 44-14.1-10.6-19-27.2-25.5-45.8-28.2zM165.7 376.5L181.5 366c-7.5-4.4-13.8-8.4-19.4-12.3 .6 7.3 .3 13.9 3.5 22.9zm-28.2-49.3c.4 10.9 .9 21.7 1.8 31.7 7.9-1.9 15.6-3.8 21.1-7-8.2-7.9-15.6-16.3-22.9-24.7zm-24.6 5.3c0-13.4 2-24.2 5.3-33.4a235 235 0 0 0 18.5 27.3zm-3.5-80.9c-19.4 12.8-27.8 33.7-29.9 56.3 12.3-4.5 24.6-9.3 37-10.6-5-12-6.7-28.1-7-45.7zm1.8-45.7c-.8 14.3-1.8 28.8-1.8 42.2-19.2-8.1-29.8-9.7-44-14.1 10.6-19 27.2-25.5 45.8-28.2z"
-                        /></svg
+                          d="M257.893 25.73c-129.963 0-235.13 105.166-235.13 235.13 0 52.99 17.487 101.856 47.007 141.154 18.687-22.89 36.79-51.545 40.99-78.98l-60.55-123.81 102.927-67.675c-32.11 41.175-42.93 80.322-36.914 113.11 6.575 35.84 33.437 62.59 69.39 74.065l5.682-17.807c-30.667-9.787-51.42-30.922-56.688-59.63-.662-3.61-1.076-7.368-1.22-11.26 20.214 13.75 81.03-26.946 139.773-113.604l101.445 20.11c-87.707 2.83-148.702 57.44-137.615 108.94l109.625-63.956 92.942 26.306c-86.43.5-159.89 25.05-162.032 83.56l106.065-37.67 85.447 68.612c-128.788-47.823-210.17 2.972-273.937 56.713-14.598 27.523-21.196 63.61-24.002 100.435 26.848 10.654 56.13 16.515 86.795 16.515 129.962 0 235.13-105.168 235.13-235.13 0-129.964-105.168-235.13-235.13-235.13z"
+                        ></path></svg
+                      >
+                    {/if}
+                  {/each}
+                {/if}
+                {#if current_player?.role == "villager"}
+                  {#each villager_votes as [vill, voted]}
+                    {#if voted == player._id}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        class="w-8 h-8 absolute top-0 right-0"
+                        class:text-red-500={vill === player_id}
+                      >
+                        <path
+                          d="M7.493 18.5c-.425 0-.82-.236-.975-.632A7.48 7.48 0 0 1 6 15.125c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75A.75.75 0 0 1 15 2a2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777ZM2.331 10.727a11.969 11.969 0 0 0-.831 4.398 12 12 0 0 0 .52 3.507C2.28 19.482 3.105 20 3.994 20H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 0 1-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227Z"
+                        />
+                      </svg>
+                    {/if}
+                  {/each}
+                {/if}
+
+                {#if current_player?.role == "villager" && last_round?.cycle == "day"}
+                  {#each villager_votes as [vill, voted]}
+                    {#if voted == player._id}
+                      <svg
+                        stroke="currentColor"
+                        fill="currentColor"
+                        stroke-width="0"
+                        viewBox="0 0 512 512"
+                        class="w-8 h-8 absolute top-0 right-0"
+                        class:text-red-500={vill === player_id}
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                          d="M255.997 16.004c-120 0-239.997 60-239.997 149.998C16 226.002 61 256 61 316c0 45-15 45-15 75 0 14.998 48.01 32.002 89.998 44.998v60h239.997v-60s90.567-27.957 90-45c-.933-27.947-15-30-15-74.998 0-30 45.642-91.42 44.998-149.998 0-90-119.998-149.998-239.996-149.998zm-90 179.997c33.137 0 60 26.864 60 60 0 33.136-26.863 60-60 60C132.863 316 106 289.136 106 256c0-33.136 26.862-60 59.998-60zm179.998 0c33.136 0 60 26.864 60 60 0 33.136-26.864 60-60 60-33.136 0-60-26.864-60-60 0-33.136 26.864-60 60-60zm-89.998 105c15 0 45 60 45 75 0 29.998 0 29.998-15 29.998h-60c-15 0-15 0-15-30 0-15 30-74.998 45-74.998z"
+                        ></path></svg
                       >
                     {/if}
                   {/each}
@@ -476,7 +580,7 @@
         <!-- Remaining Players -->
 
         <!-- Eliminated Players -->
-        {#if deadPlayers?.length}
+        <!-- {#if deadPlayers?.length}
           <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Eliminated Players</h1>
 
           <div class:invisible={!show} class:fade-in={show} class="mt-6 grid gap-1 grid-cols-3 mb-10 px-1 w-full">
@@ -543,38 +647,12 @@
               </div>
             {/each}
           </div>
-        {/if}
+        {/if} -->
         <!-- Eliminated Players -->
       </div>
     {/if}
     <!-- Game When Started -->
   </div>
-
-  <!-- Start Game Button -->
-  {#if !game?.start_time && other_players?.length > 1}
-    <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center">
-      <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
-        {#if !game?.start_time}
-          <button
-            class="btn bg-[#50B9AB] btn-lg rounded-lg font-poppins shadow-lg border-black flex items-center justify-center"
-            on:click={() => startGameModal.showModal()}
-          >
-            Start Game
-            {#if loading}
-              <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            {/if}
-          </button>
-        {/if}
-      </div>
-    </div>
-  {/if}
 {/if}
 <!-- Start Game Button -->
 
@@ -778,12 +856,12 @@
 <!-- Sink Ball Modal -->
 
 <!-- Start Game Modal -->
-<dialog class="modal" bind:this={startGameModal}>
+<dialog class="modal" bind:this={newRoundModal}>
   {#if game}
     <div class="modal-box border border-black flex flex-col gap-4">
       <button
         class="btn btn-sm btn-circle absolute bg-white border-none top-5 right-5"
-        on:click={() => startGameModal.close()}
+        on:click={() => newRoundModal.close()}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -797,47 +875,17 @@
         </svg>
       </button>
 
-      <h3 class="font-bold text-lg">Choose your mode:</h3>
+      <h3 class="font-bold text-lg">New Round</h3>
 
-      <div class="flex items-center gap-2 justify-center w-full">
-        <button
-          class="btn md:btn-lg rounded-lg font-poppins shadow-lg border-black min-w-36 {selectedMode === 'stay_alive'
-            ? 'bg-[#E6A64C]'
-            : 'bg-white'}"
-          on:click={() => {
-            selectedMode = "stay_alive";
-          }}
-        >
-          Stay Alive
-        </button>
-        <button
-          class="btn md:btn-lg rounded-lg font-poppins shadow-lg border-black min-w-36 {selectedMode === 'sink_all'
-            ? 'bg-[#E6A64C]'
-            : 'bg-white'}"
-          on:click={() => {
-            selectedMode = "sink_all";
-          }}
-        >
-          Sink your balls
-        </button>
+      <div>
+        {#if last_round?.cycle === "day"}
+          <p class="text-center text-xl font-extrabold">A new day begins!!</p>
+        {:else}
+          <p class="text-center text-xl font-extrabold">The sun has set.. its night time!</p>
+        {/if}
       </div>
       <div class="mt-6">
-        <button
-          class="btn bg-[#50B9AB] md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
-          on:click={startGame}
-        >
-          Begin!
-          {#if loading}
-            <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          {/if}
-        </button>
+        <button class="btn w-full btn-primary bg-green-500" on:click={() => newRoundModal.close()}> Let's go! </button>
       </div>
     </div>
     <form method="dialog" class="modal-backdrop">

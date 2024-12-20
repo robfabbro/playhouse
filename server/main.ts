@@ -7,16 +7,17 @@ import "/imports/api/zilche/methods";
 import "/imports/api/zilche/publications";
 import "/imports/api/secret_santa/methods";
 import "/imports/api/secret_santa/publications";
+import "/imports/api/fun_facts/methods";
+import "/imports/api/fun_facts/publications";
 
-import { Meteor } from 'meteor/meteor';
-
+import { Meteor } from "meteor/meteor";
 
 if (Meteor.isDevelopment) {
-  const httpProxy = require('http-proxy');
+  const httpProxy = require("http-proxy");
 
-  const SSL = function(key, cert, port) {
+  const SSL = function (key, cert, port) {
     const [, , host, targetPort] = Meteor.absoluteUrl().match(/([a-zA-Z]+):\/\/([\-\w\.]+)(?:\:(\d{0,5}))?/);
-    console.log(host, targetPort)
+    console.log(host, targetPort);
 
     const proxy = httpProxy
       .createServer({
@@ -30,18 +31,17 @@ if (Meteor.isDevelopment) {
         },
         ws: true,
         xfwd: true,
-        secure: true
+        secure: true,
       })
       .listen(port);
 
-    proxy.on('error', err => {
+    proxy.on("error", (err) => {
       console.log(`HTTP-PROXY NPM MODULE ERROR: ${err}`);
     });
 
     // console.log('PROXY RUNNING ON', port, proxy);
-    console.log("SSL Proxy running on: https://localhost:"+port+"/")
-
+    console.log("SSL Proxy running on: https://localhost:" + port + "/");
   };
 
-  SSL(Assets.getText('localhost.key'), Assets.getText('localhost.cert'), 9000);
+  SSL(Assets.getText("localhost.key"), Assets.getText("localhost.cert"), 9000);
 }
