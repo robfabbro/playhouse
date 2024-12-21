@@ -56,7 +56,6 @@
   let hasDownvote;
   let addFactModal;
   let factToAdd = "";
-  let factToShow = null;
   let loading = false;
 
   let addFact = (e) => {
@@ -73,11 +72,12 @@
 
   let viewFact = (e) => {
     loading = true;
+    let lastFactId = viewingFact?.fact_id;
     viewingFact = null;
     viewingFactVotes = null;
     viewingFactTotalVotes = null;
     viewFactModal.showModal();
-    Meteor.call("facts.get_random_fact", viewingFact?.fact_id, (err, res) => {
+    Meteor.call("facts.get_random_fact", lastFactId, (err, res) => {
       if (!err) {
         viewingFact = res;
         loading = false;
@@ -88,6 +88,16 @@
     Meteor.call("facts.add_vote", funFactIdentifier, viewingFact?.fact_id, vote, (err, res) => {
       console.log({ err, res });
     });
+  };
+
+  let resetFact = () => {
+    viewFactModal.close();
+    addFactModal.close();
+      viewingFact = null;
+      viewingFactVotes = null;
+      viewingFactTotalVotes = null;
+      hasDownvote = false;
+      hasUpvote = false;
   };
 
   $m: {
@@ -181,6 +191,9 @@
 <dialog class="modal" bind:this={viewFactModal}>
   {#if viewingFact}
     <div class="modal-box border border-black">
+      <form method="dialog" on:click={resetFact} on:keydown={resetFact}>
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-5 top-5">✕</button>
+      </form>
       <h3 class="font-bold text-lg flex items-center">
         Fact
         {#if !loading}
@@ -298,7 +311,7 @@
       </div>
 
       <!-- GET ANOTHER FACT -->
-      <div class="flex justify-center items-center mt-8 mb-4">
+      <div class="flex justify-center items-center mt-4 mb-4">
         <button
           type="button"
           on:click={viewFact}
@@ -313,6 +326,13 @@
         </button>
       </div>
       <!-- GET ANOTHER FACT -->
+    </div>
+  {:else if loading}
+    <div class="modal-box border border-black">
+      <div class="mt-16 flex flex-col justify-center items-center">
+        <p>Finding a fact!</p>
+        <span class="loading loading-lg loading-spinner text-pink-400 mt-8 mb-4"></span>
+      </div>
     </div>
   {:else}
     <div class="modal-box border border-black">
@@ -332,7 +352,7 @@
       </div>
     </div>
   {/if}
-  <form method="dialog" class="modal-backdrop">
+  <form method="dialog" class="modal-backdrop" on:click={resetFact} on:keydown={resetFact}>
     <button>close</button>
   </form>
 </dialog>
@@ -375,7 +395,7 @@
       </button>
     </div>
   </div>
-  <form method="dialog" class="modal-backdrop">
+  <form method="dialog" class="modal-backdrop" on:click={resetFact} on:keydown={resetFact}>
     <button>close</button>
   </form>
 </dialog>
