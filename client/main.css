@@ -122,3 +122,7 @@
 .animate-shake {
   animation: wobbleTimer 2s ease 0s infinite normal none;
 }
+
+.bingo-text {
+  text-shadow: -3px -3px 0 #FF44CC, 3px -3px 0 #FF44CC, -3px 3px 0 #FF44CC, 3px 3px 0 #FF44CC;
+}

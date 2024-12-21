@@ -9,6 +9,8 @@ import "/imports/api/secret_santa/methods";
 import "/imports/api/secret_santa/publications";
 import "/imports/api/fun_facts/methods";
 import "/imports/api/fun_facts/publications";
+import "/imports/api/bingo/methods";
+import "/imports/api/bingo/publications";
 
 import { Meteor } from "meteor/meteor";
 
