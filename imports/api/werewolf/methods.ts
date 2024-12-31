@@ -86,7 +86,7 @@ Meteor.methods({
 
     let end_time = moment(last_round?.end_at);
     let now = moment();
-    let can_vote = now.isBefore(end_time);
+    let can_vote = now.isBefore(end_time) || !last_round?.end_time;
     if (now.isAfter(end_time)) {
       Meteor.call("wolf.end_last_round", game_id);
     }
@@ -143,7 +143,7 @@ Meteor.methods({
 
     let living_villagers = WolfPlayerCollection.find({
       game_id: game_id,
-      role: "werewolf",
+      role: "villager",
       dead: false,
     }).fetch();
 
@@ -208,6 +208,11 @@ Meteor.methods({
           }
         }
       });
+      console.log(max_votes, "Max Votes");
+      console.log(max_duplicate, "Max Duplicate");
+      console.log(killed_vill, "Killed Villager");
+      console.log(living_villagers.length / 2, "Living Villagers");
+      console.log(grouped, "Grouped");
       if (!max_duplicate && max_votes >= living_villagers.length / 2) {
         WolfPlayerCollection.update({ _id: killed_vill }, { $set: { dead: true, killed_at: finish.toDate() } });
       }
@@ -222,7 +227,7 @@ Meteor.methods({
 
     living_villagers = WolfPlayerCollection.find({
       game_id: game_id,
-      role: "werewolf",
+      role: "villager",
       dead: false,
     }).fetch();
 
