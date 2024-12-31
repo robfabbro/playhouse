@@ -86,7 +86,7 @@
   };
 
   const openViewPlayerModal = (player) => {
-    if (!game?.end_time) {
+    if (!game?.end_timesadf) {
       playerToView = player;
       let nonPlayerCodes = playerCodes.filter((code) => {
         return code !== player.code;

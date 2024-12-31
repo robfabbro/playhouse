@@ -422,7 +422,9 @@
 
         <!-- Remaining Players -->
         <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">
-          Welcome <span class="text-purple-600 underline">{current_player.name}</span>
+          Welcome <span class="text-purple-600 underline" class:strikethrough={current_player?.dead}
+            >{current_player.name}</span
+          >
         </h1>
 
         {#if last_round?.end_at}
