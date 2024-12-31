@@ -254,7 +254,7 @@ Meteor.methods({
       villager_role: faker.person.jobType(),
     });
   },
-  "wolf.start_game"(game_id, game_mode) {
+  "wolf.start_game"(game_id) {
     // Step 1: Get all the players for the game
     let players = WolfPlayerCollection.find({ game_id: game_id }).fetch();
 
@@ -289,7 +289,7 @@ Meteor.methods({
     });
 
     // Step 4: Update the game with a start time, game mode and roles
-    WolfGameCollection.update({ _id: game_id }, { $set: { game_mode: game_mode, start_time: new Date() } });
+    WolfGameCollection.update({ _id: game_id }, { $set: { start_time: new Date() } });
 
     // Step 5: Create the first round
 
