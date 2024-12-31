@@ -91,7 +91,11 @@ Meteor.methods({
       Meteor.call("wolf.end_last_round", game_id);
     }
 
-    if (can_vote && voter?.dead == false) {
+    if (voter?.dead) {
+      return false;
+    }
+
+    if (can_vote) {
       if (voter?.role == "werewolf" && last_round?.cycle == "night") {
         if (last_round.werewolf_nominated[voter_id] == nominated_id) {
           delete last_round.werewolf_nominated[voter_id];
