@@ -171,6 +171,7 @@
   let ballsAlive = _.range(1, 16);
   let my_vote;
   let wolf_votes = [];
+  let villager_votes = [];
 
   $m: {
     Meteor.subscribe("wolf.players", game_id);
@@ -380,70 +381,72 @@
     <!-- Game When Started -->
     {#if game?.start_time}
       <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center gap-2">
-        <!-- Remaining Balls -->
+        <!-- Current Round -->
         <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl flex items-center">Rounds</h1>
 
         <div class="mt-6 flex flex-row flex-wrap gap-1 mb-10 px-8 items-center justify-center">
-          {#each rounds as round}
-            {#if round?.cycle == "night"}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="rounded-full bg-black text-white btn btn-lg btn-circle p-0 text-blue-200"
+          {#if last_round?.cycle == "night"}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="rounded-full bg-black text-white btn btn-lg btn-circle p-0 text-blue-200"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <h3>Sleepy Time.. I wonder what will happen</h3>
+            <h3>
+              Ok who do we think is the villages: <span class="text-xl font-strong text-green-600"
+                >{last_round.villager_role}</span
               >
-                <path
-                  fill-rule="evenodd"
-                  d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              <h3>Sleepy Time.. I wonder what will happen</h3>
-              <h3>
-                Ok who do we think is the villages: <span class="text-xl font-strong text-green-600"
-                  >{round.villager_role}</span
-                >
-              </h3>
-            {:else}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="rounded-full bg-black text-white btn btn-lg btn-circle p-0 text-yellow-300"
-              >
-                <path
-                  d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z"
-                />
-              </svg>
-              <h3>Is it a beautiful day?</h3>
-            {/if}
-          {/each}
+            </h3>
+          {:else}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="rounded-full bg-black btn btn-lg btn-circle p-0 text-yellow-300"
+            >
+              <path
+                d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z"
+              />
+            </svg>
+            <h3>Is it a beautiful day?</h3>
+          {/if}
         </div>
-        <!-- Remaining Balls -->
+        <!-- Current Round -->
 
         <!-- Remaining Players -->
         <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">
           Welcome <span class="text-purple-600 underline">{current_player.name}</span>
         </h1>
 
-        <div class="flex gap-5">
-          <div>
-            <span class="countdown font-mono text-4xl" class:text-red-500={minutes === 0 && seconds < 30}>
-              <span style="--value:{minutes};"></span>
-            </span>
-            min
+        {#if last_round?.end_at}
+          <div class="flex gap-5">
+            <div>
+              <span class="countdown font-mono text-4xl" class:text-red-500={minutes === 0 && seconds < 30}>
+                <span style="--value:{minutes};"></span>
+              </span>
+              min
+            </div>
+            <div>
+              <span
+                class="countdown font-mono text-4xl"
+                class:text-red-500={minutes === 0 && seconds < 30}
+                class:animate-shake={minutes === 0 && seconds < 10}
+              >
+                <span style="--value:{seconds};"></span>
+              </span>
+              sec
+            </div>
           </div>
-          <div>
-            <span
-              class="countdown font-mono text-4xl"
-              class:text-red-500={minutes === 0 && seconds < 30}
-              class:animate-shake={minutes === 0 && seconds < 10}
-            >
-              <span style="--value:{seconds};"></span>
-            </span>
-            sec
-          </div>
-        </div>
+        {:else}
+          <div>Round not started</div>
+        {/if}
 
         <div
           class:invisible={!show}
@@ -461,16 +464,18 @@
               on:click={() => votePlayer(player._id)}
             >
               <div class="relative w-full">
-                {#if current_player?.role == "werewolf"}
-                  {#each wolf_votes as [wolf, eaten]}
+                {#if current_player?.role == "werewolf" && last_round?.cycle == "night"}
+                  {#each wolf_votes.filter(([wolf, eaten]) => eaten == player._id) as [wolf, eaten], index}
                     {#if eaten == player._id}
                       <svg
                         stroke="currentColor"
                         fill="currentColor"
                         stroke-width="0"
                         viewBox="0 0 512 512"
-                        class="w-8 h-8 absolute top-0 right-0"
+                        class="w-8 h-8 absolute"
+                        style={`top: ${index * 8}px; right: ${index * 2}px;`}
                         class:text-red-500={wolf === player_id}
+                        class:text-black-500={wolf !== player_id}
                         xmlns="http://www.w3.org/2000/svg"
                         ><path
                           d="M257.893 25.73c-129.963 0-235.13 105.166-235.13 235.13 0 52.99 17.487 101.856 47.007 141.154 18.687-22.89 36.79-51.545 40.99-78.98l-60.55-123.81 102.927-67.675c-32.11 41.175-42.93 80.322-36.914 113.11 6.575 35.84 33.437 62.59 69.39 74.065l5.682-17.807c-30.667-9.787-51.42-30.922-56.688-59.63-.662-3.61-1.076-7.368-1.22-11.26 20.214 13.75 81.03-26.946 139.773-113.604l101.445 20.11c-87.707 2.83-148.702 57.44-137.615 108.94l109.625-63.956 92.942 26.306c-86.43.5-159.89 25.05-162.032 83.56l106.065-37.67 85.447 68.612c-128.788-47.823-210.17 2.972-273.937 56.713-14.598 27.523-21.196 63.61-24.002 100.435 26.848 10.654 56.13 16.515 86.795 16.515 129.962 0 235.13-105.168 235.13-235.13 0-129.964-105.168-235.13-235.13-235.13z"
@@ -479,15 +484,17 @@
                     {/if}
                   {/each}
                 {/if}
-                {#if current_player?.role == "villager"}
-                  {#each villager_votes as [vill, voted]}
+                {#if current_player?.role == "villager" && last_round?.cycle == "night"}
+                  {#each villager_votes.filter(([vill, voted]) => voted == player._id) as [vill, voted], index}
                     {#if voted == player._id}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        class="w-8 h-8 absolute top-0 right-0"
+                        class="w-8 h-8 absolute"
+                        style={`top: ${index * 8}px; right: ${index * 2}px;`}
                         class:text-red-500={vill === player_id}
+                        class:text-black-500={vill !== player_id}
                       >
                         <path
                           d="M7.493 18.5c-.425 0-.82-.236-.975-.632A7.48 7.48 0 0 1 6 15.125c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75A.75.75 0 0 1 15 2a2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777ZM2.331 10.727a11.969 11.969 0 0 0-.831 4.398 12 12 0 0 0 .52 3.507C2.28 19.482 3.105 20 3.994 20H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 0 1-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227Z"
@@ -496,20 +503,23 @@
                     {/if}
                   {/each}
                 {/if}
-
-                {#if current_player?.role == "villager" && last_round?.cycle == "day"}
-                  {#each villager_votes as [vill, voted]}
+                {#if last_round?.cycle == "day"}
+                  {#each villager_votes.filter(([vill, voted]) => voted == player._id) as [vill, voted], index}
                     {#if voted == player._id}
                       <svg
                         stroke="currentColor"
                         fill="currentColor"
                         stroke-width="0"
                         viewBox="0 0 512 512"
-                        class="w-8 h-8 absolute top-0 right-0"
-                        class:text-red-500={vill === player_id}
+                        height="200px"
+                        width="200px"
                         xmlns="http://www.w3.org/2000/svg"
+                        class={`w-8 h-8 absolute`}
+                        style={`top: ${index * 8}px; right: ${index * 2}px;`}
+                        class:text-red-500={vill === player_id}
+                        class:text-black-500={vill !== player_id}
                         ><path
-                          d="M255.997 16.004c-120 0-239.997 60-239.997 149.998C16 226.002 61 256 61 316c0 45-15 45-15 75 0 14.998 48.01 32.002 89.998 44.998v60h239.997v-60s90.567-27.957 90-45c-.933-27.947-15-30-15-74.998 0-30 45.642-91.42 44.998-149.998 0-90-119.998-149.998-239.996-149.998zm-90 179.997c33.137 0 60 26.864 60 60 0 33.136-26.863 60-60 60C132.863 316 106 289.136 106 256c0-33.136 26.862-60 59.998-60zm179.998 0c33.136 0 60 26.864 60 60 0 33.136-26.864 60-60 60-33.136 0-60-26.864-60-60 0-33.136 26.864-60 60-60zm-89.998 105c15 0 45 60 45 75 0 29.998 0 29.998-15 29.998h-60c-15 0-15 0-15-30 0-15 30-74.998 45-74.998z"
+                          d="M247 24v15.2C134.4 43.81 43.81 134.4 39.2 247H24v18h15.2c4.61 112.6 95.2 203.2 207.8 207.8V488h18v-15.2c112.6-4.6 203.2-95.2 207.8-207.8H488v-18h-15.2C468.2 134.4 377.6 43.81 265 39.2V24h-18zm0 33.21V88h18V57.21C367.8 61.78 450.2 144.2 454.8 247H424v18h30.8c-4.6 102.8-87 185.2-189.8 189.8V424h-18v30.8c-102.8-4.6-185.22-87-189.79-189.8H88v-18H57.21C61.78 144.2 144.2 61.78 247 57.21zm9 52.79a64 64 0 0 0-64 64 64 64 0 0 0 38.1 58.5C172.6 280.9 161.9 349.6 176 406h160c14.1-56.4 3.3-125.2-54.1-173.6A64 64 0 0 0 320 174a64 64 0 0 0-64-64z"
                         ></path></svg
                       >
                     {/if}

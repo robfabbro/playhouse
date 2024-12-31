@@ -4,7 +4,7 @@ import { WolfGameCollection, WolfPlayerCollection, WolfRoundCollection } from "/
 import { Random } from "meteor/random";
 import _ from "lodash";
 import { faker } from "@faker-js/faker";
-import moment from "moment";
+import moment, { max } from "moment";
 
 Meteor.methods({
   "wolf.new_game"(name) {
@@ -83,45 +83,176 @@ Meteor.methods({
       game_id: game_id,
       completed: false,
     });
+
+    let end_time = moment(last_round?.end_at);
+    let now = moment();
+    let can_vote = now.isBefore(end_time);
+    if (now.isAfter(end_time)) {
+      Meteor.call("wolf.end_last_round", game_id);
+    }
+
+    if (can_vote) {
+      if (voter?.role == "werewolf" && last_round?.cycle == "night") {
+        if (last_round.werewolf_nominated[voter_id] == nominated_id) {
+          delete last_round.werewolf_nominated[voter_id];
+        } else {
+          last_round.werewolf_nominated[voter_id] = nominated_id;
+        }
+
+        WolfRoundCollection.update(
+          { _id: last_round._id },
+          { $set: { werewolf_nominated: last_round.werewolf_nominated } }
+        );
+      }
+
+      if (voter?.role == "villager" || last_round?.cycle == "day") {
+        if (last_round.villager_nominated[voter_id] == nominated_id) {
+          delete last_round.villager_nominated[voter_id];
+        } else {
+          last_round.villager_nominated[voter_id] = nominated_id;
+        }
+
+        WolfRoundCollection.update(
+          { _id: last_round._id },
+          { $set: { villager_nominated: last_round.villager_nominated } }
+        );
+      }
+    }
+
+    if (!last_round?.started_at) {
+      let start = moment();
+      let end = last_round?.cycle == "night" ? start.add(40, "seconds") : start.add(2, "minutes");
+      WolfRoundCollection.update(
+        { _id: last_round._id },
+        { $set: { started_at: start.toDate(), end_at: end.toDate() } }
+      );
+    }
+  },
+  "wolf.end_last_round"(game_id) {
+    let last_round = WolfRoundCollection.findOne({
+      game_id: game_id,
+      completed: false,
+    });
+    let finish = moment();
+
     let living_wolves = WolfPlayerCollection.find({
       game_id: game_id,
       role: "werewolf",
       dead: false,
     }).fetch();
 
-    if (voter?.role == "werewolf") {
-      if (last_round.werewolf_nominated[voter_id] == nominated_id) {
-        delete last_round.werewolf_nominated[voter_id];
-      } else {
-        last_round.werewolf_nominated[voter_id] = nominated_id;
+    let living_villagers = WolfPlayerCollection.find({
+      game_id: game_id,
+      role: "werewolf",
+      dead: false,
+    }).fetch();
+
+    if (last_round?.cycle == "night") {
+      let werewolf_votes = last_round.werewolf_nominated;
+      let unanimous = false;
+      let all_votes = false;
+      let killed = null;
+      if (Object.values(werewolf_votes).length == living_wolves.length) {
+        all_votes = true;
+        let grouped = _.groupBy(Object.values(werewolf_votes));
+        console.log(grouped);
+        Object.keys(grouped).forEach((key) => {
+          if (grouped[key].length == living_wolves.length) {
+            unanimous = true;
+            console.log("Unanimous");
+            killed = key;
+            WolfPlayerCollection.update({ _id: key }, { $set: { dead: true, killed_at: finish.toDate() } });
+          }
+        });
       }
 
-      WolfRoundCollection.update(
-        { _id: last_round._id },
-        { $set: { werewolf_nominated: last_round.werewolf_nominated } }
-      );
+      let villager_votes = last_round.villager_nominated;
+      let vill_unanimous = false;
+      let all_votes_vill = false;
+      let killed_vill = null;
+      if (Object.values(villager_votes).length == living_villagers.length) {
+        all_votes_vill = true;
+        let grouped = _.groupBy(Object.values(villager_votes));
+        console.log(grouped);
+        Object.keys(grouped).forEach((key) => {
+          if (grouped[key].length == living_villagers.length) {
+            vill_unanimous = true;
+            console.log("Unanimous");
+            killed_vill = key;
+            WolfPlayerCollection.update({ _id: killed_vill }, { $set: { villager_role: last_round.villager_role } });
+          }
+        });
+      }
     }
 
-    if (voter?.role == "villager") {
-      if (last_round.villager_nominated[voter_id] == nominated_id) {
-        delete last_round.villager_nominated[voter_id];
-      } else {
-        last_round.villager_nominated[voter_id] = nominated_id;
+    if (last_round?.cycle == "day") {
+      let villager_votes = last_round.villager_nominated;
+      let all_votes_vill = false;
+      let killed_vill = null;
+
+      if (Object.values(villager_votes).length == living_villagers.length) {
+        all_votes_vill = true;
       }
 
-      WolfRoundCollection.update(
-        { _id: last_round._id },
-        { $set: { villager_nominated: last_round.villager_nominated } }
-      );
+      let grouped = _.groupBy(Object.values(villager_votes));
+      console.log(grouped);
+      let max_votes = 0;
+      let max_duplicate = false;
+      Object.keys(grouped).forEach((key) => {
+        if (grouped[key].length >= max_votes) {
+          max_duplicate = true;
+          if (grouped[key].length > max_votes) {
+            max_votes = grouped[key].length;
+            killed_vill = key;
+            max_duplicate = false;
+          }
+        }
+      });
+      if (!max_duplicate && max_votes >= living_villagers.length / 2) {
+        WolfPlayerCollection.update({ _id: killed_vill }, { $set: { dead: true, killed_at: finish.toDate() } });
+      }
     }
-    if (!last_round?.started_at) {
-      let start = moment();
-      let end = last_round?.cycle == "night" ? start.add(20, "seconds") : start.add(2, "minutes");
-      WolfRoundCollection.update(
-        { _id: last_round._id },
-        { $set: { started_at: start.toDate(), end_at: end.toDate() } }
-      );
+
+    //post vote, check who is still going.
+    living_wolves = WolfPlayerCollection.find({
+      game_id: game_id,
+      role: "werewolf",
+      dead: false,
+    }).fetch();
+
+    living_villagers = WolfPlayerCollection.find({
+      game_id: game_id,
+      role: "werewolf",
+      dead: false,
+    }).fetch();
+
+    if (living_wolves.length >= living_villagers.length / 2) {
+      //wolves win
+      WolfGameCollection.update({ _id: game_id }, { $set: { end_time: new Date(), winner: "wolves" } });
     }
+    if (living_wolves.length == 0) {
+      //villagers win
+      WolfGameCollection.update({ _id: game_id }, { $set: { end_time: new Date(), winner: "villagers" } });
+    }
+
+    Meteor.call("wolf.start_new_round", game_id);
+  },
+  "wolf.start_new_round"(game_id) {
+    let last_round = WolfRoundCollection.findOne({
+      game_id: game_id,
+      completed: false,
+    });
+    WolfRoundCollection.update({ _id: last_round._id }, { $set: { finished_at: new Date(), completed: true } });
+    let cycle = last_round?.cycle == "night" ? "day" : "night";
+    WolfRoundCollection.insert({
+      game_id: game_id,
+      cycle: cycle,
+      completed: false,
+      werewolf_nominated: {},
+      villager_nominated: {},
+      created_at: new Date(),
+      villager_role: faker.person.jobType(),
+    });
   },
   "wolf.start_game"(game_id, game_mode) {
     // Step 1: Get all the players for the game
