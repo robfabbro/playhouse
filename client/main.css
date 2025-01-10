@@ -123,6 +123,125 @@
   animation: wobbleTimer 2s ease 0s infinite normal none;
 }
 
+@keyframes softShake {
+  0%,
+  100% {
+    transform: translateX(0%);
+    transform-origin: 50% 50%;
+  }
+
+  25% {
+    transform: translateX(-1px) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateX(0px) rotate(0deg);
+  }
+
+  75% {
+    transform: translateX(1px) rotate(1deg);
+  }
+}
+
+.animate-shake {
+  animation: wobbleTimer 2s ease 0s infinite normal none;
+}
+
+.animate-soft-shake {
+  animation: softShake 1s ease 0s infinite normal none;
+}
+
+@keyframes warningFont {
+  0%,
+  100% {
+    font-weight: 400;
+    color: rgb(0 0 0);
+  }
+
+  16% {
+    font-weight: 500;
+    color: rgb(127 29 29);
+  }
+
+  33% {
+    font-weight: 600;
+    color: rgb(153 27 27);
+  }
+
+  50% {
+    font-weight: 700;
+    color: rgb(220 38 38);
+  }
+
+  66% {
+    font-weight: 600;
+    color: rgb(153 27 27);
+  }
+
+  82% {
+    font-weight: 500;
+    color: rgb(127 29 29);
+  }
+}
+
+.animate-warning-font {
+  animation: warningFont 1.5s ease 0s infinite normal none;
+}
+
+@keyframes winnerFont {
+  0%,
+  100% {
+    font-weight: 400;
+    color: rgb(22 163 74);
+  }
+
+  16% {
+    font-weight: 500;
+    color: rgb(37 99 235);
+  }
+
+  33% {
+    font-weight: 600;
+    color: rgb(79 70 229);
+  }
+
+  50% {
+    font-weight: 700;
+    color: rgb(220 38 38);
+  }
+
+  66% {
+    font-weight: 600;
+    color: rgb(234 88 12);;
+  }
+
+  82% {
+    font-weight: 500;
+    color: rgb(202 138 4);
+  }
+}
+
+.animate-winner-font {
+  animation: winnerFont 1.5s ease 0s infinite normal none;
+}
+
+@keyframes warningBorder {
+  0%,
+  100% {
+    border-color: rgb(55 48 163);
+    background-color: rgb(238 242 255);
+  }
+
+  50% {
+    border-color: rgb(153 27 27);
+    background-color: rgb(254 242 242);
+  }
+}
+
+.animate-warning-border {
+  animation: warningBorder 1.5s ease 0s infinite normal none;
+}
+
 .bingo-text {
-  text-shadow: -3px -3px 0 #FF44CC, 3px -3px 0 #FF44CC, -3px 3px 0 #FF44CC, 3px 3px 0 #FF44CC;
+  text-shadow: -3px -3px 0 #ff44cc, 3px -3px 0 #ff44cc, -3px 3px 0 #ff44cc, 3px 3px 0 #ff44cc;
 }

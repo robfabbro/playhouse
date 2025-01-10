@@ -320,7 +320,7 @@
         <p class="font-poppins text-lg md:text-2xl">
           ZILCHES:
           <span class="font-bold">
-            {game?.zilcheCount}
+            {game?.zilche_count}
           </span>
         </p>
         <p class="font-poppins text-lg md:text-2xl px-4">

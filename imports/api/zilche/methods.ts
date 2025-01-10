@@ -5,6 +5,8 @@ import {
 } from "/imports/api/zilche/collections";
 import { Random } from "meteor/random";
 import _ from "lodash";
+import { HTTP } from 'meteor/http'
+
 
 const placingth = (n) => {
 	let s = ["th", "st", "nd", "rd"],
@@ -27,7 +29,7 @@ Meteor.methods({
 			name: name.toLowerCase(),
 			code: code.toLowerCase(),
 			scores: [],
-			zilcheCount: 0,
+			zilche_count: 0,
 			round: 1,
 		});
 		return id;
@@ -63,7 +65,7 @@ Meteor.methods({
 		// Step 1: Update the game with a start time, game mode and sunk balls array
 		ZilcheGameCollection.update(
 			{ _id: game_id },
-			{ $set: { poison, start_time: new Date(), zilcheCount: 0 } }
+			{ $set: { poison, start_time: new Date(), zilche_count: 0 } }
 		);
 	},
 	"zilche.choose_poison"(game_id, poison) {
@@ -195,7 +197,7 @@ Meteor.methods({
 		// 1. If the score is a zilche, increment the zilche count (player and game) and add the score to the player's lost scores
 		// 2. If the score is a score, add the score to the player's scores, and determine if the score is a big score
 		if (score == 0) {
-			game.zilcheCount = game.zilcheCount + 1;
+			game.zilche_count = (game.zilche_count || 0) + 1;
 			player.zilches = player.zilches + 1;
 			player.lost_scores.push({
 				_id: score_id,
@@ -227,13 +229,15 @@ Meteor.methods({
 		if (player.score >= 10000) {
 			over_ten_thousand = true;
 			game.final_round = true;
+			if(!game.order_of_first_finished){
+				game.order_of_first_finished = player.order;
+			}
 		}
 
 		//Step 5: Increment the Round this is the last player of the round, and if the round is final, mark the game as finished
 		if (player.order == allPlayers.length) {
 			if (game?.final_round) {
 				game.finished = true;
-        game.order_of_first_finished = player.order;
 			} else {
 				game.round = game?.round + 1;
 			}
@@ -266,6 +270,7 @@ Meteor.methods({
 					final_round: game?.final_round,
 					finished: game?.finished,
           order_of_first_finished: game?.order_of_first_finished,
+					zilche_count: game?.zilche_count
 				},
 			}
 		);
