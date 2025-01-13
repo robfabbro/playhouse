@@ -10,6 +10,7 @@
   import _ from "lodash";
   import Scoreboard from "/imports/ui/components/zilche/Scoreboard.svelte";
   import confettiConfig from "/imports/ui/particles/confetti.json";
+  import Digit from "/imports/ui/components/zilche/Digit.svelte";
 
   let show = false;
   const options: Options = {
@@ -382,6 +383,9 @@
               on:click={() => openViewPlayerModal(currentPlayer)}
             >
               <span class="absolute top-[5%] left-[10%] text-sm">{currentPlayer?.order || 1}.</span>
+              <p class="absolute top-[5%] right-[10%] font-poppins capitalize text-base">
+                {currentPlayer?.placing}
+              </p>
               <div
                 class="text-center my-auto flex flex-col items-center justify-center text-auto gap-2"
                 bind:this={player_parents[0]}
@@ -399,13 +403,24 @@
                   {currentPlayer?.name}
                 </h2>
 
-                <p class="font-poppins capitalize text-xl">
-                  {currentPlayer?.placing}
-                </p>
                 <p class="font-poppins capitalize flex items-center justify-center gap-2 text-xl text-red">
                   <span>Score:</span>
                   <span class="font-bold">{currentPlayer?.score + (currentPlayer?.stored_score || 0)}</span>
                 </p>
+
+                <div
+                  class={`font-semibold leading-tight flex justify-center items-center text-2xl mb-2 w-full relative`}
+                >
+                  <div
+                    class={`text-md mb-2 px-4 py-1 shadow-sm border rounded-full text-indigo-700 bg-indigo-100 border-indigo-700`}
+                  >
+                    {#key `${currentPlayer?.stored_score}`}
+                      {#each `${currentPlayer?.stored_score >= 0 ? "+" : ""} ${String(currentPlayer?.stored_score)}`.split("") as num, i}
+                        <Digit {num} {i} />
+                      {/each}
+                    {/key}
+                  </div>
+                </div>
 
                 {#if currentPlayer?.counter == 0 && game?.last_score?.value > 0 && game.scores?.length > 0 && game?.scores.slice(-1)[0]?.player != currentPlayer?._id}
                   <p
