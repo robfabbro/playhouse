@@ -71,7 +71,7 @@
 		if (searchName) {
 			console.log("SEARCH NAME", searchName.toLowerCase());
 
-			let found = zilcheGameCollection.findOne({
+			let found = ZilcheGameCollection.findOne({
 				$or: [
 					{ name: searchName.toLowerCase() },
 					{ code: searchName.toLowerCase() },
@@ -87,7 +87,7 @@
 	};
 
 	$m: {
-		Meteor.subscribe("games");
+		Meteor.subscribe("zilche.games");
 	}
 	let past_games;
 
