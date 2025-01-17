@@ -245,3 +245,8 @@
 .bingo-text {
   text-shadow: -3px -3px 0 #ff44cc, 3px -3px 0 #ff44cc, -3px 3px 0 #ff44cc, 3px 3px 0 #ff44cc;
 }
+
+.text-xxs {
+  font-size: 0.6rem;
+  line-height: 0.8rem;
+}

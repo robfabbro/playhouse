@@ -56,7 +56,7 @@
   $m: currentScore = currentScore ? currentScore.match(/^[0-9\-]+$/)?.join("") : "";
 </script>
 
-<div class="mt-6 flex justify-center items-center mb-6 px-1">
+<div class="mt-6 flex justify-center items-center mb-6 px-1" id={player_id}>
   <button
     class="bg-base-100 px-3 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32 relative py-5"
     class:bg-indigo-50={is_turn}

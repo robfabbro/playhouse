@@ -20,21 +20,14 @@
 
   let { game_id, name } = $params;
 
-  let newOptionValue;
   let addPlayerModal;
   let viewPlayerModal;
-  let sinkBallModal;
   let startGameModal;
   let loading = false;
-  let selectedMode = "stay_alive";
-  let showPlayerCode = false;
-  let unlockAddPlayer = false;
   let playerToViewId = null;
   let playerToView = null;
-  let playerToViewShowBalls = false;
   let ballToSink;
   let isAdmin = false;
-  let playerAffectedBySink = null;
 
   let players = [];
   let nonCurrentPlayers = [];
@@ -42,28 +35,19 @@
   let newPlayerName;
   let choosePoisonModal;
   let pickYourPoison = "";
-  let game_options = [];
   let game;
   let player_parents = [];
-  let option_parents = [];
   let editingScore = false;
   let editingScoreValue = null;
   let editingIndividualScore = null;
+  let editingNameValue = null;
+  let editingName = null;
 
-  const playerCodes = ["🍎", "🍊", "⚽️", "🏀", "🏈", "🎾", "🎱", "🍓", "🍆", "🌞", "🌝", "🐸", "🐷", "🚗", "💎"];
 
   const closeAddPlayerModal = () => {
     newPlayerName = "";
     newPlayerCode = null;
-    showPlayerCode = false;
-    unlockAddPlayer = false;
     addPlayerModal.close();
-  };
-
-  const closeSinkBallModal = () => {
-    ballToSink = null;
-    playerAffectedBySink = null;
-    sinkBallModal.close();
   };
 
   const closeViewPlayerModal = () => {
@@ -72,6 +56,8 @@
     editingIndividualScore = null;
     editingScore = false;
     editingScoreValue = null;
+    editingName = false;
+    editingNameValue = null;
     viewPlayerModal.close();
   };
 
@@ -113,9 +99,32 @@
     editingScore = true;
   };
 
+  const saveInitialScore = () => {
+    Meteor.call("zilche.saveInitialScore", playerToView._id, editingScoreValue, (err, res) => {
+      if (!err) {
+        editingScoreValue = null;
+        editingScore = false;
+      }
+    });
+  };
+
+  const editName = () => {
+    editingNameValue = playerToView.name;
+    editingName = true;
+  };
+
+  const savePlayerName = () => {
+    Meteor.call("zilche.savePlayerName", playerToView._id, editingNameValue, (err, res) => {
+      if (!err) {
+        editingNameValue = null;
+        editingName = false;
+      }
+    });
+  };
+
   const saveIndividualScore = () => {
     Meteor.call(
-      "zilche.ing",
+      "zilche.editIndividualScore",
       playerToView._id,
       editingIndividualScore._id,
       editingIndividualScore.value,
@@ -125,6 +134,14 @@
         }
       }
     );
+  };
+
+  const changePlayerOrder = (newOrder) => {
+    if (newOrder !== playerToView?.order) {
+      Meteor.call("zilche.changePlayerOrder", playerToView._id, newOrder, (err, res) => {
+        console.log({ err, res });
+      });
+    }
   };
 
   const placingth = (placing) => {
@@ -161,8 +178,12 @@
     Meteor.subscribe("zilche.players", game_id);
     Meteor.subscribe("zilche.games");
     game = ZilcheGameCollection.findOne({ _id: game_id });
-    players = ZilchePlayerCollection.find({ game_id: game_id }).fetch();
+    players = ZilchePlayerCollection.find({ game_id: game_id }, { sort: { order: 1 } }).fetch();
     currentPlayer = players.find((player) => player?.turn);
+    let currentPlayerCard = document.getElementById(`${currentPlayer?._id}`);
+    if (currentPlayerCard) {
+      currentPlayerCard.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    }
     nonCurrentPlayers = players.filter((player) => !player?.turn);
     playerToView = players.find((player) => player?._id === playerToViewId);
 
@@ -219,40 +240,6 @@
 
 {#if game}
   <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center">
-    <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
-      <!-- Add Player Header -->
-      {#if !game?.start_time}
-        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Players</h1>
-        <button
-          class="btn bg-indigo-400 btn-circle rounded-lg font-poppins shadow-lg border-black flex items-center justify-center p-2"
-          on:click={openAddPlayerModal}
-        >
-          {#if !loading}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="h-8 w-8"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          {:else}
-            <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          {/if}
-        </button>
-      {/if}
-      <!-- Add Player Header -->
-    </div>
-
     <!-- Players Before Game Start -->
     {#if !game?.start_time}
       <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
@@ -332,6 +319,38 @@
       </div>
       <!-- Game Meta Data -->
 
+      <!-- Add Player Header -->
+      <div class:invisible={!show} class:fade-in={show} class="mt-4 flex items-center justify-center gap-5">
+        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Players</h1>
+        <button
+          class="btn bg-indigo-400 btn-circle rounded-lg font-poppins shadow-lg border-black flex items-center justify-center p-2"
+          on:click={openAddPlayerModal}
+        >
+          {#if !loading}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="h-8 w-8"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          {:else}
+            <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+          {/if}
+        </button>
+      </div>
+      <!-- Add Player Header -->
+
       <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center gap-2">
         {#if players.length > 0}
           <div class="flex flex-row flex-wrap justify-center content-start items-start">
@@ -373,7 +392,7 @@
   <!-- Start Game Button -->
 
   <!-- Scoring Mode Button -->
-  {#if game?.start_time && !game?.finished}
+  {#if game?.start_time}
     <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center">
       <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
         {#if game?.start_time}
@@ -457,6 +476,49 @@
       </button>
       <h3 class="font-bold text-lg">Viewing Player {playerToView?.name ? `(${playerToView?.name})` : ""}</h3>
 
+      <!-- Player Name -->
+      <div class="flex justify-center items-center gap-2" class:invisible={!playerToView}>
+        <div class="w-10 h-10 invisible"></div>
+        <div class="flex flex-col items-center gap-0.5 justify-center">
+          {#if !editingName}
+            <span class="font-bold text-4xl">{playerToView?.name || 0}</span>
+          {:else}
+            <input
+              type="text"
+              class="input input-bordered input-primary"
+              bind:value={editingNameValue}
+              placeholder="Enter score"
+            />
+          {/if}
+        </div>
+        {#if !editingName}
+          <button
+            class="btn p-0 m-0 min-h-0 w-auto h-auto font-bold bg-transparent border-none self-end"
+            on:click={editName}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="h-10 w-10 flex-shrink-0"
+            >
+              <path
+                d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z"
+              />
+              <path
+                d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z"
+              />
+            </svg>
+          </button>
+        {:else}
+          <button
+            class="self-end btn px-1 py-0 m-0 w-12 h-10 bg-green-600 text-white text-sm rounded-lg border-white"
+            on:click={savePlayerName}>SAVE</button
+          >
+        {/if}
+      </div>
+      <!-- Player Name -->
+
       <!-- Total Score -->
       <div class="flex justify-center items-center gap-2" class:invisible={!playerToView}>
         <div class="w-10 h-10 invisible"></div>
@@ -494,8 +556,9 @@
             </svg>
           </button>
         {:else}
-          <button class="self-end btn px-1 py-0 m-0 w-12 h-10 bg-green-600 text-white text-sm rounded-lg border-white"
-            >SAVE</button
+          <button
+            class="self-end btn px-1 py-0 m-0 w-12 h-10 bg-green-600 text-white text-sm rounded-lg border-white"
+            on:click={saveInitialScore}>SAVE</button
           >
         {/if}
       </div>
@@ -543,11 +606,11 @@
       </div>
       <!-- Show Scores -->
 
-      <!-- Change to Thie Person's Turn -->
+      <!-- Change to This Person's Turn -->
       {#if !playerToView?.turn && !game?.finished}
         <div class="mt-6" class:invisible={!playerToView}>
           <button
-            class="btn bg-indigo-400 md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
+            class="btn bg-indigo-300 hover:bg-indigo-400 md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
             on:click={() => Meteor.call("zilche.change_turn", game_id, playerToView?._id)}
           >
             Change to this person's turn
@@ -564,7 +627,32 @@
           </button>
         </div>
       {/if}
-      <!-- Change to Thie Person's Turn -->
+      <!-- Change to This Person's Turn -->
+
+      <!-- Change The Player's Order -->
+      {#if !game?.finished}
+        <div class="flex flex-col justify-center p-2 border border-indigo-800 bg-indigo-50 rounded-lg">
+          <span class="font-poppins text-base text-center font-medium">Change this player's order</span>
+          <div class="flex gap-2 items-center justify-center" class:invisible={!playerToView}>
+            {#each players as player, idx}
+              <button
+                class={`btn btn-circle ${playerToView?.order - 1 == idx ? "bg-indigo-400 border-indigo-800 text-white" : "bg-white text-indigo-800"} rounded-full font-poppins shadow-lg`}
+                on:click={() => changePlayerOrder(idx + 1)}
+              >
+                <p class="flex flex-col items-center">
+                  <span class="text-xxs font-light">
+                    {idx + 1}
+                  </span>
+                  <span class="text-xs">
+                    {player?.name}
+                  </span>
+                </p>
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
+      <!-- Change The Players Order -->
     </div>
     <form method="dialog" class="modal-backdrop">
       <button on:click={closeViewPlayerModal}>close</button>

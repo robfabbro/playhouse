@@ -408,25 +408,28 @@
                   <span class="font-bold">{currentPlayer?.score + (currentPlayer?.stored_score || 0)}</span>
                 </p>
 
-                <div
-                  class={`font-semibold leading-tight flex justify-center items-center text-2xl mb-2 w-full relative`}
-                >
+                {#if currentPlayer?.stored_score > 0}
                   <div
-                    class={`text-md mb-2 px-4 py-1 shadow-sm border rounded-full text-indigo-700 bg-indigo-100 border-indigo-700`}
+                    class={`font-semibold leading-tight flex justify-center items-center text-2xl mb-2 w-full relative`}
                   >
-                    {#key `${currentPlayer?.stored_score}`}
-                      {#each `${currentPlayer?.stored_score >= 0 ? "+" : ""} ${String(currentPlayer?.stored_score)}`.split("") as num, i}
-                        <Digit {num} {i} />
-                      {/each}
-                    {/key}
+                    <div
+                      class={`text-md mb-2 px-4 py-1 shadow-sm border rounded-full ${game?.zilche_count % 3 !== 2 ? "text-green-800 bg-green-100 border-white" : "animate-warning-border animate-warning-font"}`}
+                    >
+                      {#key `${currentPlayer?.counter}`}
+                        {#each `${currentPlayer?.stored_score >= 0 ? "+" : ""} ${String(currentPlayer?.stored_score)}`.split("") as num, i}
+                          <Digit {num} {i} />
+                        {/each}
+                      {/key}
+                    </div>
                   </div>
-                </div>
+                {/if}
 
                 {#if currentPlayer?.counter == 0 && game?.last_score?.value > 0 && game.scores?.length > 0 && game?.scores.slice(-1)[0]?.player != currentPlayer?._id}
                   <p
-                    class="animate-soft-shake my-2 text-xl text-orange-800 font-medium px-2 py-1 border border-orange-800 bg-orange-50 rounded-lg"
+                    class="animate-soft-shake my-2 text-xl text-orange-800 font-medium px-4 py-2 border border-orange-800 bg-orange-50 rounded-lg flex flex-col gap-1"
                   >
-                    STEAL {game?.last_score?.value} ???
+                  <span class="text-4xl font-bold">{game?.last_score?.value}</span>
+                  <span>STEAL AVAILABLE </span>
                   </p>
                 {/if}
 
@@ -613,7 +616,7 @@
   <!-- Start Game Button -->
 
   <!-- Scoring Mode Button -->
-  {#if game?.start_time && !game?.finished}
+  {#if game?.start_time}
     <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center">
       <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
         {#if game?.start_time}
