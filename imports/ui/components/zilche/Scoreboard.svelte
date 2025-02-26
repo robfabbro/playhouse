@@ -24,20 +24,20 @@
 <div class="w-full lg:flex flex-col my-8">
   {#each players as player, idx (player?._id)}
     <div
-      class={`grid grid-cols-12 my-2 text-lg md:text-2xl ${isWinner(player) ? "text-green-600 font-bold" : isHighlighted(player) ? "text-indigo-600 font-bold" : "text-gray-500"}`}
+      class={`grid grid-cols-12 my-2 text-lg md:text-2xl ${isWinner(player) ? "animate-winner-font" : isHighlighted(player) ? "text-indigo-600 font-bold" : "text-gray-500"}`}
     >
       <span class="capitalize col-start-1 col-end-2 text-center">{player?.name}</span>
       <!-- CUSTOM RANGE -->
       <div class="relative flex items-center col-start-2 col-end-12 w-full h-full">
         <!-- BACKGROUND MARKER -->
         <div
-          class={`absolute left-0 h-1 w-full rounded-xl z-10 ${isWinner(player) ? "bg-green-200" : isHighlighted(player) ? "bg-indigo-200" : "bg-gray-200"}`}
+          class={`absolute left-0 h-1 w-full rounded-xl z-10 ${isWinner(player) ? "animate-winner-colour" : isHighlighted(player) ? "bg-indigo-200" : "bg-gray-200"}`}
         ></div>
 
         <div class="absolute left-0 flex items-center h-3 w-full rounded-xl z-20">
           <!-- SCORE CONFIRMED -->
           <div
-            class={`h-full z-20 ${isWinner(player) ? "bg-green-600" : isHighlighted(player) ? "bg-indigo-600" : "bg-gray-200"} flex justify-end items-center ${player.stored_score ? "rounded-l-xl" : "rounded-xl"}`}
+            class={`h-full z-20 ${isWinner(player) ? "animate-winner-colour" : isHighlighted(player) ? "bg-indigo-600" : "bg-gray-200"} flex justify-end items-center ${player.stored_score ? "rounded-l-xl" : "rounded-xl"}`}
             style={`width: ${player.score / 100}%;`}
           ></div>
           <!-- SCORE UNCONFIRMED -->
@@ -47,7 +47,7 @@
           ></div>
           <!-- RANGE THUMB THUMB -->
           <span
-            class={`flex justify-center items-center rounded-full ${isWinner(player) ? "bg-green-800" : isHighlighted(player) ? "bg-indigo-800" : "bg-gray-300 "} w-5 h-5 z-30 opacity-100`}
+            class={`flex justify-center items-center rounded-full ${isWinner(player) ? "animate-winner-colour" : isHighlighted(player) ? "bg-indigo-800" : "bg-gray-300 "} w-5 h-5 z-30 opacity-100`}
           >
           </span>
         </div>
