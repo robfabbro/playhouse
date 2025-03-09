@@ -433,6 +433,12 @@
           </h1>
         {/if}
 
+        {#if game?.winner}
+          <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">
+            Game Over, the {game.winner}s' win!
+          </h1>
+        {/if}
+
         {#if last_round?.end_at}
           <div class="flex gap-5">
             <div>
