@@ -35,18 +35,19 @@ Meteor.methods({
   },
   "wolf.vote_player"(game_id, voter_id, nominated_id) {
     let voter = WolfPlayerCollection.findOne({ _id: voter_id });
-    let nomintated = WolfPlayerCollection.findOne({ _id: nominated_id });
+    let nominated = WolfPlayerCollection.findOne({ _id: nominated_id });
     let game = WolfGameCollection.findOne({ _id: game_id });
     let last_round = WolfRoundCollection.findOne({
       game_id: game_id,
       completed: false,
     });
 
-    let end_time = moment(last_round?.end_at);
-    let now = moment();
-    let can_vote = now.isBefore(end_time) || !last_round?.end_time;
-    if (now.isAfter(end_time)) {
-      Meteor.call("wolf.end_last_round", game_id);
+    let can_vote = false;
+
+    if (last_round?.end_at) {
+      can_vote = moment().isBefore(moment(last_round?.end_at));
+    } else {
+      can_vote = true;
     }
 
     if (voter?.dead) {
@@ -55,6 +56,11 @@ Meteor.methods({
 
     if (can_vote) {
       if (voter?.role == "werewolf" && last_round?.cycle == "night") {
+        if (Object.values(last_round.werewolf_nominated).length == 0) {
+          Meteor.setTimeout(() => {
+            Meteor.call("wolf.end_last_round", game_id);
+          }, 40000);
+        }
         if (last_round.werewolf_nominated[voter_id] == nominated_id) {
           delete last_round.werewolf_nominated[voter_id];
         } else {
@@ -68,6 +74,26 @@ Meteor.methods({
       }
 
       if (voter?.role == "villager" || last_round?.cycle == "day") {
+        let living_villagers = WolfPlayerCollection.find({
+          game_id: game_id,
+          role: "villager",
+          dead: false,
+        }).fetch();
+        let living_wolves = WolfPlayerCollection.find({
+          game_id: game_id,
+          role: "werewolf",
+          dead: false,
+        }).fetch();
+        if (Object.values(last_round.villager_nominated).length == 0) {
+          Meteor.setTimeout(() => {
+            Meteor.call("wolf.end_last_round", game_id);
+          }, 120000);
+        }
+        if (living_villagers.length + living_wolves.length == Object.values(last_round.villager_nominated).length) {
+          Meteor.setTimeout(() => {
+            Meteor.call("wolf.end_last_round", game_id);
+          }, 100);
+        }
         if (last_round.villager_nominated[voter_id] == nominated_id) {
           delete last_round.villager_nominated[voter_id];
         } else {
@@ -79,6 +105,8 @@ Meteor.methods({
           { $set: { villager_nominated: last_round.villager_nominated } }
         );
       }
+    } else {
+      Meteor.call("wolf.end_last_round", game_id);
     }
 
     if (!last_round?.started_at) {
