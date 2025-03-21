@@ -16,64 +16,22 @@ Meteor.methods({
     return id;
   },
   "wolf.add_player"(game_id, name, code) {
-    WolfPlayerCollection.insert({
+    let player_id = WolfPlayerCollection.insert({
       game_id: game_id,
       name: name,
       code: code,
       dead: false,
+      ready: false,
     });
+    return player_id;
   },
-  "wolf.sink_ball"(game_id, ball_to_sink) {
-    // Step 1: Update the game by adding the ball to the sunk balls array
-    WolfGameCollection.update({ _id: game_id }, { $push: { sunk_balls: ball_to_sink } });
-
-    // Step 2: Update the player (who has this ball) balls array so that the ball is marked as sunk
-    let player = WolfPlayerCollection.findOne({
-      game_id: game_id,
-      balls: { $elemMatch: { ball: ball_to_sink } },
-    });
-    let player_balls = player?.balls || [];
-
-    if (player) {
-      player_balls = player.balls.map((ball) => {
-        if (ball.ball == ball_to_sink) {
-          ball.status = "sunk";
-          ball.sunk_time = new Date();
-        }
-        return ball;
-      });
-      WolfPlayerCollection.update({ _id: player._id }, { $set: { balls: player_balls } });
+  "wolf.ready_player"(player_id) {
+    let player = WolfPlayerCollection.findOne({ _id: player_id });
+    if (!player) {
+      return;
     }
 
-    // Step 3: Get the game mode of the game
-    let game = WolfGameCollection.findOne({ _id: game_id });
-    let game_mode = game.game_mode;
-
-    // Step 4: If the game mode is "stay_alive", mark the player as finished if they have no balls left
-    if (game_mode == "stay_alive" && player) {
-      let alive_balls = player_balls.filter((ball) => ball.status == "alive");
-      if (alive_balls.length == 0) {
-        WolfPlayerCollection.update({ _id: player._id }, { $set: { finished_at: new Date() } });
-      }
-    }
-
-    // Step 5: If the game mode is "sink_all", mark the player as finished if all their balls are sunk
-    if (game_mode == "sink_all" && player) {
-      let sunk_balls = player_balls.filter((ball) => ball.status == "sunk");
-      if (sunk_balls.length == player_balls.length) {
-        WolfPlayerCollection.update({ _id: player._id }, { $set: { finished_at: new Date() } });
-      }
-      player = WolfPlayerCollection.findOne({ _id: player._id });
-    }
-
-    // Step 6: If all but one player is finished, end the game
-    let players = WolfPlayerCollection.find({ game_id: game_id }).fetch();
-    let finished_players = players.filter((player) => player.finished_at);
-    if (players.length - finished_players.length <= 1) {
-      WolfGameCollection.update({ _id: game_id }, { $set: { end_time: new Date() } });
-    }
-
-    return player;
+    WolfPlayerCollection.update({ _id: player_id }, { $set: { ready: !player.ready } });
   },
   "wolf.vote_player"(game_id, voter_id, nominated_id) {
     let voter = WolfPlayerCollection.findOne({ _id: voter_id });
@@ -265,6 +223,7 @@ Meteor.methods({
   },
   "wolf.start_game"(game_id) {
     // Step 1: Get all the players for the game
+    WolfPlayerCollection.remove({ game_id: game_id, ready: { $ne: true } }, { multi: true });
     let players = WolfPlayerCollection.find({ game_id: game_id }).fetch();
 
     // Step 2: Create number of roles based on number of players
