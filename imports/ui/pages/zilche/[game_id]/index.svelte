@@ -428,8 +428,8 @@
                   <p
                     class="animate-soft-shake my-2 text-xl text-orange-800 font-medium px-4 py-2 border border-orange-800 bg-orange-50 rounded-lg flex flex-col gap-1"
                   >
-                  <span class="text-4xl font-bold">{game?.last_score?.value}</span>
-                  <span>STEAL AVAILABLE </span>
+                    <span class="text-4xl font-bold">{game?.last_score?.value}</span>
+                    <span>STEAL AVAILABLE </span>
                   </p>
                 {/if}
 

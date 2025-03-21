@@ -57,6 +57,35 @@ Meteor.methods({
       placing: "--",
     });
   },
+  "zilche.delete_player"(player_id) {
+    // Step 1: Get the player
+    let player = ZilchePlayerCollection.findOne({
+      _id: player_id,
+    });
+    if (!player) {
+      throw new Meteor.Error("player-not-found", "Player not found");
+    }
+
+    // Step 2: Delete the player
+    ZilchePlayerCollection.remove({
+      _id: player_id,
+    });
+
+    // Step 3: Reorder the remaining players
+    let remainingPlayers = ZilchePlayerCollection.find({ game_id: player.game_id }, { sort: { order: 1 } }).fetch();
+
+    remainingPlayers.forEach((p, index) => {
+      ZilchePlayerCollection.update({ _id: p.id }, { $set: { order: index + 1 } });
+    });
+
+    // Step 4: Update the turn if the deleted player had the turn
+    if (player.turn) {
+      let nextPlayer = ZilchePlayerCollection.findOne({ game_id: player.game_id, order: 1 }, { sort: { order: 1 } });
+      if (nextPlayer) {
+        ZilchePlayerCollection.update({ _id: nextPlayer._id }, { $set: { turn: true } });
+      }
+    }
+  },
   "zilche.start_game"(game_id, poison) {
     // Step 1: Update the game with a start time, game mode and sunk balls array
     ZilcheGameCollection.update({ _id: game_id }, { $set: { poison, start_time: new Date(), zilche_count: 0 } });
@@ -172,7 +201,7 @@ Meteor.methods({
         value: player.stored_score,
       });
       if (game.zilche_count % 3 == 0 && player.zilches != 0) {
-        console.log("we've got a triple zilche")
+        console.log("we've got a triple zilche");
         triple_zilche = true;
       }
     } else if (score > 0) {
@@ -304,7 +333,7 @@ Meteor.methods({
           ZilcheGameCollection.update({ _id: game_id }, { $set: { showGif: false } });
         }, 6000);
       } else if (triple_zilche) {
-        console.log(`triple zilche with poison: ${game?.poison}`)
+        console.log(`triple zilche with poison: ${game?.poison}`);
         let gifurl = encodeURI(giphy.baseURL + giphy.type + "?api_key=" + giphy.apiKey + "&tag=" + game?.poison);
         let res = HTTP.get(gifurl);
         let newGiphy = res.data.data.images.original.url;
@@ -313,7 +342,7 @@ Meteor.methods({
           ZilcheGameCollection.update({ _id: game_id }, { $set: { showGif: false } });
         }, 6000);
       } else if (score == 0) {
-        console.log("zilche with zilch+zero+nothing")
+        console.log("zilche with zilch+zero+nothing");
         let gifurl = encodeURI(
           giphy.baseURL + giphy.type + "?api_key=" + giphy.apiKey + "&tag=" + "zilch+zero+nothing"
         );

@@ -51,6 +51,13 @@
     },
   ];
 
+  let activation = "";
+  $: console.log(activation);
+
+  let add = (letter: string) => {
+    activation = activation + letter;
+  };
+
   let onParticlesLoaded = (event: any) => {
     const particlesContainer = event.detail.particles;
   };
@@ -76,9 +83,18 @@
       <div class="animate-bounce ml-2">Playhouse!</div>
     </div>
     <div class="font-poppins text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase mx-10">
-      Welcome to the <span class="text-red-300 animate-pulse">clownhouse<span></span></span>
+      W<button on:click={() => add("e")}>E</button><button on:click={() => add("l")}>L</button>c<button
+        on:click={() => add("o")}>O</button
+      >me to the
+      <span class="text-red-300 animate-pulse">clow<button on:click={() => add("n")}>N</button>house</span>
     </div>
   </div>
+
+  {#if activation == "elong"}
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black z-50 rounded-3xl">
+      <a class="text-9xl text-red-600 p-52" target="_blank" href="http://elong8.techreative.com.au/">8</a>
+    </div>
+  {/if}
 
   <!-- <div class="flex justify-around">
     <img src={`Legends_1.jpeg`} alt={`Muppets`} class="h-64 w-64 m-8 animate-spin hover:animate-none" />
@@ -91,9 +107,11 @@
     <img src="alexcute.jpg" alt={`Whoo`} class="h-64 w-64 m-8 animate-pulse hover:animate-none" />
     <img src="yeslee.jpg" alt={`Whoo`} class="h-64 w-64 m-8 animate-pulse hover:animate-none" />
   </div> -->
-  <span class="z-50 text-xl sm:text-2xl md:text-3xl lg:text-5xl bg-white rounded-lg px-4 py-2">PICK A GAME</span>
+  <span class="z-40 text-xl sm:text-2xl md:text-3xl lg:text-5xl bg-white rounded-lg px-4 py-2"
+    >PICK A <button on:click={() => add("g")}>G</button>AME</span
+  >
 
-  <div class="grid grid-cols-2 gap-4 mx-4 z-50">
+  <div class="grid grid-cols-2 gap-4 mx-4 z-40">
     {#each games as game}
       <button
         class="btn min-h-auto min-w-auto m-0 h-auto w-auto bg-white rounded-xl px-2 sm:px-4 md:px-6 lg:px-8 pt-1 sm:pt-2 md:pt-3 lg:pt-4 pb-2 sm:pb-4 md:pb-6 lg:pb-8 flex flex-col justify-between gap-1 sm:gap-2 md:gap-3 lg:gap-4 items-center border-4 border-black hover:border-black hover:bg-gray-300"

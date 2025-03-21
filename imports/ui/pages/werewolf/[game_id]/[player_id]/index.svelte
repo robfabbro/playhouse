@@ -160,6 +160,7 @@
     });
   };
 
+  let all_players = [];
   let other_players = [];
   let rounds = [];
   let alivePlayers = [];
@@ -177,6 +178,8 @@
     Meteor.subscribe("wolf.players", game_id);
     Meteor.subscribe("wolf.rounds", game_id);
     Meteor.subscribe("wolf.games");
+    all_players = WolfPlayerCollection.find({ game_id: game_id }).fetch();
+    console.log({ all_players });
     other_players = WolfPlayerCollection.find({
       game_id: game_id,
       _id: { $ne: player_id },
@@ -292,25 +295,18 @@
 
 {#if game}
   <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center">
-    <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
+    <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center gap-5">
       <!-- Add Player Header -->
       {#if !game?.start_time}
-        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Players</h1>
+        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl relative">
+          {current_player?.name}
+        </h1>
         <button
-          class="btn bg-[#50B9AB] btn-circle rounded-lg font-poppins shadow-lg border-black flex items-center justify-center p-2"
-          on:click={openAddPlayerModal}
+          class="btn btn-default rounded-lg font-poppins shadow-lg border-black flex items-center justify-center p-2"
+          on:click={() => Meteor.call("wolf.ready_player", player_id)}
         >
           {#if !loading}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="h-8 w-8"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+            <span>{current_player?.ready ? "Un Ready" : "Ready Up"}</span>
           {:else}
             <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -328,14 +324,15 @@
 
     <!-- Players Before Game Start -->
     {#if !game?.start_time}
-      <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
-        <div class="mt-6 grid gap-1 grid-cols-3 mb-10 px-1">
-          {#each other_players as player, idx}
+      <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center gap-5">
+        <h1 class="mt-6 text-center font-poppins text-xl font-semibold md:text-4xl">Players</h1>
+        <div class="grid gap-1 grid-cols-3 mb-10 px-1">
+          {#each all_players as player, idx}
             <div
-              class="w-full bg-base-100 px-1 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32"
+              class="w-full bg-base-100 px-1 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32 relative"
             >
               <div
-                class="text-center my-auto flex flex-col items-center justify-center text-auto"
+                class="text-center my-auto flex flex-col items-center justify-center text-auto w-full"
                 bind:this={player_parents[idx]}
               >
                 <h2
@@ -351,26 +348,11 @@
                   {player?.name}
                 </h2>
               </div>
-              {#if player?.balls?.length}
-                <div
-                  use:inview={options}
-                  on:inview_change={handleChange}
-                  class="flex flex-col items-center justify-center"
+              {#if player.ready}
+                <span
+                  class="absolute text-base text-white font-bold -rotate-45 w-24 -right-1 bottom-8 opacity-50 px-2 py-1 btn btn-sm bg-success rounded-lg font-poppins shadow-lg border-black"
+                  >READY</span
                 >
-                  <div class:invisible={!show} class:fade-in={show} class={`flex gap-1 mb-4 px-1`}>
-                    {#each player?.balls || [] as ball, idx}
-                      <button
-                        class="bg-base-200 px-1 shadow-sm container rounded-full"
-                        class:bg-green-500={game?.game_mode === "sink_all" && ball?.status === "alive"}
-                        class:bg-red-500={game?.game_mode === "stay_alive" && ball?.status === "sunk"}
-                      >
-                        <div class="text-center h-5 w-3 my-auto flex items-center">
-                          <h2 class="font-poppins hidden">{idx}</h2>
-                        </div>
-                      </button>
-                    {/each}
-                  </div>
-                </div>
               {/if}
             </div>
           {/each}
@@ -378,13 +360,34 @@
       </div>
     {/if}
     <!-- Players Before Game Start -->
+
+    <!-- Start the Game -->
+    {#if !game?.start_time}
+      <button
+        class="btn bg-[#50B9AB] btn-lg rounded-lg font-poppins shadow-lg border-black flex items-center justify-center"
+        on:click={() => startGameModal.showModal()}
+      >
+        Start Game
+        {#if loading}
+          <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+        {/if}
+      </button>
+    {/if}
+    <!-- End Start the game -->
     <!-- Game When Started -->
     {#if game?.start_time}
       <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center gap-2">
         <!-- Current Round -->
         <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl flex items-center">Rounds</h1>
 
-        <div class="mt-6 flex flex-row flex-wrap gap-1 mb-10 px-8 items-center justify-center">
+        <div class="mt-6 flex flex-col gap-1 mb-10 px-8 items-center justify-center">
           {#if last_round?.cycle == "night"}
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -398,11 +401,19 @@
                 clip-rule="evenodd"
               />
             </svg>
-            <h3>Sleepy Time.. I wonder what will happen</h3>
+            <h3 class="font-bold text-sm">NIGHT TIME</h3>
             <h3>
-              Ok who do we think is the villages: <span class="text-xl font-strong text-green-600"
-                >{last_round.villager_role}</span
-              >
+              {#if current_player?.role == "werewolf"}
+                You are a <span class="font-bold text-red-500">werewolf</span>, who would you like to eat?
+              {/if}
+
+              {#if current_player?.role == "villager"}
+                You are a <span class="font-bold text-green-600">villager</span>, you are asleep...
+              {/if}
+
+              {#if current_player?.role == "seer"}
+                You are the <span class="font-bold text-blue-500">seer</span>, who would you like to reveal?
+              {/if}
             </h3>
           {:else}
             <svg
@@ -415,7 +426,14 @@
                 d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z"
               />
             </svg>
-            <h3>Is it a beautiful day?</h3>
+            <h3>Day Time</h3>
+            {#if current_player?.role == "werewolf"}
+              You are a werewolf, you should help your other furry friends
+            {/if}
+            {#if current_player?.role == "villager"}You are a Villager, vote for who you think the werwolf is{/if}
+            {#if current_player?.role == "seer"}
+              You are the seer, who would you like to reveal?
+            {/if}
           {/if}
         </div>
         <!-- Current Round -->
@@ -423,12 +441,12 @@
         <!-- Remaining Players -->
         {#if !current_player?.dead}
           <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">
-            Welcome <span class="text-purple-600 underline">{current_player.name}</span>
+            Welcome <span class="text-purple-600 underline">{current_player?.name}</span>
           </h1>
         {:else}
           <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize text-red-500">
             Sorry
-            <span class="text-purple-600 underline">{current_player.name}, </span>
+            <span class="text-purple-600 underline">{current_player?.name}, </span>
             you are dead!
           </h1>
         {/if}
@@ -560,119 +578,10 @@
                   <p>1st</p>
                 {/if}
               </div>
-              {#if player?.balls?.length}
-                <div
-                  use:inview={options}
-                  on:inview_change={handleChange}
-                  class="flex flex-col items-center justify-center"
-                >
-                  <div class:invisible={!show} class:fade-in={show} class={`flex flex-wrap gap-1 mb-4 px-1`}>
-                    {#each player?.balls || [] as ball, idx}
-                      {#if alivePlayers?.length === 1 || ball.status === "sunk"}
-                        <div
-                          class:w-12={player?.balls?.length < 3}
-                          class:h-12={player?.balls?.length < 3}
-                          class:h-8={player?.balls?.length >= 3}
-                          class:w-8={player?.balls?.length >= 3}
-                        >
-                          <img
-                            src={`/assets/pool_balls/${ball?.ball}.svg`}
-                            alt={`Ball ${ball?.ball}`}
-                            class="h-full w-full"
-                          />
-                        </div>
-                      {:else}
-                        <button
-                          class="bg-base-200 px-1 shadow-sm container rounded-full"
-                          class:w-12={player?.balls?.length < 3}
-                          class:h-12={player?.balls?.length < 3}
-                          class:h-8={player?.balls?.length >= 3}
-                          class:w-8={player?.balls?.length >= 3}
-                          class:bg-green-500={game?.game_mode === "sink_all" && ball?.status === "alive"}
-                          class:bg-red-500={game?.game_mode === "stay_alive" && ball?.status === "sunk"}
-                        >
-                          <span class="text-gray-600 font-bold"> ? </span>
-                        </button>
-                      {/if}
-                    {/each}
-                  </div>
-                </div>
-              {/if}
             </button>
           {/each}
         </div>
         <!-- Remaining Players -->
-
-        <!-- Eliminated Players -->
-        <!-- {#if deadPlayers?.length}
-          <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Eliminated Players</h1>
-
-          <div class:invisible={!show} class:fade-in={show} class="mt-6 grid gap-1 grid-cols-3 mb-10 px-1 w-full">
-            {#each deadPlayers as player, idx}
-              <div
-                class="w-full bg-base-100 px-1 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32"
-              >
-                <div
-                  class="text-center my-auto flex flex-col items-center justify-center text-auto gap-2"
-                  bind:this={player_parents[idx]}
-                >
-                  <h2
-                    class="font-poppins capitalize"
-                    class:text-sm={player?.name?.length >= 11}
-                    class:text-lg={player?.name?.length === 10}
-                    class:text-xl={player?.name?.length === 9}
-                    class:text-2xl={[8, 7].includes(player?.name?.length)}
-                    class:text-3xl={player?.name?.length === 6}
-                    class:text-4xl={player?.name?.length === 5}
-                    class:text-5xl={player?.name?.length <= 4}
-                  >
-                    {player?.name}
-                  </h2>
-                  <p>
-                    {placingth(other_players?.length - (deadPlayers?.length - (idx + 1)))}
-                  </p>
-                </div>
-                {#if player?.balls?.length}
-                  <div
-                    use:inview={options}
-                    on:inview_change={handleChange}
-                    class="flex flex-col items-center justify-center"
-                  >
-                    <div
-                      class:invisible={!show}
-                      class:fade-in={show}
-                      class={`flex flex-wrap justify-center gap-1 mb-4 px-1`}
-                    >
-                      {#each player?.balls || [] as ball, idx}
-                        {#if (game?.game_mode === "sink_all" && ball?.status == "alive") || (game?.game_mode === "stay_alive" && ball?.status === "sunk")}
-                          <div
-                            class:w-12={player?.balls?.length < 3}
-                            class:h-12={player?.balls?.length < 3}
-                            class:h-8={player?.balls?.length >= 3}
-                            class:w-8={player?.balls?.length >= 3}
-                          >
-                            <img
-                              src={`/assets/pool_balls/${ball?.ball}.svg`}
-                              alt={`Ball ${ball?.ball}`}
-                              class="h-full w-full"
-                            />
-                          </div>
-                        {:else}
-                          <button class="bg-base-200 px-1 shadow-sm container rounded-full w-10 h-10">
-                            <div class="text-center h-5 w-3 my-auto flex items-center">
-                              <h2 class="font-poppins hidden">{idx}</h2>
-                            </div>
-                          </button>
-                        {/if}
-                      {/each}
-                    </div>
-                  </div>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        {/if} -->
-        <!-- Eliminated Players -->
       </div>
     {/if}
     <!-- Game When Started -->
@@ -801,84 +710,6 @@
 </dialog>
 <!-- View Player Modal -->
 
-<!-- Sink Ball Modal -->
-<dialog class="modal" bind:this={sinkBallModal}>
-  {#if game}
-    <div class="modal-box border border-black flex flex-col gap-4">
-      <button class="btn btn-sm btn-circle absolute bg-white border-none top-5 right-5" on:click={closeSinkBallModal}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="h-6 w-6"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-        </svg>
-      </button>
-      {#if playerAffectedBySink === null}
-        <h3 class="font-bold text-lg">Sink Ball</h3>
-        <div class="flex flex-wrap items-center justify-center gap-2">
-          <img src={`/assets/pool_balls/${ballToSink}.svg`} alt={`Ball ${ballToSink}`} class="h-20 w-20" />
-        </div>
-
-        <div class="mt-6">
-          <button
-            class="btn bg-[#50B9AB] md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
-            on:click={sinkBall}
-          >
-            Sink this Ball!
-            {#if loading}
-              <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            {/if}
-          </button>
-        </div>
-      {:else}
-        <h3 class="font-bold text-lg">Ball Sunk</h3>
-        <div class="mt-6">
-          <p class="text-center">
-            {playerAffectedBySink?.name || "No one's"}'s ball has been sunk!
-          </p>
-          {#if playerAffectedBySink?.finished_at}
-            <p class="text-center">
-              And this player {game?.game_mode === "stay_alive" ? "been eliminated!" : "finished!"}
-            </p>
-          {/if}
-
-          <button
-            class="mt-6 btn bg-[#50B9AB] md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
-            on:click={closeSinkBallModal}
-          >
-            Close!
-            {#if loading}
-              <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            {/if}
-          </button>
-        </div>
-      {/if}
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button on:click={closeSinkBallModal}>close</button>
-    </form>
-  {/if}
-</dialog>
-<!-- Sink Ball Modal -->
-
 <!-- Start Game Modal -->
 <dialog class="modal" bind:this={newRoundModal}>
   {#if game}
@@ -918,3 +749,49 @@
   {/if}
 </dialog>
 <!-- Start Game Modal -->
+
+<dialog class="modal" bind:this={startGameModal}>
+  {#if game}
+    <div class="modal-box border border-black flex flex-col gap-4">
+      <button
+        class="btn btn-sm btn-circle absolute bg-white border-none top-5 right-5"
+        on:click={() => startGameModal.close()}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="h-6 w-6"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <h3 class="font-bold text-lg">Are you sure you want to begin?</h3>
+
+      <div class="mt-6">
+        <button
+          class="btn bg-[#50B9AB] md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
+          on:click={startGame}
+        >
+          Begin!
+          {#if loading}
+            <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+          {/if}
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  {/if}
+</dialog>

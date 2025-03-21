@@ -115,6 +115,7 @@
         newPlayerName = "";
         loading = false;
         closeAddPlayerModal();
+        $goto(`/werewolf/${game_id}/${res}`);
       }
     });
   };
@@ -233,16 +234,7 @@
           on:click={openAddPlayerModal}
         >
           {#if !loading}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="h-8 w-8"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+            JOIN
           {:else}
             <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -500,32 +492,6 @@
     {/if}
     <!-- Game When Started -->
   </div>
-
-  <!-- Start Game Button -->
-  {#if !game?.start_time && players?.length > 1}
-    <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center">
-      <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
-        {#if !game?.start_time}
-          <button
-            class="btn bg-[#50B9AB] btn-lg rounded-lg font-poppins shadow-lg border-black flex items-center justify-center"
-            on:click={() => startGameModal.showModal()}
-          >
-            Start Game
-            {#if loading}
-              <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            {/if}
-          </button>
-        {/if}
-      </div>
-    </div>
-  {/if}
 {/if}
 <!-- Start Game Button -->
 

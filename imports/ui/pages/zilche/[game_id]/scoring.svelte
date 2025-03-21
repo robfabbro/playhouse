@@ -43,7 +43,6 @@
   let editingNameValue = null;
   let editingName = null;
 
-
   const closeAddPlayerModal = () => {
     newPlayerName = "";
     newPlayerCode = null;
@@ -120,6 +119,17 @@
         editingName = false;
       }
     });
+  };
+
+  let removePlayer = () => {
+    loading = true;
+    Meteor.call("zilche.delete_player", player_id, (err, res) => {
+      if (err) {
+        loading = false;
+        closeViewPlayerModal();
+      }
+    });
+    closeViewPlayerModal();
   };
 
   const saveIndividualScore = () => {
@@ -652,8 +662,13 @@
           </div>
         </div>
       {/if}
+      <div></div>
       <!-- Change The Players Order -->
+      <div>
+        <button on:Click={removePlayer} class="btn btn-sm bg-red-400 border-red-800 w-[68px]">Delete Player</button>
+      </div>
     </div>
+
     <form method="dialog" class="modal-backdrop">
       <button on:click={closeViewPlayerModal}>close</button>
     </form>
