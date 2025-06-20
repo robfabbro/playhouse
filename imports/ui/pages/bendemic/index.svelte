@@ -111,6 +111,13 @@
 						>
 							Generate
 						</button>
+            <a
+							type="button"
+							href={$url() + "/view"}
+							class="btn bg-black md:btn-lg rounded-full font-poppins shadow-lg border-white text-white"
+						>
+							View Codes
+          </a>
 					</div>
           <div class="m-10 w-full h-24 flex border">
             <span class="bg-blue-600 text-center text-white flex items-center justify-center" style:width={`${bens}%`}>
