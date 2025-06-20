@@ -53,9 +53,12 @@
       }
       else {
         if (getPatientId() != patient_id) {
-          patient.status = getPatientStatus();
-          Meteor.callAsync("bendemic.infect", patient.status, patient_id);
-          infected_by_user = true;
+          let user_status = getPatientStatus()
+          if (user_status != "neutral") {
+            patient.status = user_status;
+            Meteor.callAsync("bendemic.infect", patient.status, patient_id);
+            infected_by_user = true;
+          }
         }
       }
     }

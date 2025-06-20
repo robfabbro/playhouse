@@ -9,7 +9,9 @@ import { Parallax } from "@tsparticles/engine";
 
 Meteor.methods({
   async "bendemic.infect"(status, patient_id) {
-    PatientCollection.updateAsync({patient_id: patient_id}, {$set: {status: status}})
+    if (status != "neutral") {
+      PatientCollection.updateAsync({patient_id: patient_id}, {$set: {status: status}})
+    }
   },
   async "bendemic.generate"() {
     let count = 500
