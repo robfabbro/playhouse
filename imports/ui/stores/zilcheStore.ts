@@ -81,3 +81,22 @@ export const closeAlertMenu = () => {
 export const toggleShowGifs = () => {
   showGifs.update(v => !v)
 }
+
+export const setPatient = (patient_id, status) => {
+  if (localStorage.patient_id) {
+    return false
+  }
+  else {
+    localStorage.setItem('patient_id', patient_id)
+    localStorage.setItem('status', status)
+    return true
+  }
+}
+
+export const getPatientStatus = () => {
+  return localStorage.status || null
+}
+
+export const getPatientId = () => {
+  return localStorage.patient_id || null
+}

@@ -13,6 +13,8 @@ import "/imports/api/bingo/methods";
 import "/imports/api/bingo/publications";
 import "/imports/api/trivia/methods";
 import "/imports/api/trivia/publications";
+import "/imports/api/bendemic/methods";
+import "/imports/api/bendemic/publications";
 
 import { Meteor } from "meteor/meteor";
 import { TriviaQuestionCategoryCollection } from "/imports/api/trivia/collections";

@@ -1,0 +1,99 @@
+{
+  "background": {
+    "color": {
+      "value": "#00000"
+    }
+  },
+  "fpsLimit": 120,
+  "interactivity": {
+    "events": {
+      "onClick": {
+        "enable": false,
+        "mode": "push"
+      },
+      "onHover": {
+        "enable": false,
+        "mode": "repulse"
+      }
+    },
+    "modes": {}
+  },
+  "particles": {
+    "reduceDuplicates": true,
+    "color": {
+      "value": "random"
+    },
+    "bounce": {
+      "horizontal": {
+        "value": 1
+      },
+      "vertical": {
+        "value": 1
+      }
+    },
+    "collisions": {
+      "absorb": {
+        "speed": 1
+      },
+      "bounce": {
+        "horizontal": {
+          "value": 1
+        },
+        "vertical": {
+          "value": 1
+        }
+      },
+      "enable": true,
+      "maxSpeed": 20,
+      "mode": "bounce",
+      "overlap": {
+        "enable": true,
+        "retries": 0
+      }
+    },
+    "links": {
+      "color": "#3b82f6",
+      "distance": 150,
+      "enable": false,
+      "opacity": 0.5,
+      "width": 1
+    },
+    "move": {
+      "direction": "right",
+      "enable": true,
+      "outModes": "bounce",
+      "random": true,
+      "speed": 4,
+      "straight": true
+    },
+    "number": {
+      "density": {
+        "enable": false
+      },
+      "value": 30
+    },
+    "opacity": {
+      "value": 0.5
+    },
+    "shape": {
+      "close": true,
+      "fill": true,
+      "options": {
+        "images": [
+          {
+            "name": "Wanderer",
+            "src": "/assets/home/Ben.jpeg",
+            "height": 48,
+            "width": 48,
+            "replaceColor": true
+          }
+        ]
+      },
+      "type": "images"
+    },
+    "size": {
+      "value": { "min": 48, "max": 48 }
+    }
+  },
+  "detectRetina": true
+}
