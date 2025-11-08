@@ -73,6 +73,10 @@
     3px 3px 0 rgb(129 140 248);
 }
 
+.hive-mind-text {
+  text-shadow: -3px -3px 0 #3dadff, 3px -3px 0 #3dadff, -3px 3px 0 #3dadff, 3px 3px 0 #3dadff;
+}
+
 .animate-wave {
   animation: wave 1s infinite;
 }
@@ -212,7 +216,7 @@
 
   66% {
     font-weight: 600;
-    color: rgb(234 88 12);;
+    color: rgb(234 88 12);
   }
 
   82% {
@@ -244,7 +248,7 @@
   }
 
   66% {
-    background-color: rgb(234 88 12);;
+    background-color: rgb(234 88 12);
   }
 
   82% {
@@ -280,4 +284,8 @@
 .text-xxs {
   font-size: 0.6rem;
   line-height: 0.8rem;
+}
+
+.loading-xl {
+  @apply w-16;
 }

@@ -15,9 +15,12 @@ import "/imports/api/trivia/methods";
 import "/imports/api/trivia/publications";
 import "/imports/api/bendemic/methods";
 import "/imports/api/bendemic/publications";
+import "/imports/api/hive_mind/methods";
+import "/imports/api/hive_mind/publications";
 
 import { Meteor } from "meteor/meteor";
 import { TriviaQuestionCategoryCollection } from "/imports/api/trivia/collections";
+import { HiveMindWordCollection } from "/imports/api/hive_mind/collections";
 
 if (Meteor.isDevelopment) {
   const httpProxy = require("http-proxy");
@@ -56,66 +59,23 @@ if (Meteor.isDevelopment) {
 Meteor.startup(() => {
   //Migrating Question Categories
   const trivia_question_categories = JSON.parse(Assets.getText("fixtures/trivia_question_categories.json"));
-  console.log("upserting trivia_question_categories...");
   if (TriviaQuestionCategoryCollection.find().count() === 0) {
+    console.log("upserting trivia_question_categories...");
     for (let category of trivia_question_categories) {
       TriviaQuestionCategoryCollection.upsert({ name: category?.name }, { $set: category });
     }
   }
-});
 
-Meteor.startup(() => {
-  let countries = [
-    "Australia",
-    "Austria",
-    "Belgium",
-    "British Virgin Islands",
-    "Burundi",
-    "Cambodia",
-    "Canada",
-    "China",
-    "Croatia",
-    "Czech Republic",
-    "Czechia",
-    "East Timor",
-    "Fiji",
-    "Finland",
-    "France",
-    "Germany",
-    "Greece",
-    "Guatemala",
-    "Hong Kong",
-    "Hungary",
-    "India",
-    "Indonesia",
-    "Italy",
-    "Japan",
-    "Malaysia",
-    "Maldives",
-    "Mexico",
-    "Netherlands",
-    "New Caledonia",
-    "New Zealand",
-    "Panama",
-    "Philippines",
-    "Portugal",
-    "Rwanda",
-    "Singapore",
-    "Slovenia",
-    "South Africa",
-    "South Korea",
-    "Spain",
-    "Sri Lanka",
-    "Sweden",
-    "Switzerland",
-    "Taiwan",
-    "Thailand",
-    "Turkey",
-    "UAE",
-    "United Kingdom",
-    "United States",
-    "Vatican City",
-    "Vietnam",
-  ]
-  console.log(countries.length, "countries found");
+  //Migrating Hive Mind Words
+  const hive_mind_words = Assets.getText("fixtures/hive_mind_words.txt").split("\n");
+  if (HiveMindWordCollection.find().count() === 0) {
+    console.log("upserting hive_mind_words...");
+    for (let word of hive_mind_words) {
+      if (word.length >= 3) {
+        HiveMindWordCollection.upsert({ word: word }, { $setOnInsert: { createdAt: new Date() } });
+      } else {
+        console.count(`Skipping short word: ${word}`);
+      }
+    }
+  }
 });

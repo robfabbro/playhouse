@@ -1,0 +1,56 @@
+import { Meteor } from "meteor/meteor";
+import {
+  HiveMindGameCollection,
+  HiveMindGamePlayerCollection,
+  HiveMindPlayerCollection,
+  HiveMindRoundAnswerCollection,
+  HiveMindRoundCollection,
+  HiveMindRoundWordCollection,
+} from "./collections";
+
+Meteor.publish("hive_mind.game", function (game_id) {
+  if (!game_id) {
+    return this.ready();
+  }
+
+  let game = HiveMindGameCollection.findOne({ _id: game_id });
+
+  if (!game) {
+    return this.ready();
+  }
+
+  return [
+    HiveMindGameCollection.find({ _id: game_id }),
+    HiveMindGamePlayerCollection.find({ game_id: game._id }),
+    HiveMindRoundCollection.find({ game_id: game._id }),
+    HiveMindRoundAnswerCollection.find({ game_id: game._id }),
+    HiveMindRoundWordCollection.find({ game_id: game._id }),
+  ];
+});
+
+Meteor.publish("hive_mind.player", function (player_code) {
+  if (!player_code) {
+    return this.ready();
+  }
+
+  let player_cursor = HiveMindPlayerCollection.find({ code: player_code });
+  let player = player_cursor.fetch()[0];
+
+  if (!player) {
+    console.log("No player found");
+    return [player_cursor];
+  }
+
+  let game_players = HiveMindGamePlayerCollection.find({ player_id: player?._id }).fetch();
+
+  if (!game_players || game_players.length === 0) {
+    console.log("No game players found");
+    return [player_cursor];
+  }
+
+  let game_ids = game_players.map((gp) => gp.game_id);
+
+  let game_cursor = HiveMindGameCollection.find({ _id: { $in: game_ids } }, { sort: { createdAt: -1 } });
+  console.log("Publishing player and games ", player_code, " with ids  ", game_ids);
+  return [player_cursor, game_cursor];
+});
