@@ -187,7 +187,11 @@
     {:else}
       <!-- SHOW PLAYER -->
       <button
-        class="btn border-black border-2 rounded-lg w-full min-w-auto max-w-auto py-2 px-1 h-auto bg-white hover:bg-gray-200 min-h-[52px]"
+        class="btn border-black border-2 rounded-lg w-full min-w-auto max-w-auto py-2 px-1 h-auto bg-white hover:bg-gray-200 min-h-[52px] bg-op"
+        class:bg-slate-400={player?.final_position_revealed && (placing === "2nd" || placing == "T-2nd")}
+        class:bg-amber-950={player?.final_position_revealed && (placing === "3rd" || placing == "T-3rd")}
+        class:bg-opacity-40={player?.final_position_revealed &&
+          (placing === "3rd" || placing == "T-3rd" || placing === "2nd" || placing == "T-2nd")}
         in:fade={{ duration: 1000, easing: cubicOut }}
         on:click={selectPlayer}
       >

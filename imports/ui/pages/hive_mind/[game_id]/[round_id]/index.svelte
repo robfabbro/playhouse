@@ -78,6 +78,17 @@
       selectedPlayerId = null;
     }
 
+    // go to next round if this round is complete
+    if (round?.next_round_start) {
+      let now = new Date();
+      let elapsed = Math.floor((now.getTime() - round?.next_round_start.getTime()) / 1000);
+      let remaining = Math.ceil(5 - elapsed);
+      if (remaining <= 0) {
+        console.log("[round_id] going to next round");
+        goToNextRound();
+      }
+    }
+
     answer = HiveMindRoundAnswerCollection.findOne({ round_id: round_id, player_id: your_game_player?._id });
 
     console.log({ round, round_words, answer });
@@ -85,6 +96,7 @@
 
   $m: {
     game = HiveMindGameCollection.findOne({ _id: game_id });
+
     all_answers = HiveMindRoundAnswerCollection.find({ game_id: game_id }).fetch();
     all_players = HiveMindGamePlayerCollection.find({ game_id: game_id })
       .fetch()
@@ -185,6 +197,7 @@
         console.log("ERROR SELECTING WORD: ", err);
         return;
       } else {
+        console.log("goToNextRound ", res);
         $goto(`/hive_mind/${game_id}/${res}`);
       }
     });
@@ -312,14 +325,22 @@
     <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
       <div class="grid grid-cols-2 grid-flow-row p-4 gap-4 w-full">
         {#each round_words as rw, i (rw._id)}
-          <div class="w-full h-full {rw.word_id === 'no_answer' ? 'hidden' : ''}">
+          <div
+            class="w-full h-full {rw.word_id === 'no_answer' ? 'hidden' : ''} {rw?.word?.length <= 6
+              ? 'text-xl'
+              : rw?.word?.length <= 8
+                ? 'text-lg'
+                : rw?.word?.length <= 10
+                  ? 'text-base'
+                  : 'text-sm'}"
+          >
             {#if loading}
               <button
                 class="btn border-black border-2 rounded-lg {rw.word_id === 'no_answer'
                   ? 'w-auto'
                   : 'w-full'} h-full bg-gray-200 text-gray-600 pointer-events-none"
               >
-                <h1 class="text-xl font-bold font-poppins text-center">{rw.word}</h1>
+                <h1 class="font-bold font-poppins text-center">{rw.word}</h1>
               </button>
             {:else if answer?.word_id === rw?._id}
               <button
@@ -327,7 +348,7 @@
                   ? 'w-auto'
                   : 'w-full'} h-full bg-green-500 pointer-events-none"
               >
-                <h1 class="text-xl font-bold font-poppins text-black text-center">{rw.word}</h1>
+                <h1 class="font-bold font-poppins text-black text-center">{rw.word}</h1>
               </button>
             {:else}
               <button
@@ -336,7 +357,7 @@
                   : 'w-full'} h-full bg-white hover:bg-green-100"
                 on:click={() => selectWord(rw?._id)}
               >
-                <h1 class="text-xl font-bold font-poppins text-black text-center">
+                <h1 class="font-bold font-poppins text-black text-center">
                   {rw.word}
                 </h1>
               </button>
@@ -422,7 +443,7 @@
 <!-- ROUND ENDED -->
 
 <!-- ROUND LEADERBOARD -->
-{#if round && round?.round_end && round?.round_scored && !round?.next_round_start && !round?.next_round_cancelling}
+{#if round && round?.round_end && round?.round_scored && !round?.next_round_start && !round?.next_round_cancelling && !(game?.ended_at || game?.final_leaderboard_revealed)}
   <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center px-8">
     <div class:invisible={!show} class:fade-in={show} class="w-full flex flex-col items-center justify-center">
       <div class="flex flex-col items-stretch py-4 gap-4 w-full">
@@ -440,8 +461,12 @@
       </div>
     </div>
   </div>
+{:else if game?.ended_at || game?.final_leaderboard_revealed}
+  <div class="flex flex-col items-center justify-center">
+    <p class="text-gray-700 font-poppins text-3xl">Finalising Game...</p>
+    <div class="loading loading-lg rounded-full border-b-2 border-gray-900"></div>
+  </div>
 {/if}
-
 <!-- ROUND LEADERBOARD -->
 
 <!-- NEXT ROUND BUTTON -->
@@ -472,7 +497,7 @@
       <h1 class="text-2xl font-bold">Starting next round in...</h1>
       <Countdown
         referenceTimestamp={round?.next_round_start}
-        secondsToLast={5}
+        secondsToLast={3}
         onComplete={() => {
           console.log("COUNTDOWN COMPLETE, STARTING ROUND");
           goToNextRound();

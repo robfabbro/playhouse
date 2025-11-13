@@ -369,6 +369,11 @@ Meteor.methods({
       throw new Meteor.Error("Round has not started");
     }
 
+    if (round.round_end) {
+      console.log("~~~ Round has already ended ~~~");
+      return;
+    }
+
     let answers = HiveMindRoundAnswerCollection.find({ round_id: round_id }).fetch();
     let game_players = HiveMindGamePlayerCollection.find({ game_id: round.game_id })
       .fetch()
@@ -420,7 +425,7 @@ Meteor.methods({
 
     Meteor.call("hive_mind.schedule_reveal_round_answers", round_id);
   },
-  "hive_mind.schedule_end_round"(round_id) {
+  "hive_mind.schedule_end_round"(round_id, timeout = 15000) {
     if (!round_id) {
       throw new Meteor.Error("Round ID is required");
     }
@@ -433,7 +438,7 @@ Meteor.methods({
 
     Meteor.setTimeout(() => {
       Meteor.call("hive_mind.end_round", round_id);
-    }, 15000);
+    }, timeout);
   },
   "hive_mind.select_word"(player_code, round_id, word_id) {
     if (!round_id) {
@@ -487,6 +492,37 @@ Meteor.methods({
         },
       }
     );
+
+    if (round?.round_start && !round?.round_end) {
+      let now = new Date();
+      let elapsed = Math.floor((now.getTime() - round?.round_start.getTime()) / 1000);
+      let time_remaining = Math.ceil(15 - elapsed);
+
+      if (time_remaining > 3) {
+        // next check if all players have answered
+        let answers = HiveMindRoundAnswerCollection.find({ round_id: round_id }).fetch();
+        let game_players = HiveMindGamePlayerCollection.find({ game_id: round.game_id })
+          .fetch()
+          .map((gp) => {
+            let did_answer = answers.find((a) => a.player_id === gp._id);
+
+            return {
+              ...gp,
+              did_answer: !!did_answer,
+            };
+          });
+
+        let non_answering_players = game_players.filter((gp) => !gp.did_answer);
+        let all_players_have_answered = non_answering_players.length === 0;
+
+        if (all_players_have_answered) {
+          let new_now = new Date();
+          let twelve_seconds_ago = new Date(new_now.getTime() - 12000);
+          HiveMindRoundCollection.update({ _id: round_id }, { $set: { round_start: twelve_seconds_ago } });
+          Meteor.call("hive_mind.schedule_end_round", round_id, 3000);
+        }
+      }
+    }
   },
   "hive_mind.reveal_round_answers"(round_id) {
     if (!round_id) {
@@ -513,14 +549,31 @@ Meteor.methods({
 
     if (words_to_reveal.length) {
       let word_to_reveal = words_to_reveal[0];
+      let revealling_answer_count = word_to_reveal.answer_count;
+
       Meteor.setTimeout(() => {
         console.log(`${word_to_reveal.word}: ${new Date().getSeconds()}`);
-        HiveMindRoundWordCollection.update({ _id: word_to_reveal._id }, { $set: { revealed: true } });
+        HiveMindRoundWordCollection.update(
+          { round_id: round_id, answer_count: revealling_answer_count },
+          { $set: { revealling_answer: true } },
+          { multi: true }
+        );
         Meteor.setTimeout(() => {
-          HiveMindRoundWordCollection.update({ _id: word_to_reveal._id }, { $set: { reveal_answerers: true } });
-          Meteor.call("hive_mind.reveal_round_answers", round_id);
+          HiveMindRoundWordCollection.update(
+            { round_id: round_id, answer_count: revealling_answer_count },
+            { $set: { revealed: true } },
+            { multi: true }
+          );
+          Meteor.setTimeout(() => {
+            HiveMindRoundWordCollection.update(
+              { round_id: round_id, answer_count: revealling_answer_count },
+              { $set: { reveal_answerers: true, revealling_answer: false } },
+              { multi: true }
+            );
+            Meteor.call("hive_mind.reveal_round_answers", round_id);
+          }, 500);
         }, 1500);
-      }, 1500);
+      }, 1000);
     } else {
       HiveMindRoundCollection.update({ _id: round_id }, { $set: { round_revealed: new Date() } });
       Meteor.call("hive_mind.score_round", round_id);
@@ -665,7 +718,7 @@ Meteor.methods({
     }
 
     // if the game has a game_start timestamp, and it is less that 10 seconds ago, allow cancel
-    if (!round.next_round_start || new Date().getTime() - new Date(round.next_round_start).getTime() > 5000) {
+    if (!round.next_round_start || new Date().getTime() - new Date(round.next_round_start).getTime() > 3000) {
       throw new Meteor.Error("Round start cannot be cancelled");
     }
 

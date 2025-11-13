@@ -289,3 +289,7 @@
 .loading-xl {
   @apply w-16;
 }
+
+.bg-bronze-100 {
+  background-color: #ab9c8e;
+}

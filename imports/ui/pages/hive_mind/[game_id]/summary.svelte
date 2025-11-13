@@ -269,6 +269,5 @@
     id="tsparticles"
     options={confettiConfig.options}
     on:particlesLoaded={onParticlesLoaded}
-    {particlesInit}
   />
 {/if}

@@ -28,24 +28,12 @@
     revealed: true,
     reveal_answerers: true,
   };
-
-  let loadingAnimation = false;
-  $: {
-    let unrevealedWords = round_words.filter((w) => !w.revealed);
-    let unrevealedWordsCount = unrevealedWords.length;
-    // if the current word is the last unrevealed word, show loading animation
-    if (!word.revealed && round?.round_answer_reveal && unrevealedWords[unrevealedWordsCount - 1]?._id === word?._id) {
-      loadingAnimation = true;
-    } else {
-      loadingAnimation = false;
-    }
-  }
 </script>
 
 <div class="flex flex-row justify-end items-center w-full gap-1">
   <!-- EMPTY SPACE -->
   <div class="w-1/5 flex-shrink-0 flex justify-center items-center font-poppins text-lg text-white font-bold">
-    {#if loadingAnimation}
+    {#if word?.revealling_answer}
       <div class="loading loading-spinner loading-md text-blue-600"></div>
     {/if}
   </div>
@@ -174,12 +162,14 @@
             class="w-3/5 flex justify-center items-center {howToPlay
               ? 'text-xs'
               : word?.word?.length >= 12
-                ? 'text-base'
+                ? 'text-sm'
                 : word?.word?.length >= 10
-                  ? 'text-lg'
-                  : word?.word_id === 'no_answer' || word?.word?.length >= 8
-                    ? 'text-xl'
-                    : 'text-2xl'} font-poppins font-bold"
+                  ? 'text-base'
+                  : word?.word?.length >= 8
+                    ? 'text-lg'
+                    : word?.word_id === 'no_answer' || word?.word?.length >= 6
+                      ? 'text-xl'
+                      : 'text-2xl'} font-poppins font-bold"
           >
             {word.word}
           </div>

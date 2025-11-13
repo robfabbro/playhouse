@@ -110,7 +110,7 @@
 </script>
 
 <div class="w-screen flex justify-center">
-  <div class="w-full max-w-5xl">
+  <div class="w-full max-w-5xl pb-[10vh]">
     {#if subReady}
       <slot
         scoped={{
