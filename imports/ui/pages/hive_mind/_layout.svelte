@@ -21,6 +21,8 @@
   let addPlayerName = "";
   let loading = false;
   let subReady = false;
+  let resetCounter = 0;
+  let resetGameModal;
 
   let game;
   let latest_round = null;
@@ -68,7 +70,12 @@
         console.log("GAME ID: ", game_id);
         console.log("NO GAME FOUND, GO TO /hive_mind");
         $goto(`/hive_mind`);
-      } else if (game && !game?.game_start && route_id !== `_hive_mind__game_id__index`) {
+      } else if (
+        game &&
+        !game?.game_start &&
+        route_id !== `_hive_mind__game_id_index` &&
+        route_id !== `_hive_mind_index`
+      ) {
         console.log("GAME NOT STARTED, GO TO /index");
         $goto(`/hive_mind/${game_id}`);
       } else if (
@@ -110,7 +117,27 @@
 </script>
 
 <div class="w-screen flex justify-center">
-  <div class="w-full max-w-5xl pb-[10vh]">
+  <div class="w-full max-w-5xl pb-[10vh] relative pt-2">
+    {#if game_id && resetCounter >= 10 && route_id !== `_hive_mind__game_id_index`}
+      <div class="flex flex-col items-center justify-center w-full absolute top-4">
+        <button
+          class="btn btn-sm btn-error my-2"
+          on:click={() => {
+            resetGameModal.showModal();
+            console.log("SHOW RESET MODAL: ", resetGameModal);
+          }}>RESET</button
+        >
+      </div>
+    {:else}
+      <div class="flex flex-col items-center justify-center w-full absolute top-4">
+        <button
+          class="btn btn-sm bg-white border-white hover:bg-white border-none text-white my-2 shadow-none"
+          on:click={() => {
+            resetCounter += 1;
+          }}>RESET</button
+        >
+      </div>
+    {/if}
     {#if subReady}
       <slot
         scoped={{
@@ -160,6 +187,41 @@
       {#if !!addPlayerError}
         <p class="text-red-500 text-sm mt-2">{addPlayerError}</p>
       {/if}
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop pointer-events-none">
+    <button>close</button>
+  </form>
+</dialog>
+
+<dialog class="modal" bind:this={resetGameModal}>
+  <div class="modal-box border border-black relative">
+    <button class="btn btn-sm btn-circle absolute right-2 top-2" on:click={() => resetGameModal.close()}> ✕ </button>
+    <h3 class="font-bold text-lg">Reset Game?</h3>
+    <p class="pt-4 pb-2 text-red-800 uppercase font-bold text-center">Warning:</p>
+    <p class="pb-4 text-center">All game data will be lost and be unrecoverable.</p>
+
+    <div class="pt-4">
+      <button
+        class="btn bg-red-500 md:btn-lg rounded-lg font-poppins shadow-lg border-black w-full"
+        on:click={() => {
+          Meteor.call("hive_mind.reset_game", game_id);
+          $goto(`/hive_mind/${game_id}`);
+          resetGameModal.close();
+        }}
+      >
+        Confirm
+        {#if loading}
+          <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+        {/if}
+      </button>
     </div>
   </div>
   <form method="dialog" class="modal-backdrop pointer-events-none">

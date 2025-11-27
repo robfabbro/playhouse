@@ -208,17 +208,10 @@
 <div
   use:inview={options}
   on:inview_change={handleChange}
-  class="flex flex-col items-center justify-center p-20 pt-8 pb-4"
+  class="flex flex-col items-center justify-center p-20 pt-8 pb-4 mt-4"
 >
   <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
     <div class="flex flex-col items-center">
-      <button
-        class="btn btn-sm btn-error my-2"
-        on:click={() => {
-          Meteor.call("hive_mind.reset_game", game?._id);
-          $goto(`/hive_mind/${game_id}`);
-        }}>RESET</button
-      >
       <p class="text-base font-medium uppercase text-center">Hive Mind</p>
       <h1 class="font-poppins text-lg font-black uppercase text-center">
         {game?.name}
