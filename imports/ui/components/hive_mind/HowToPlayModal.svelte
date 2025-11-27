@@ -4,6 +4,7 @@
   import { HiveMindGameCollection, HiveMindGamePlayerCollection } from "/imports/api/hive_mind/collections";
   import CounterInput from "/imports/ui/components/hive_mind/CounterInput.svelte";
   import WordResult from "/imports/ui/components/hive_mind/WordResult.svelte";
+  import _ from "lodash";
 
   export let closeModal = () => {};
   export let modalOpen = false;
@@ -42,13 +43,6 @@
       revealed: true,
       reveal_answerers: true,
       order: 4,
-    },
-    {
-      word: "NO ANSWER",
-      word_id: "no_answer",
-      revealed: true,
-      reveal_answerers: true,
-      order: 5,
     },
   ];
 
@@ -98,6 +92,7 @@
         reveal_answerers: true,
         answered_by: rw.answered_by || ansBy,
         answer_count: rw.answer_count || ansCnt,
+        order: rw.order,
       };
     });
   };
@@ -114,6 +109,7 @@
           revealed: false,
           reveal_answerers: false,
           word_id: rw.word_id,
+          order: rw.order,
         };
       })
       .sort((a, b) => a.order - b.order);
@@ -122,8 +118,9 @@
 
   let incrementPanel = () => {
     if (currentPanel == 2) {
-      if (!selectedWord || selectedWord === "NO ANSWER") {
-        onSelectWord("NO ANSWER", 4);
+      if (!selectedWord) {
+        let randomWord = _.sample(round_words);
+        onSelectWord(randomWord?.word, randomWord?.order - 1);
       }
       sortRoundWords();
     }
@@ -173,7 +170,7 @@
                 <h1 class="text-lg font-black font-poppins uppercase text-center">OCEAN</h1>
                 <div class="grid grid-cols-2 grid-flow-row p-4 gap-2">
                   {#each round_words as word, i (word)}
-                    <div class="w-full h-full {word.word === 'NO ANSWER' ? 'hidden' : ''}">
+                    <div class="w-full h-full">
                       <button
                         class="btn btn-sm w-full border-black border-2 rounded-lg h-full {selectedWord === word.word
                           ? 'bg-green-500 pointer-events-none'

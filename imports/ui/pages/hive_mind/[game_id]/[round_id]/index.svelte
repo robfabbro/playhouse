@@ -212,13 +212,13 @@
 >
   <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
     <div class="flex flex-col items-center">
-      <!-- <button
+      <button
         class="btn btn-sm btn-error my-2"
         on:click={() => {
           Meteor.call("hive_mind.reset_game", game?._id);
           $goto(`/hive_mind/${game_id}`);
         }}>RESET</button
-      > -->
+      >
       <p class="text-base font-medium uppercase text-center">Hive Mind</p>
       <h1 class="font-poppins text-lg font-black uppercase text-center">
         {game?.name}
@@ -323,43 +323,57 @@
   <!-- WORDS TO CHOOSE FROM -->
   <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-8 py-4">
     <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
-      <div class="grid grid-cols-2 grid-flow-row p-4 gap-4 w-full">
+      <div class="grid grid-cols-2 grid-flow-row gap-4 w-full {round?.round_end ? 'invisible' : ''}">
         {#each round_words as rw, i (rw._id)}
-          <div
-            class="w-full h-full {rw.word_id === 'no_answer' ? 'hidden' : ''} {rw?.word?.length <= 6
-              ? 'text-xl'
-              : rw?.word?.length <= 8
-                ? 'text-lg'
-                : rw?.word?.length <= 10
-                  ? 'text-base'
-                  : 'text-sm'}"
-          >
+          <div class="w-full h-full">
             {#if loading}
               <button
-                class="btn border-black border-2 rounded-lg {rw.word_id === 'no_answer'
-                  ? 'w-auto'
-                  : 'w-full'} h-full bg-gray-200 text-gray-600 pointer-events-none"
+                class="btn w-full border-black border-2 rounded-lg h-full bg-gray-200 text-gray-600 pointer-events-none"
               >
-                <h1 class="font-bold font-poppins text-center">{rw.word}</h1>
+                <span
+                  class="font-bold font-poppins text-center {rw?.word?.length <= 4
+                    ? 'text-2xl'
+                    : rw?.word?.length <= 6
+                      ? 'text-xl'
+                      : rw?.word?.length <= 8
+                        ? 'text-lg'
+                        : rw?.word?.length <= 10
+                          ? 'text-base'
+                          : 'text-sm'}">{rw.word}</span
+                >
               </button>
             {:else if answer?.word_id === rw?._id}
-              <button
-                class="btn border-black border-2 rounded-lg {rw.word_id === 'no_answer'
-                  ? 'w-auto'
-                  : 'w-full'} h-full bg-green-500 pointer-events-none"
-              >
-                <h1 class="font-bold font-poppins text-black text-center">{rw.word}</h1>
+              <button class="btn w-full border-black border-2 rounded-lg h-full bg-green-500 pointer-events-none">
+                <span
+                  class="font-bold font-poppins text-black text-center {rw?.word?.length <= 4
+                    ? 'text-2xl'
+                    : rw?.word?.length <= 6
+                      ? 'text-xl'
+                      : rw?.word?.length <= 8
+                        ? 'text-lg'
+                        : rw?.word?.length <= 10
+                          ? 'text-base'
+                          : 'text-sm'}">{rw.word}</span
+                >
               </button>
             {:else}
               <button
-                class="btn border-black border-2 rounded-lg {rw.word_id === 'no_answer'
-                  ? 'w-auto'
-                  : 'w-full'} h-full bg-white hover:bg-green-100"
+                class="btn w-full border-black border-2 rounded-lg h-full bg-white hover:bg-green-100"
                 on:click={() => selectWord(rw?._id)}
               >
-                <h1 class="font-bold font-poppins text-black text-center">
+                <span
+                  class="font-bold font-poppins text-black text-center {rw?.word?.length <= 4
+                    ? 'text-2xl'
+                    : rw?.word?.length <= 6
+                      ? 'text-xl'
+                      : rw?.word?.length <= 8
+                        ? 'text-lg'
+                        : rw?.word?.length <= 10
+                          ? 'text-base'
+                          : 'text-sm'}"
+                >
                   {rw.word}
-                </h1>
+                </span>
               </button>
             {/if}
           </div>
@@ -373,26 +387,6 @@
   <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-8 py-4">
     <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center gap-4">
       <div class="flex flex-col justify-center items-center gap-3">
-        {#if loading}
-          <button
-            class="btn border-black border-2 rounded-lg w-full h-full bg-gray-200 text-gray-600 pointer-events-none"
-          >
-            <h1 class="text-base font-bold font-poppins text-center">no answer</h1>
-          </button>
-        {:else if answer?.word_id === no_answer_word?._id}
-          <button
-            class="btn border-black border-2 border-dashed rounded-lg w-full h-full bg-green-500 pointer-events-none"
-          >
-            <h1 class="text-base font-bold font-poppins text-black text-center">no answer</h1>
-          </button>
-        {:else}
-          <button
-            class="btn border-black border-2 border-dashed rounded-lg w-full h-full bg-white hover:bg-green-100"
-            on:click={() => selectWord(no_answer_word?._id)}
-          >
-            <h1 class="text-base font-bold font-poppins text-black text-center">no answer</h1>
-          </button>
-        {/if}
         <PlayerAvatar
           game_player={your_game_player}
           iconClass="w-12 h-12 {answer?._id ? 'stroke-green-800 fill-green-400' : 'stroke-gray-800 fill-gray-400'}"

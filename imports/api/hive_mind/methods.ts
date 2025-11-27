@@ -303,18 +303,6 @@ Meteor.methods({
       });
     }
 
-    // Also add a non_answer word to the round:
-    let non_answer = {
-      word_id: "no_answer",
-      word: "no answer",
-      game_id: game_id,
-      round_id: round_id,
-      target: false,
-      order: 6,
-    };
-
-    HiveMindRoundWordCollection.insert(non_answer);
-
     // Assign robot answers for this round
     Meteor.call("hive_mind.assign_robot_answers", round_id);
 
@@ -389,10 +377,11 @@ Meteor.methods({
     // Step 1: Identify non-answering players, add that as a special entry onto the unrelated_words array
     let non_answering_players = game_players.filter((gp) => !gp.did_answer);
     if (non_answering_players.length > 0) {
-      let nonAnswerWord = HiveMindRoundWordCollection.findOne({ round_id: round_id, word_id: "no_answer" });
+      let round_words = HiveMindRoundWordCollection.findOne({ round_id: round_id });
+      let random_word = _.sample(round_words)
 
       for (let gp of non_answering_players) {
-        Meteor.call("hive_mind.select_word", gp.player_code, round_id, nonAnswerWord?._id);
+        Meteor.call("hive_mind.select_word", gp.player_code, round_id, random_word?._id);
       }
 
       answers = HiveMindRoundAnswerCollection.find({ round_id: round_id }).fetch();
@@ -827,18 +816,6 @@ Meteor.methods({
         order: parseInt(idx) + 1,
       });
     }
-
-    // Also add a non_answer word to the round:
-    let non_answer = {
-      word_id: "no_answer",
-      word: "no answer",
-      game_id: game_id,
-      round_id: round_id,
-      target: false,
-      order: 6,
-    };
-
-    HiveMindRoundWordCollection.insert(non_answer);
 
     // Assign robot answers for this round
     Meteor.call("hive_mind.assign_robot_answers", round_id);
