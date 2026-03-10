@@ -87,17 +87,17 @@
 <div class="min-h-screen flex flex-col items-center z-50 pb-32 gap-8">
   <!-- ian what is this -->
   <!-- clownery-->
-  <div class="mockup-code bg-purple-800 mt-16">
-    <div class="text-lg sm:text-2xl md:text-4xl lg:text-7xl font-black uppercase mx-10 flex animate-wave">
-      <div class="animate-bounce">Techreative</div>
-      <div class="animate-bounce ml-2">Playhouse!</div>
-    </div>
-    <div class="font-poppins text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase mx-10">
-      W<button on:click={() => add("e")}>E</button><button on:click={() => add("l")}>L</button>c<button
-        on:click={() => add("o")}>O</button
-      >me to the
-      <span class="text-red-300 animate-pulse">clow<button on:click={() => add("n")}>N</button>house</span>
-    </div>
+  <div class="flex flex-col gap-5 p-8 rounded-2xl bg-purple-800 mt-16">
+        <div class="text-lg sm:text-2xl md:text-4xl lg:text-7xl font-black uppercase flex animate-wave">
+          <div class="animate-bounce text-gray-300">Techreative</div>
+          <div class="animate-bounce ml-2 text-gray-300">Playhouse!</div>
+        </div>
+        <div class="font-poppins text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase text-gray-300">
+          W<button on:click={() => add("e")}>E</button><button on:click={() => add("l")}>L</button>c<button
+                on:click={() => add("o")}>O</button
+              >me to the
+          <span class="text-red-300 animate-pulse">clow<button on:click={() => add("n")}>N</button>house</span>
+        </div>
   </div>
 
   {#if activation == "elong"}
@@ -117,7 +117,7 @@
     <img src="alexcute.jpg" alt={`Whoo`} class="h-64 w-64 m-8 animate-pulse hover:animate-none" />
     <img src="yeslee.jpg" alt={`Whoo`} class="h-64 w-64 m-8 animate-pulse hover:animate-none" />
   </div> -->
-  <span class="z-40 text-xl sm:text-2xl md:text-3xl lg:text-5xl bg-white rounded-lg px-4 py-2"
+  <span class="z-40 text-xl sm:text-2xl md:text-3xl lg:text-5xl bg-white rounded-lg px-4 py-2 border-black border-4"
     >PICK A <button on:click={() => add("g")}>G</button>AME</span
   >
 

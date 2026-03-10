@@ -168,224 +168,58 @@
   }
 </script>
 
-<div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-20 pb-4">
-  <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
-    <div class="flex flex-col items-center">
-      <h1 class="font-poppins text-5xl font-black uppercase text-center">
-        {game?.name}
-      </h1>
-      <div class="btn btn-ghost">
-        <span class="text-lg font-light"> code: </span>
-        <span class="text-lg font-bold">
-          {game?.code}
-        </span>
-      </div>
-    </div>
-
-    <a class="btn btn-link btn-sm absolute top-8 left-8" href={`/`}>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="2.5"
-        stroke="currentColor"
-        class="h-8 w-8"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-      </svg>
-    </a>
-  </div>
-</div>
-
-{#if game}
-  <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center">
-    <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
-      <!-- Add Player Header -->
-      {#if !game?.start_time && players?.length < 15}
-        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Players</h1>
-        <button
-          class="btn bg-[#50B9AB] btn-circle rounded-lg font-poppins shadow-lg border-black flex items-center justify-center p-2"
-          on:click={openAddPlayerModal}
-        >
-          {#if !loading}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="h-8 w-8"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          {:else}
-            <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          {/if}
-        </button>
-      {/if}
-      <!-- Add Player Header -->
-    </div>
-
-    <!-- Players Before Game Start -->
-    {#if !game?.start_time}
-      <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
-        <div class="mt-6 grid gap-1 grid-cols-3 mb-10 px-1">
-          {#each players as player, idx}
-            <div
-              class="w-full bg-base-100 px-1 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32 cursor-pointer"
-              on:click={() => openViewPlayerModal(player)}
-              on:keydown={() => {}}
-            >
-              <div
-                class="text-center my-auto flex flex-col items-center justify-center text-auto"
-                bind:this={player_parents[idx]}
-              >
-                <h2
-                  class="font-poppins capitalize"
-                  class:text-sm={player?.name?.length >= 11}
-                  class:text-lg={player?.name?.length === 10}
-                  class:text-xl={player?.name?.length === 9}
-                  class:text-2xl={[8, 7].includes(player?.name?.length)}
-                  class:text-3xl={player?.name?.length === 6}
-                  class:text-4xl={player?.name?.length === 5}
-                  class:text-5xl={player?.name?.length <= 4}
-                >
-                  {player?.name}
-                </h2>
-              </div>
-              {#if player?.balls?.length}
-                <div
-                  use:inview={options}
-                  on:inview_change={handleChange}
-                  class="flex flex-col items-center justify-center"
-                >
-                  <div class:invisible={!show} class:fade-in={show} class={`flex gap-1 mb-4 px-1`}>
-                    {#each player?.balls || [] as ball, idx}
-                      <button
-                        class="bg-base-200 px-1 shadow-sm container rounded-full"
-                        class:bg-green-500={game?.game_mode === "sink_all" && ball?.status === "alive"}
-                        class:bg-red-500={game?.game_mode === "stay_alive" && ball?.status === "sunk"}
-                      >
-                        <div class="text-center h-5 w-3 my-auto flex items-center">
-                          <h2 class="font-poppins hidden">{idx}</h2>
-                        </div>
-                      </button>
-                    {/each}
-                  </div>
-                </div>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      </div>
-    {/if}
-    <!-- Players Before Game Start -->
-    <!-- Game When Started -->
-    {#if game?.start_time}
-      <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center gap-2">
-        <!-- Remaining Players -->
-        <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">
-          Secret Santas
+<div class="flex flex-col items-center">
+  <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-20 pb-4">
+    <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
+      <div class="flex flex-col items-center">
+        <h1 class="font-poppins text-5xl font-black uppercase text-center">
+          {game?.name}
         </h1>
-
-        <div
-          class:invisible={!show}
-          class:fade-in={show}
-          class="mt-6 grid gap-1 grid-cols-3 mb-10 px-1 w-full"
-          class:grid-cols-2={alivePlayers?.length === 2}
-          class:grid-cols-1={alivePlayers?.length === 1}
-          class:grid-cols-3={alivePlayers?.length > 2}
-        >
-          {#each alivePlayers as player, idx}
-            <button
-              class="w-full bg-base-100 px-1 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32"
-              on:click={() => openViewPlayerModal(player)}
-            >
-              <div
-                class="text-center my-auto flex flex-col items-center justify-center text-auto gap-2"
-                bind:this={player_parents[idx]}
-              >
-                <h2
-                  class="font-poppins capitalize"
-                  class:text-sm={player?.name?.length >= 11}
-                  class:text-lg={player?.name?.length === 10}
-                  class:text-xl={player?.name?.length === 9}
-                  class:text-2xl={[8, 7].includes(player?.name?.length)}
-                  class:text-3xl={player?.name?.length === 6}
-                  class:text-4xl={player?.name?.length === 5}
-                  class:text-5xl={player?.name?.length <= 4}
-                >
-                  {player?.name}
-                </h2>
-                {#if alivePlayers?.length === 1}
-                  <p>1st</p>
-                {/if}
-              </div>
-              {#if player?.balls?.length}
-                <div
-                  use:inview={options}
-                  on:inview_change={handleChange}
-                  class="flex flex-col items-center justify-center"
-                >
-                  <div class:invisible={!show} class:fade-in={show} class={`flex flex-wrap gap-1 mb-4 px-1`}>
-                    {#each player?.balls || [] as ball, idx}
-                      {#if alivePlayers?.length === 1 || ball.status === "sunk"}
-                        <div
-                          class:w-12={player?.balls?.length < 3}
-                          class:h-12={player?.balls?.length < 3}
-                          class:h-8={player?.balls?.length >= 3}
-                          class:w-8={player?.balls?.length >= 3}
-                        >
-                          <img
-                            src={`/assets/pool_balls/${ball?.ball}.svg`}
-                            alt={`Ball ${ball?.ball}`}
-                            class="h-full w-full"
-                          />
-                        </div>
-                      {:else}
-                        <button
-                          class="bg-base-200 px-1 shadow-sm container rounded-full"
-                          class:w-12={player?.balls?.length < 3}
-                          class:h-12={player?.balls?.length < 3}
-                          class:h-8={player?.balls?.length >= 3}
-                          class:w-8={player?.balls?.length >= 3}
-                          class:bg-green-500={game?.game_mode === "sink_all" && ball?.status === "alive"}
-                          class:bg-red-500={game?.game_mode === "stay_alive" && ball?.status === "sunk"}
-                        >
-                          <span class="text-gray-600 font-bold"> ? </span>
-                        </button>
-                      {/if}
-                    {/each}
-                  </div>
-                </div>
-              {/if}
-            </button>
-          {/each}
+        <div class="btn btn-ghost">
+          <span class="text-lg font-light"> code: </span>
+          <span class="text-lg font-bold">
+            {game?.code}
+          </span>
         </div>
-        <!-- Remaining Players -->
       </div>
-    {/if}
-    <!-- Game When Started -->
+
+      <a class="btn btn-link btn-sm absolute top-8 left-8" href={`/`}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+          class="h-8 w-8"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+        </svg>
+      </a>
+    </div>
   </div>
 
-  <!-- Start Game Button -->
-  {#if !game?.start_time && players?.length > 1}
+  {#if game}
     <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center">
       <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
-        {#if !game?.start_time}
+        <!-- Add Player Header -->
+        {#if !game?.start_time && players?.length < 15}
+          <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Players</h1>
           <button
-            class="btn bg-[#50B9AB] btn-lg rounded-lg font-poppins shadow-lg border-black flex items-center justify-center"
-            on:click={() => startGameModal.showModal()}
+            class="btn bg-[#50B9AB] btn-circle rounded-lg font-poppins shadow-lg border-black flex items-center justify-center p-2"
+            on:click={openAddPlayerModal}
           >
-            Start Game
-            {#if loading}
+            {#if !loading}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="h-8 w-8"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            {:else}
               <svg class="animate-spin ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                 <path
@@ -397,11 +231,182 @@
             {/if}
           </button>
         {/if}
+        <!-- Add Player Header -->
       </div>
+
+      <!-- Players Before Game Start -->
+      {#if !game?.start_time}
+        <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
+          <div class="mt-6 grid gap-1 grid-cols-3 mb-10 px-1">
+            {#each players as player, idx}
+              <div
+                class="w-full bg-base-100 px-1 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32 cursor-pointer"
+                on:click={() => openViewPlayerModal(player)}
+                on:keydown={() => {}}
+              >
+                <div
+                  class="text-center my-auto flex flex-col items-center justify-center text-auto"
+                  bind:this={player_parents[idx]}
+                >
+                  <h2
+                    class="font-poppins capitalize"
+                    class:text-sm={player?.name?.length >= 11}
+                    class:text-lg={player?.name?.length === 10}
+                    class:text-xl={player?.name?.length === 9}
+                    class:text-2xl={[8, 7].includes(player?.name?.length)}
+                    class:text-3xl={player?.name?.length === 6}
+                    class:text-4xl={player?.name?.length === 5}
+                    class:text-5xl={player?.name?.length <= 4}
+                  >
+                    {player?.name}
+                  </h2>
+                </div>
+                {#if player?.balls?.length}
+                  <div
+                    use:inview={options}
+                    on:inview_change={handleChange}
+                    class="flex flex-col items-center justify-center"
+                  >
+                    <div class:invisible={!show} class:fade-in={show} class={`flex gap-1 mb-4 px-1`}>
+                      {#each player?.balls || [] as ball, idx}
+                        <button
+                          class="bg-base-200 px-1 shadow-sm container rounded-full"
+                          class:bg-green-500={game?.game_mode === "sink_all" && ball?.status === "alive"}
+                          class:bg-red-500={game?.game_mode === "stay_alive" && ball?.status === "sunk"}
+                        >
+                          <div class="text-center h-5 w-3 my-auto flex items-center">
+                            <h2 class="font-poppins hidden">{idx}</h2>
+                          </div>
+                        </button>
+                      {/each}
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+      <!-- Players Before Game Start -->
+      <!-- Game When Started -->
+      {#if game?.start_time}
+        <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center gap-2">
+          <!-- Remaining Players -->
+          <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl">Secret Santas</h1>
+
+          <div
+            class:invisible={!show}
+            class:fade-in={show}
+            class="mt-6 grid gap-1 grid-cols-3 mb-10 px-1 w-full"
+            class:grid-cols-2={alivePlayers?.length === 2}
+            class:grid-cols-1={alivePlayers?.length === 1}
+            class:grid-cols-3={alivePlayers?.length > 2}
+          >
+            {#each alivePlayers as player, idx}
+              <button
+                class="w-full bg-base-100 px-1 shadow-sm container rounded-lg text-center flex flex-col gap-4 items-center border border-black min-h-32"
+                on:click={() => openViewPlayerModal(player)}
+              >
+                <div
+                  class="text-center my-auto flex flex-col items-center justify-center text-auto gap-2"
+                  bind:this={player_parents[idx]}
+                >
+                  <h2
+                    class="font-poppins capitalize"
+                    class:text-sm={player?.name?.length >= 11}
+                    class:text-lg={player?.name?.length === 10}
+                    class:text-xl={player?.name?.length === 9}
+                    class:text-2xl={[8, 7].includes(player?.name?.length)}
+                    class:text-3xl={player?.name?.length === 6}
+                    class:text-4xl={player?.name?.length === 5}
+                    class:text-5xl={player?.name?.length <= 4}
+                  >
+                    {player?.name}
+                  </h2>
+                  {#if alivePlayers?.length === 1}
+                    <p>1st</p>
+                  {/if}
+                </div>
+                {#if player?.balls?.length}
+                  <div
+                    use:inview={options}
+                    on:inview_change={handleChange}
+                    class="flex flex-col items-center justify-center"
+                  >
+                    <div class:invisible={!show} class:fade-in={show} class={`flex flex-wrap gap-1 mb-4 px-1`}>
+                      {#each player?.balls || [] as ball, idx}
+                        {#if alivePlayers?.length === 1 || ball.status === "sunk"}
+                          <div
+                            class:w-12={player?.balls?.length < 3}
+                            class:h-12={player?.balls?.length < 3}
+                            class:h-8={player?.balls?.length >= 3}
+                            class:w-8={player?.balls?.length >= 3}
+                          >
+                            <img
+                              src={`/assets/pool_balls/${ball?.ball}.svg`}
+                              alt={`Ball ${ball?.ball}`}
+                              class="h-full w-full"
+                            />
+                          </div>
+                        {:else}
+                          <button
+                            class="bg-base-200 px-1 shadow-sm container rounded-full"
+                            class:w-12={player?.balls?.length < 3}
+                            class:h-12={player?.balls?.length < 3}
+                            class:h-8={player?.balls?.length >= 3}
+                            class:w-8={player?.balls?.length >= 3}
+                            class:bg-green-500={game?.game_mode === "sink_all" && ball?.status === "alive"}
+                            class:bg-red-500={game?.game_mode === "stay_alive" && ball?.status === "sunk"}
+                          >
+                            <span class="text-gray-600 font-bold"> ? </span>
+                          </button>
+                        {/if}
+                      {/each}
+                    </div>
+                  </div>
+                {/if}
+              </button>
+            {/each}
+          </div>
+          <!-- Remaining Players -->
+        </div>
+      {/if}
+      <!-- Game When Started -->
     </div>
+
+    <!-- Start Game Button -->
+    {#if !game?.start_time && players?.length > 1}
+      <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center">
+        <div class:invisible={!show} class:fade-in={show} class="flex items-center justify-center gap-5">
+          {#if !game?.start_time}
+            <button
+              class="btn bg-[#50B9AB] btn-lg rounded-lg font-poppins shadow-lg border-black flex items-center justify-center"
+              on:click={() => startGameModal.showModal()}
+            >
+              Start Game
+              {#if loading}
+                <svg
+                  class="animate-spin ml-2 h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              {/if}
+            </button>
+          {/if}
+        </div>
+      </div>
+    {/if}
+    <!-- Start Game Button -->
   {/if}
-{/if}
-<!-- Start Game Button -->
+</div>
 
 <!-- Add Player Modal -->
 <dialog class="modal" bind:this={addPlayerModal}>
@@ -571,10 +576,10 @@
       {:else}
         <div class="flex flex-wrap items-center justify-center gap-2">
           <div class="flex flex-col p-4 items-center justify-center gap-2">
-              {#each playerToView.giftees || [] as giftee, idx}
+            {#each playerToView.giftees || [] as giftee, idx}
               <span>{idx + 1}: {giftee}</span>
-              {/each}
-            </div>
+            {/each}
+          </div>
         </div>
       {/if}
     </div>

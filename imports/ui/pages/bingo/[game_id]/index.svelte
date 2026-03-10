@@ -81,6 +81,8 @@ $m: {
     
   }
 </script>
+<div class="flex flex-col items-center">
+
 
     <div
       use:inview={options}
@@ -90,7 +92,7 @@ $m: {
         class:invisible={!show}
         class:fade-in={show}
         class="flex flex-col items-center justify-center">
-        <div class="flex items-baseline">
+        <div class="flex flex-col items-center">
           <h1 class="text-center font-poppins text-2xl font-semibold md:text-5xl capitalize">{game?.name}</h1>
           <div class="btn btn-ghost">code: {game?.code}</div>
         </div>
@@ -235,7 +237,7 @@ $m: {
         {/each}
       </div>
     </div>
-
+</div>
 <!-- <Team /> -->
 
 <dialog class="modal" bind:this={playerModal}>
