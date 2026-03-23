@@ -88,6 +88,7 @@ Meteor.methods({
     let game_id = HiveMindGameCollection.insert({
       name: name.toLowerCase(),
       code: code.toLowerCase(),
+      language_mode: ["english"],
     });
 
     HiveMindGamePlayerCollection.insert({
@@ -279,7 +280,18 @@ Meteor.methods({
       word_id: { $ne: "no_answer" },
     }).fetch();
 
-    let words = HiveMindWordCollection.find({ _id: { $nin: already_used_round_words.map((w) => w._id) } }).fetch();
+    let language_modifier = {};
+
+    if (game?.language_mode.includes("deutsch") && !game?.language_mode.includes("english")) {
+      language_modifier.is_deutsch = true;
+    } else if (game?.language_mode.includes("english") && !game?.language_mode.includes("deutsch")) {
+      language_modifier.is_english = true;
+    }
+
+    let words = HiveMindWordCollection.find({
+      _id: { $nin: already_used_round_words.map((w) => w._id) },
+      ...language_modifier,
+    }).fetch();
     let random_five_words = _.sampleSize(words, 5);
 
     let game_rounds = HiveMindRoundCollection.find({ game_id: game_id }).fetch();
@@ -378,7 +390,7 @@ Meteor.methods({
     let non_answering_players = game_players.filter((gp) => !gp.did_answer);
     if (non_answering_players.length > 0) {
       let round_words = HiveMindRoundWordCollection.findOne({ round_id: round_id });
-      let random_word = _.sample(round_words)
+      let random_word = _.sample(round_words);
 
       for (let gp of non_answering_players) {
         Meteor.call("hive_mind.select_word", gp.player_code, round_id, random_word?._id);
@@ -793,7 +805,18 @@ Meteor.methods({
       word_id: { $ne: "no_answer" },
     }).fetch();
 
-    let words = HiveMindWordCollection.find({ _id: { $nin: already_used_game_words.map((w) => w.word_id) } }).fetch();
+    let language_modifier = {};
+
+    if (game?.language_mode.includes("deutsch") && !game?.language_mode.includes("english")) {
+      language_modifier.is_deutsch = true;
+    } else if (game?.language_mode.includes("english") && !game?.language_mode.includes("deutsch")) {
+      language_modifier.is_english = true;
+    }
+
+    let words = HiveMindWordCollection.find({
+      _id: { $nin: already_used_game_words.map((w) => w.word_id) },
+      ...language_modifier,
+    }).fetch();
     let random_five_words = _.sampleSize(words, 5);
 
     let game_rounds = HiveMindRoundCollection.find({ game_id: game_id }).fetch();
@@ -996,5 +1019,33 @@ Meteor.methods({
     );
 
     Meteor.call("hive_mind.reveal_final_leaderboard", game_id);
+  },
+  "hive_mind.choose_language"(game_id, language) {
+    if (!game_id) {
+      throw new Meteor.Error("Game ID is required");
+    }
+
+    let game = HiveMindGameCollection.findOne({ _id: game_id });
+    if (!game) {
+      throw new Meteor.Error("Game not found");
+    }
+
+    if (!language || !["english", "deutsch"].includes(language)) {
+      throw new Meteor.Error("Language not valid");
+    }
+
+    let current_language_mode = game?.language_mode || [];
+
+    if (current_language_mode?.length === 1 && current_language_mode.includes(language)) {
+      return;
+    } else if (current_language_mode.includes(language)) {
+      let new_language_mode = current_language_mode.filter((lm) => lm !== language);
+
+      HiveMindGameCollection.update({ _id: game_id }, { $set: { language_mode: new_language_mode } });
+    } else {
+      let new_language_mode = [...current_language_mode, language];
+
+      HiveMindGameCollection.update({ _id: game_id }, { $set: { language_mode: new_language_mode } });
+    }
   },
 });

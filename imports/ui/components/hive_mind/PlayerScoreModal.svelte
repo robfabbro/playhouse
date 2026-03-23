@@ -41,16 +41,33 @@
           </div>
           <!-- TOTAL POINTS -->
           <!-- SPLIT SCORE BOARD -->
-          <div class="flex justify-between items-stretch w-full gap-1">
-            <!-- LEFT SIDE -->
+          <div class="flex flex-col justify-between items-stretch w-full gap-1">
+            <!-- TOP SIDE -->
+            <div class="flex flex-col items-center gap-1 basis-1/2 px-2">
+              <div class="flex items-center gap-2">
+                <span class="text-left font-poppins font-light">Majorities:</span>
+                <span class="font-poppins font-semibold uppercase">{player?.majorities || 0}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-left font-poppins font-light">Minorities:</span>
+                <span class="font-poppins font-semibold uppercase">{player?.minorities || 0}</span>
+              </div>
+            </div>
+            <!-- TOP SIDE -->
+            <!-- DIVIDER -->
+            <div class="self-stretch m-0 my-2 min-w-[240px] h-1 w-full bg-gray-400"></div>
+            <!-- DIVIDER -->
+            <!-- BOTTOM SIDE -->
             <div class="flex flex-col gap-1 basis-1/2">
               {#each player?.game_answers as answer, idx (answer?._id)}
                 <div class="flex items-center gap-2">
-                  <span class="text-left font-poppins font-light">R{idx + 1}:</span>
-                  <span class="font-poppins font-semibold uppercase {answer?.word === 'no answer' ? 'text-sm' : ''}"
-                    >{answer?.word}</span
+                  <span class="text-left font-poppins font-light shrink-0">R{idx + 1}:</span>
+                  <span
+                    class="font-poppins font-semibold uppercase {answer?.word === 'no answer'
+                      ? 'text-sm'
+                      : ''} flex items-center flex-wrap flex-shrink break-all hyphens-auto">{answer?.word}</span
                   >
-                  <span class="flex items-center gap-1">
+                  <span class="flex items-center gap-1 shrink-0">
                     <!-- plus -->
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -83,22 +100,7 @@
                 </div>
               {/each}
             </div>
-            <!-- LEFT SIDE -->
-            <!-- DIVIDER -->
-            <div class="self-stretch m-0 min-h-[240px] w-1 bg-gray-400"></div>
-            <!-- DIVIDER -->
-            <!-- RIGHT SIDE -->
-            <div class="flex flex-col gap-1 basis-1/2 px-2">
-              <div class="flex items-center gap-2">
-                <span class="text-left font-poppins font-light">Majorities:</span>
-                <span class="font-poppins font-semibold uppercase">{player?.majorities || 0}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-left font-poppins font-light">Minorities:</span>
-                <span class="font-poppins font-semibold uppercase">{player?.minorities || 0}</span>
-              </div>
-            </div>
-            <!-- RIGHT SIDE -->
+            <!-- BOTTOM SIDE -->
           </div>
           <!-- SPLIT SCORE BOARD -->
         </div>

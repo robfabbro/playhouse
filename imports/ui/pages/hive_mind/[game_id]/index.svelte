@@ -125,8 +125,9 @@
           {game?.code}
         </span>
       </div>
+      <!-- How to play -->
       <div
-        class="btn btn-ghost border-gray-500 -mb-4 {loading || all_players?.length < 3
+        class="btn btn-ghost border-gray-500 {loading || all_players?.length < 3
           ? 'invisible'
           : all_players?.length < 3 || game?.game_start || game?.cancelling
             ? 'hidden'
@@ -150,6 +151,7 @@
 
         <span class="text-lg font-light"> How To Play </span>
       </div>
+      <!-- How to play -->
     </div>
 
     <a class="btn btn-link btn-sm absolute top-8 left-8" href={`/hive_mind`}>

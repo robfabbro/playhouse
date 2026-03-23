@@ -46,6 +46,7 @@
   $m: {
     let playerSub = Meteor.subscribe("hive_mind.player", player_code);
     let gameSub = Meteor.subscribe("hive_mind.game", game_id);
+    let roundSub = Meteor.subscribe("hive_mind.round", round_id);
     if (player_code) {
       your_player = HiveMindPlayerCollection.findOne({ code: player_code });
       if (game_id) {
@@ -57,7 +58,7 @@
       }
     }
 
-    subReady = playerSub.ready() && gameSub.ready();
+    subReady = playerSub.ready() && gameSub.ready() && roundSub.ready();
     console.log("%c PROPS ON /hive_mind_layout: ", "color: cyan; font-weight: bold;");
     console.log({ player_code, your_player, your_game_player });
   }

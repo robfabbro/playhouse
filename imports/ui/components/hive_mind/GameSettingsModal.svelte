@@ -32,6 +32,16 @@
     });
   };
 
+  let chooseLanguage = (language) => {
+    Meteor.call("hive_mind.choose_language", gameId, language, (err, res) => {
+      if (err) {
+        console.log("ERROR CHANGING LANGUAGE: ", err);
+      } else {
+        console.log("CHANGED LANGUAGE: ", res);
+      }
+    });
+  };
+
   // UP TO DESIGNING THIS MODAL, SPECIFICALLY THE SPLIT SCORE BOARD
 </script>
 
@@ -44,6 +54,26 @@
       <h3 class="font-bold text-lg">Game Settings (<span class="uppercase">{game?.name}</span>)</h3>
 
       <div class="pt-4 flex flex-col justify-center items-center gap-4 py-4">
+        <!-- LANGUAGE SWITCHER -->
+        <div class="flex flex-col gap-1 items-center mt-6 mb-4">
+          <span class="text-xl">Choose languages:</span>
+          <div class="flex flex-row gap-1">
+            <button
+              on:click={() => chooseLanguage("english")}
+              class="btn text-3xl border-2 {game?.language_mode?.length && game?.language_mode.includes('english')
+                ? 'bg-blue-400 border-blue-800 hover:bg-blue-200 hover:border-blue-600'
+                : ''}">🇬🇧</button
+            >
+            <button
+              on:click={() => chooseLanguage("deutsch")}
+              class="btn text-3xl border-2 {game?.language_mode?.length && game?.language_mode.includes('deutsch')
+                ? 'bg-blue-400 border-blue-800 hover:bg-blue-200 hover:border-blue-600'
+                : ''}">🇩🇪</button
+            >
+          </div>
+        </div>
+        <!-- LANGUAGE SWITCHER -->
+
         <!-- POINTS TO WIN SETTING -->
         <span class="text-xl">Points Required to Win:</span>
         <!-- COUNTER -->

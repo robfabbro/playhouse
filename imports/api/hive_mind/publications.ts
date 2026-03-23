@@ -6,6 +6,7 @@ import {
   HiveMindRoundAnswerCollection,
   HiveMindRoundCollection,
   HiveMindRoundWordCollection,
+  HiveMindWordCollection,
 } from "./collections";
 
 Meteor.publish("hive_mind.game", function (game_id) {
@@ -53,4 +54,34 @@ Meteor.publish("hive_mind.player", function (player_code) {
   let game_cursor = HiveMindGameCollection.find({ _id: { $in: game_ids } }, { sort: { createdAt: -1 } });
   console.log("Publishing player and games ", player_code, " with ids  ", game_ids);
   return [player_cursor, game_cursor];
+});
+
+Meteor.publish("hive_mind.round", function (round_id) {
+  if (!round_id) {
+    return this.ready();
+  }
+
+  let round = HiveMindRoundCollection.findOne({ _id: round_id });
+
+  if (!round) {
+    return this.ready();
+  }
+
+  let game_id = round?.game_id;
+
+  if (!game_id) {
+    return this.ready();
+  }
+
+  let game = HiveMindGameCollection.findOne({ _id: game_id });
+
+  if (!game) {
+    return this.ready();
+  }
+
+  let round_words = HiveMindRoundWordCollection.find({ game_id: game._id, round_id: round_id });
+
+  let word_ids = round_words.map((rw) => rw.word_id);
+
+  return HiveMindWordCollection.find({ _id: { $in: word_ids } });
 });

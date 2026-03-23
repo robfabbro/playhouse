@@ -17,6 +17,7 @@
   import WordResult from "/imports/ui/components/hive_mind/WordResult.svelte";
   import PlayerResult from "/imports/ui/components/hive_mind/PlayerResult.svelte";
   import PlayerScoreModal from "/imports/ui/components/hive_mind/PlayerScoreModal.svelte";
+  import WordInformationModal from "/imports/ui/components/hive_mind/WordInformationModal.svelte";
   import { textfit } from "svelte-textfit";
   import { onMount } from "svelte";
   import _ from "lodash";
@@ -60,6 +61,7 @@
   let round_words = [];
   let no_answer_word = null;
   let selectedPlayerId = null;
+  let selectedWordIdToView = null;
 
   $m: {
     round = HiveMindRoundCollection.findOne({ _id: round_id }, { sort: { createdAt: -1 } });
@@ -91,7 +93,7 @@
 
     answer = HiveMindRoundAnswerCollection.findOne({ round_id: round_id, player_id: your_game_player?._id });
 
-    console.log({ round, round_words, answer });
+    console.log({ round, target_word, round_words, answer });
   }
 
   $m: {
@@ -165,6 +167,13 @@
         return;
       }
     });
+  };
+
+  const viewWord = (word_id) => {
+    if (!word_id) {
+      return;
+    }
+    selectedWordIdToView = word_id;
   };
 
   const startNextRound = () => {
@@ -303,7 +312,33 @@
           </h1>
         {/if}
         {#if target_word && !round?.round_scored}
-          <h1 class="text-4xl font-black font-poppins uppercase text-center">{target_word?.word}</h1>
+          <div class="flex justify-center items-center">
+            <h1
+              class="{target_word?.word?.length > 24
+                ? 'text-2xl'
+                : target_word?.word?.length > 16
+                  ? 'text-3xl'
+                  : 'text-4xl'} font-black font-poppins uppercase text-center"
+            >
+              {target_word?.word}
+            </h1>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="h-8 w-8 stroke-blue-400 self-start btn btn-circle btn-sm m-0 p-0 bg-white hover:bg-gray-200 hover:stroke-blue-800 border-0 shadow-none"
+              on:click={() => viewWord(target_word?.word_id)}
+              on:keydown={() => viewWord(target_word?.word_id)}
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+              />
+            </svg>
+          </div>
         {/if}
       </div>
     </div>
@@ -315,60 +350,68 @@
 {#if round && !round?.round_end}
   <!-- WORDS TO CHOOSE FROM -->
   <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-8 py-4">
-    <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
-      <div class="grid grid-cols-2 grid-flow-row gap-4 w-full {round?.round_end ? 'invisible' : ''}">
+    <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center flex-shrink-0">
+      <div
+        class="flex flex-col justify-start md:flex-row md:flex-wrap md:justify-around gap-y-4 items-center w-full {round?.round_end
+          ? 'invisible'
+          : ''}"
+      >
         {#each round_words as rw, i (rw._id)}
-          <div class="w-full h-full">
-            {#if loading}
-              <button
-                class="btn w-full border-black border-2 rounded-lg h-full bg-gray-200 text-gray-600 pointer-events-none"
+          <div
+            class="w-full md:w-auto md:max-w-[40%] md:basis-1/2 h-full flex {parseInt(i) % 2 === 0
+              ? 'pr-12 md:pr-0'
+              : 'pr-12 md:pr-0'}"
+          >
+            <!-- Word Info Button -->
+            <button
+              class="btn w-auto m-0 p-2 border-2 border-gray-600 hover:border-gray-400 {parseInt(i) % 2 === 0
+                ? 'rounded-r-none border-r-0'
+                : 'rounded-r-none border-r-0 md:rounded-r-lg md:border-r-2 md:rounded-l-none md:border-l-0 md:order-3'}"
+              on:click={() => viewWord(rw?.word_id)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="h-6 w-6"
               >
-                <span
-                  class="font-bold font-poppins text-center {rw?.word?.length <= 4
-                    ? 'text-2xl'
-                    : rw?.word?.length <= 6
-                      ? 'text-xl'
-                      : rw?.word?.length <= 8
-                        ? 'text-lg'
-                        : rw?.word?.length <= 10
-                          ? 'text-base'
-                          : 'text-sm'}">{rw.word}</span
-                >
-              </button>
-            {:else if answer?.word_id === rw?._id}
-              <button class="btn w-full border-black border-2 rounded-lg h-full bg-green-500 pointer-events-none">
-                <span
-                  class="font-bold font-poppins text-black text-center {rw?.word?.length <= 4
-                    ? 'text-2xl'
-                    : rw?.word?.length <= 6
-                      ? 'text-xl'
-                      : rw?.word?.length <= 8
-                        ? 'text-lg'
-                        : rw?.word?.length <= 10
-                          ? 'text-base'
-                          : 'text-sm'}">{rw.word}</span
-                >
-              </button>
-            {:else}
-              <button
-                class="btn w-full border-black border-2 rounded-lg h-full bg-white hover:bg-green-100"
-                on:click={() => selectWord(rw?._id)}
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                />
+              </svg>
+            </button>
+            <!-- Word Info Button -->
+
+            <button
+              class="btn w-full border-black border-2 rounded-lg h-full {parseInt(i) % 2 === 0
+                ? 'rounded-l-none'
+                : 'rounded-l-none md:rounded-r-none md:rounded-l-lg'} {loading
+                ? 'bg-gray-200 text-gray-600 pointer-events-none'
+                : answer?.word_id === rw?._id
+                  ? 'bg-green-500 pointer-events-none'
+                  : 'bg-white hover:bg-green-100'}"
+              on:click={() => {
+                if (!loading && answer?.word_id !== rw?._id) {
+                  selectWord(rw?._id);
+                }
+              }}
+            >
+              <span
+                class="font-bold font-poppins text-black text-center {rw?.word?.length <= 4
+                  ? 'text-2xl'
+                  : rw?.word?.length <= 6
+                    ? 'text-xl'
+                    : rw?.word?.length <= 8
+                      ? 'text-lg'
+                      : rw?.word?.length <= 10
+                        ? 'text-base'
+                        : 'text-sm'}">{rw.word}</span
               >
-                <span
-                  class="font-bold font-poppins text-black text-center {rw?.word?.length <= 4
-                    ? 'text-2xl'
-                    : rw?.word?.length <= 6
-                      ? 'text-xl'
-                      : rw?.word?.length <= 8
-                        ? 'text-lg'
-                        : rw?.word?.length <= 10
-                          ? 'text-base'
-                          : 'text-sm'}"
-                >
-                  {rw.word}
-                </span>
-              </button>
-            {/if}
+            </button>
           </div>
         {/each}
       </div>
@@ -548,3 +591,13 @@
   }}
 />
 <!-- PLAYER SCORE MODAL -->
+
+<!-- WORD INFORMATION MODAL -->
+<WordInformationModal
+  wordIdToView={selectedWordIdToView}
+  closeModal={() => {
+    console.log("CLOSING MODAL");
+    selectedWordIdToView = null;
+  }}
+/>
+<!-- WORD INFORMATION MODAL -->
