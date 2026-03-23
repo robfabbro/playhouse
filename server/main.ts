@@ -90,18 +90,5 @@ Meteor.startup(() => {
     }
   }
 
-  // Update Existing Words as English
-  const existing_words = HiveMindWordCollection.find({
-    is_english: { $ne: true },
-    is_deutsch: { $ne: true },
-  }).fetch();
-
-  console.log("fixing hive_mind_original_words...");
-  if (existing_words?.length > 0) {
-    for (let word of existing_words) {
-      HiveMindWordCollection.update({ _id: word._id }, { $set: { is_english: true, is_deutsch: false } });
-    }
-  }
-
   console.log("~~~ We are running ~~~");
 });
