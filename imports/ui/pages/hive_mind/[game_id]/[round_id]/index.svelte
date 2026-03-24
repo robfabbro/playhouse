@@ -44,9 +44,9 @@
 
   let show = false;
   const options: Options = {
-    rootMargin: "50px",
+    rootMargin: "0px",
     unobserveOnEnter: true,
-    threshold: 0.1,
+    threshold: 0,
   };
   const handleChange = ({ detail }: CustomEvent<ObserverEventDetails>) => (show = detail.inView);
 
