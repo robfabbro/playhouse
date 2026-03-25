@@ -315,10 +315,16 @@
           <div class="flex justify-center items-center">
             <h1
               class="{target_word?.word?.length > 24
-                ? 'text-2xl'
-                : target_word?.word?.length > 16
-                  ? 'text-3xl'
-                  : 'text-4xl'} font-black font-poppins uppercase text-center"
+                ? 'text-base '
+                : target_word?.word?.length > 22
+                  ? 'text-lg '
+                  : target_word?.word?.length > 20
+                    ? 'text-xl '
+                    : target_word?.word?.length > 18
+                      ? 'text-2xl'
+                      : target_word?.word?.length > 16
+                        ? 'text-3xl'
+                        : 'text-4xl'} break-all hyphens-auto font-black font-poppins uppercase text-center"
             >
               {target_word?.word}
             </h1>
