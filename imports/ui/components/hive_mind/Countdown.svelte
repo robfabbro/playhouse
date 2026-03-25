@@ -49,12 +49,12 @@
 
 <div class="flex flex-col justify-center items-center gap-1 max-w-16 md:max-w-24">
   <div class="flex justify-center items-center gap-2 rounded-full border-4 border-black {circleSize} p-2">
-    {#if remaining !== null && remaining !== undefined}
+    {#if remaining !== null && remaining !== undefined && remaining >= 1}
       <p class="text-center uppercase font-black font-poppins {textSize}">
         {remaining}
       </p>
     {:else}
-      <span class="text-center uppercase font-black font-poppins {textSize} no-underline">--</span>
+      <span class="text-center uppercase font-black font-poppins {textSize} no-underline loading loading-sm"></span>
     {/if}
   </div>
 
