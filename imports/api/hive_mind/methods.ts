@@ -494,9 +494,11 @@ Meteor.methods({
       }
     );
 
-    if (round?.round_start && !round?.round_end) {
+    if (!round?.round_end) {
       let now = new Date();
-      let elapsed = Math.floor((now.getTime() - round?.round_start.getTime()) / 1000);
+      round = HiveMindRoundCollection.findOne({ _id: round_id });
+      let round_start = round?.round_start || now
+      let elapsed = Math.floor((now.getTime() - round_start.getTime()) / 1000);
       let time_remaining = Math.ceil(15 - elapsed);
 
       if (time_remaining > 3) {
@@ -813,10 +815,16 @@ Meteor.methods({
       language_modifier.is_english = true;
     }
 
-    let words = HiveMindWordCollection.find({
-      _id: { $nin: already_used_game_words.map((w) => w.word_id) },
-      ...language_modifier,
-    }).fetch();
+    let words = HiveMindWordCollection.find(
+      {
+        _id: { $nin: already_used_game_words.map((w) => w.word_id) },
+        ...language_modifier,
+      },
+      { limit: 20 }
+    ).fetch();
+
+    console.log({ words_to_choose: words.length });
+
     let random_five_words = _.sampleSize(words, 5);
 
     let game_rounds = HiveMindRoundCollection.find({ game_id: game_id }).fetch();
