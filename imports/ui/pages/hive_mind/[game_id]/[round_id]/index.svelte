@@ -87,7 +87,7 @@
       let remaining = Math.ceil(5 - elapsed);
       if (remaining <= 0) {
         console.log("[round_id] going to next round");
-        goToNextRound();
+        goToCurrentRound();
       }
     }
 
@@ -198,15 +198,15 @@
     });
   };
 
-  const goToNextRound = () => {
+  const goToCurrentRound = () => {
     loading = true;
-    Meteor.call("hive_mind.get_next_round", round_id, (err, res) => {
+    Meteor.call("hive_mind.get_current_round", game_id, (err, res) => {
       loading = false;
       if (err) {
         console.log("ERROR SELECTING WORD: ", err);
         return;
       } else {
-        console.log("goToNextRound ", res);
+        console.log("goToCurrentRound ", res);
         $goto(`/hive_mind/${game_id}/${res}`);
       }
     });
@@ -530,7 +530,7 @@
         secondsToLast={3}
         onComplete={() => {
           console.log("COUNTDOWN COMPLETE, STARTING ROUND");
-          goToNextRound();
+          goToCurrentRound();
         }}
       />
       <button

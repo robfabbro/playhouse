@@ -497,7 +497,7 @@ Meteor.methods({
     if (!round?.round_end) {
       let now = new Date();
       round = HiveMindRoundCollection.findOne({ _id: round_id });
-      let round_start = round?.round_start || now
+      let round_start = round?.round_start || now;
       let elapsed = Math.floor((now.getTime() - round_start.getTime()) / 1000);
       let time_remaining = Math.ceil(15 - elapsed);
 
@@ -790,6 +790,19 @@ Meteor.methods({
     }
 
     return next_round._id;
+  },
+  "hive_mind.get_current_round"(game_id) {
+    if (!game_id) {
+      throw new Meteor.Error("Game ID is required");
+    }
+
+    let current_round = HiveMindRoundCollection.findOne({ game_id: game_id }, { sort: { round_number: -1 } });
+
+    if (!current_round) {
+      throw new Meteor.Error("Current Round not found");
+    }
+
+    return current_round._id;
   },
   "hive_mind.create_next_round"(game_id) {
     if (!game_id) {
