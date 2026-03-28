@@ -23,21 +23,6 @@ export const togglePageMenu = (name: string) => {
   })
 }
 
-export const toggleTheme = () => {
-  
-  if(localStorage.theme === 'dark'){
-    window.document.documentElement.setAttribute("data-theme", "light")
-    window.document.documentElement.classList.remove('dark')
-  }else{
-    window.document.documentElement.setAttribute("data-theme", "dark")
-    window.document.documentElement.classList.add('dark')
-  }
-  isDark.update((v) => {
-    localStorage.theme = v ? '' : 'dark'
-    return !v
-  })
-}
-
 export const toggleSideMenu = () => {
   isSideMenuOpen.update((v) => !v)
 }

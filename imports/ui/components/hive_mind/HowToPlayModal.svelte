@@ -186,7 +186,7 @@
                 </div>
               </div>
               <p class="text-lg">
-                Pick one of the five words, <span
+                Pick one of the four words, <span
                   in:fade={{ duration: 5000, easing: backIn }}
                   class="underline font-bold">or don't...</span
                 >

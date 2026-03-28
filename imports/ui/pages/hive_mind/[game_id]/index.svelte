@@ -28,6 +28,8 @@
     console.log({ ...scoped });
   }
 
+  let cefrLevelMap = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
   let show = false;
   const options: Options = {
     rootMargin: "0px",
@@ -127,11 +129,9 @@
       </div>
       <!-- How to play -->
       <div
-        class="btn btn-ghost border-gray-500 {loading || all_players?.length < 3
-          ? 'invisible'
-          : all_players?.length < 3 || game?.game_start || game?.cancelling
-            ? 'hidden'
-            : ''}"
+        class="btn btn-ghost border-gray-500 {loading || all_players?.length < 3 || game?.game_start || game?.cancelling
+          ? 'hidden'
+          : ''}"
         on:click={openHowToPlay}
         on:keydown={openHowToPlay}
       >
@@ -185,9 +185,39 @@
 {#if !game?.game_start && !game?.cancelling}
   <!-- GAME WAIT LOBBY -->
   <!-- MAIN ACTION BUTTON -->
-  <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-8 py-4">
+  <div
+    use:inview={options}
+    on:inview_change={handleChange}
+    class="flex flex-col items-center justify-center p-8 pb-4 pt-0"
+  >
     <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
-      <div class="flex flex-col items-center gap-4">
+      <div class="flex flex-col items-center gap-4 mb-4">
+        <!-- GAME SETTINGS -->
+        <div
+          class="btn btn-ghost h-auto flex flex-col items-center gap-2 {all_players?.length < 3 ? 'hidden' : ''}"
+          on:click={openSettings}
+          on:keydown={openSettings}
+        >
+          <div class="text-lg font-light">
+            <b class="font-bold">{pointsToWin}</b>
+            <span> points to win</span>
+          </div>
+          <div class="text-lg font-light">
+            <span>with </span>
+            <b class="font-bold">{game?.language_mode.join(" + ")}</b>
+            <span> words</span>
+          </div>
+          <div class="text-lg font-light">
+            <span>of </span>
+            {#if game?.cefr_level?.length === 2 && game?.cefr_level[0] === game?.cefr_level[1]}
+              <b class="font-bold">{cefrLevelMap[game?.cefr_level[0]]}</b>
+            {:else if game?.cefr_level?.length === 2}
+              <b class="font-bold">{cefrLevelMap[game?.cefr_level[0]]} - {cefrLevelMap[game?.cefr_level[1]]}</b>
+            {/if}
+            <span> level</span>
+          </div>
+        </div>
+        <!-- GAME SETTINGS -->
         {#if loading}
           <button
             class="btn btn-lg rounded-full border-2 border-gray-800 bg-gray-200 font-bold text-xl text-gray-600 pointer-events-none"
@@ -204,13 +234,6 @@
             >Requires 3+ Players</button
           >
         {/if}
-        <div
-          class="btn btn-ghost -mb-4 {loading || all_players?.length < 3 ? 'invisible' : ''}"
-          on:click={openSettings}
-          on:keydown={openSettings}
-        >
-          <span class="text-lg font-light"> <b class="font-bold">{pointsToWin}</b> points to win </span>
-        </div>
       </div>
     </div>
   </div>

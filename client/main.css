@@ -65,16 +65,27 @@
 }
 
 .outline-text {
-  text-shadow: -3px -3px 0 #50b9ab, 3px -3px 0 #50b9ab, -3px 3px 0 #50b9ab, 3px 3px 0 #50b9ab;
+  text-shadow:
+    -3px -3px 0 #50b9ab,
+    3px -3px 0 #50b9ab,
+    -3px 3px 0 #50b9ab,
+    3px 3px 0 #50b9ab;
 }
 
 .zilche-text {
-  text-shadow: -3px -3px 0 rgb(129 140 248), 3px -3px 0 rgb(129 140 248), -3px 3px 0 rgb(129 140 248),
+  text-shadow:
+    -3px -3px 0 rgb(129 140 248),
+    3px -3px 0 rgb(129 140 248),
+    -3px 3px 0 rgb(129 140 248),
     3px 3px 0 rgb(129 140 248);
 }
 
 .hive-mind-text {
-  text-shadow: -3px -3px 0 #3dadff, 3px -3px 0 #3dadff, -3px 3px 0 #3dadff, 3px 3px 0 #3dadff;
+  text-shadow:
+    -3px -3px 0 #3dadff,
+    3px -3px 0 #3dadff,
+    -3px 3px 0 #3dadff,
+    3px 3px 0 #3dadff;
 }
 
 .animate-wave {
@@ -147,12 +158,36 @@
   }
 }
 
+@keyframes hardShake {
+  0%,
+  100% {
+    transform: translateX(0%);
+    transform-origin: 50% 50%;
+  }
+
+  25% {
+    transform: translateX(-2px) rotate(-2deg);
+  }
+
+  50% {
+    transform: translateX(0px) rotate(0deg);
+  }
+
+  75% {
+    transform: translateX(2px) rotate(2deg);
+  }
+}
+
 .animate-shake {
   animation: wobbleTimer 2s ease 0s infinite normal none;
 }
 
 .animate-soft-shake {
   animation: softShake 1s ease 0s infinite normal none;
+}
+
+.animate-hard-shake {
+  animation: hardShake 0.25s ease 0s infinite normal none;
 }
 
 @keyframes warningFont {
@@ -278,7 +313,11 @@
 }
 
 .bingo-text {
-  text-shadow: -3px -3px 0 #ff44cc, 3px -3px 0 #ff44cc, -3px 3px 0 #ff44cc, 3px 3px 0 #ff44cc;
+  text-shadow:
+    -3px -3px 0 #ff44cc,
+    3px -3px 0 #ff44cc,
+    -3px 3px 0 #ff44cc,
+    3px 3px 0 #ff44cc;
 }
 
 .text-xxs {

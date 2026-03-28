@@ -10,7 +10,6 @@ import {
 } from "/imports/api/hive_mind/collections";
 import { Random } from "meteor/random";
 import _ from "lodash";
-import { pl } from "@faker-js/faker/.";
 
 const robot_names = [
   "Bender",
@@ -27,6 +26,8 @@ const robot_names = [
   "RoboCop",
   "Megatron",
 ];
+
+const cefr_level_map = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 Meteor.methods({
   "hive_mind.find_game"(searchName, player_code) {
@@ -89,6 +90,7 @@ Meteor.methods({
       name: name.toLowerCase(),
       code: code.toLowerCase(),
       language_mode: ["english"],
+      cefr_level: [0, 5],
     });
 
     HiveMindGamePlayerCollection.insert({
@@ -288,10 +290,26 @@ Meteor.methods({
       language_modifier.is_english = true;
     }
 
-    let words = HiveMindWordCollection.find({
-      _id: { $nin: already_used_round_words.map((w) => w._id) },
-      ...language_modifier,
-    }).fetch();
+    let cefr_modifier = {};
+    if (game?.cefr_level?.length >= 2) {
+      let cefr_start = game?.cefr_level[0];
+      let cefr_end = game?.cefr_level[1];
+
+      if ((cefr_start || cefr_start === 0) && (cefr_end || cefr_end === 0)) {
+        cefr_modifier = { cefr_level: { $in: cefr_level_map.slice(cefr_start, cefr_end + 1) } };
+      }
+    }
+
+    console.log("cefr_modifier", cefr_modifier);
+
+    let words = HiveMindWordCollection.find(
+      {
+        _id: { $nin: already_used_round_words.map((w) => w._id) },
+        ...language_modifier,
+        ...cefr_modifier,
+      },
+      { limit: 20 }
+    ).fetch();
     let random_five_words = _.sampleSize(words, 5);
 
     let game_rounds = HiveMindRoundCollection.find({ game_id: game_id }).fetch();
@@ -828,10 +846,26 @@ Meteor.methods({
       language_modifier.is_english = true;
     }
 
+    let cefr_modifier = {};
+
+    console.log("game cefr: ", game?.cefr_level);
+
+    if (game?.cefr_level?.length >= 2) {
+      let cefr_start = game?.cefr_level[0];
+      let cefr_end = game?.cefr_level[1];
+
+      if ((cefr_start || cefr_start === 0) && (cefr_end || cefr_end === 0)) {
+        cefr_modifier = { cefr_level: { $in: cefr_level_map.slice(cefr_start, cefr_end + 1) } };
+      }
+    }
+
+    console.log("cefr_modifier", cefr_modifier);
+
     let words = HiveMindWordCollection.find(
       {
         _id: { $nin: already_used_game_words.map((w) => w.word_id) },
         ...language_modifier,
+        ...cefr_modifier,
       },
       { limit: 20 }
     ).fetch();
@@ -1058,7 +1092,7 @@ Meteor.methods({
     let current_language_mode = game?.language_mode || [];
 
     if (current_language_mode?.length === 1 && current_language_mode.includes(language)) {
-      return;
+      throw new Meteor.Error("Game requires atleast one language selected");
     } else if (current_language_mode.includes(language)) {
       let new_language_mode = current_language_mode.filter((lm) => lm !== language);
 
@@ -1068,5 +1102,32 @@ Meteor.methods({
 
       HiveMindGameCollection.update({ _id: game_id }, { $set: { language_mode: new_language_mode } });
     }
+  },
+  "hive_mind.set_cefr_level"(game_id, cefr_level) {
+    if (!game_id) {
+      throw new Meteor.Error("Game ID is required");
+    }
+
+    let game = HiveMindGameCollection.findOne({ _id: game_id });
+    if (!game) {
+      throw new Meteor.Error("Game not found");
+    }
+
+    if (!cefr_level || !_.isArray(cefr_level) || cefr_level?.length !== 2) {
+      throw new Meteor.Error("CEFR Level not valid [non array]");
+    }
+
+    let digitised_cefr_level = cefr_level.map((v) => {
+      let n = parseInt(v);
+      return n;
+    });
+
+    if (digitised_cefr_level?.some((v) => typeof v !== "number")) {
+      throw new Meteor.Error("CEFR Level not valid [non digits]");
+    }
+
+    let new_cefr_level = [Math.max(0, digitised_cefr_level[0]), Math.min(5, digitised_cefr_level[1])];
+
+    HiveMindGameCollection.update({ _id: game_id }, { $set: { cefr_level: new_cefr_level } });
   },
 });

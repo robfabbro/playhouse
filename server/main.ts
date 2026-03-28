@@ -64,6 +64,7 @@ Meteor.startup(() => {
     for (let category of trivia_question_categories) {
       TriviaQuestionCategoryCollection.upsert({ name: category?.name }, { $set: category });
     }
+    console.log("completed upsert of trivia_question_categories...");
   }
 
   //Migrating Hive Mind Deutsch Words
@@ -76,6 +77,7 @@ Meteor.startup(() => {
         { $set: { ...word, is_deutsch: true, is_english: false } }
       );
     }
+    console.log("completed upsert of hive_mind_deutsche_words...");
   }
 
   //Migrating Hive Mind English Words
@@ -88,6 +90,7 @@ Meteor.startup(() => {
         { $set: { ...word, is_english: true, is_deutsch: false } }
       );
     }
+    console.log("completed upsert of hive_mind_english_words...");
   }
 
   console.log("~~~ We are running ~~~");
