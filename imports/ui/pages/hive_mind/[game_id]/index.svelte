@@ -114,45 +114,33 @@
   };
 </script>
 
-<div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-20 pb-4">
+<div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-20 pt-0 pb-4">
   <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
-    <div class="flex flex-col items-center">
-      <h1 class="text-xl font-black uppercase text-center">Hive Mind</h1>
-      <h1 class="font-poppins text-5xl font-black uppercase text-center">
-        {game?.name}
-      </h1>
-      <div class="btn btn-ghost">
-        <span class="text-lg font-light"> code: </span>
-        <span class="text-lg font-bold">
-          {game?.code}
-        </span>
-      </div>
-      <!-- How to play -->
-      <div
-        class="btn btn-ghost border-gray-500 {loading || all_players?.length < 3 || game?.game_start || game?.cancelling
-          ? 'hidden'
-          : ''}"
-        on:click={openHowToPlay}
-        on:keydown={openHowToPlay}
+    <!-- How to play -->
+    <div
+      class="btn btn-ghost border-gray-500 {loading || all_players?.length < 3 || game?.game_start || game?.cancelling
+        ? 'hidden'
+        : ''}"
+      on:click={openHowToPlay}
+      on:keydown={openHowToPlay}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        class="h-6 w-6"
+        stroke-width="1.5"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          class="h-6 w-6"
-          stroke-width="1.5"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 0 1 .67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 1 1-.671-1.34l.041-.022ZM12 9a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        <path
+          fill-rule="evenodd"
+          d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 0 1 .67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 1 1-.671-1.34l.041-.022ZM12 9a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+          clip-rule="evenodd"
+        />
+      </svg>
 
-        <span class="text-lg font-light"> How To Play </span>
-      </div>
-      <!-- How to play -->
+      <span class="text-lg font-light"> How To Play </span>
     </div>
+    <!-- How to play -->
 
     <a class="btn btn-link btn-sm absolute top-8 left-8" href={`/hive_mind`}>
       <svg

@@ -10,6 +10,8 @@ import {
 } from "/imports/api/hive_mind/collections";
 import { Random } from "meteor/random";
 import _ from "lodash";
+import QRCode from "qrcode";
+import { contenteditable_truthy_values } from "svelte/internal";
 
 const robot_names = [
   "Bender",
@@ -101,6 +103,8 @@ Meteor.methods({
       cefr_level: [0, 5],
     });
 
+    let game_qr_code = Meteor.call("hive_mind.get_qr_code", game_id);
+
     HiveMindGamePlayerCollection.insert({
       game_id: game_id,
       game_name: name,
@@ -111,7 +115,7 @@ Meteor.methods({
 
     return game_id;
   },
-  "hive_mind.add_player"(name, code) {
+  "hive_mind.add_player"(name, code, game_id = null) {
     if (!name || name.trim() === "") {
       throw new Meteor.Error("Name is required");
     }
@@ -120,7 +124,35 @@ Meteor.methods({
       throw new Meteor.Error("Code is required");
     }
 
-    HiveMindPlayerCollection.insert({ name: name, code: code });
+    let player_id = HiveMindPlayerCollection.insert({ name: name, code: code });
+
+    if (game_id) {
+      let player = HiveMindPlayerCollection.findOne({ _id: player_id });
+
+      let game = HiveMindGameCollection.findOne({
+        _id: game_id,
+      });
+
+      if (!game) {
+        throw new Meteor.Error("Game not found");
+      }
+
+      HiveMindGamePlayerCollection.upsert(
+        {
+          game_id: game._id,
+          player_code: contenteditable_truthy_values,
+        },
+        {
+          $set: {
+            game_id: game._id,
+            game_name: game.name,
+            player_id: player._id,
+            player_code: code,
+            player_name: player.name,
+          },
+        }
+      );
+    }
   },
   "hive_mind.edit_player"(name, code) {
     if (!name || name.trim() === "") {
@@ -1171,5 +1203,23 @@ Meteor.methods({
     let new_cefr_level = [Math.max(0, digitised_cefr_level[0]), Math.min(5, digitised_cefr_level[1])];
 
     HiveMindGameCollection.update({ _id: game_id }, { $set: { cefr_level: new_cefr_level } });
+  },
+  async "hive_mind.get_qr_code"(game_id) {
+    if (!game_id) {
+      throw new Meteor.Error("Game ID is required");
+    }
+
+    let game = HiveMindGameCollection.findOne({ _id: game_id });
+    if (!game) {
+      throw new Meteor.Error("Game not found");
+    }
+
+    let qr_code = await QRCode.toDataURL(Meteor.absoluteUrl(`hive_mind/${game_id}`));
+
+    if (!game?.qr_code) {
+      HiveMindGameCollection.update({ _id: game_id }, { $set: { qr_code } });
+    }
+
+    return qr_code;
   },
 });

@@ -214,25 +214,8 @@
 </script>
 
 <!-- GAME TITLE -->
-<div
-  use:inview={options}
-  on:inview_change={handleChange}
-  class="flex flex-col items-center justify-center p-20 pt-8 pb-4 mt-4"
->
+<div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center px-20 pt-0">
   <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
-    <div class="flex flex-col items-center">
-      <p class="text-base font-medium uppercase text-center">Hive Mind</p>
-      <h1 class="font-poppins text-lg font-black uppercase text-center">
-        {game?.name}
-      </h1>
-      <div class="btn btn-ghost btn-sm">
-        <span class="text-sm font-light"> code: </span>
-        <span class="text-sm font-bold">
-          {game?.code}
-        </span>
-      </div>
-    </div>
-
     <a class="btn btn-link btn-sm absolute top-8 left-8" href={`/hive_mind`}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -291,8 +274,8 @@
 
 <!-- ROUND TITLE -->
 {#if round && !round?.next_round_start && !round?.next_round_cancelling}
-  <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-8 py-4">
-    <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
+  <div class="flex flex-col items-center justify-center p-8 py-4" in:fade={{ duration: 1000, easing: cubicOut }}>
+    <div class="flex flex-col items-center justify-center">
       <div class="flex flex-col items-center gap-2">
         {#if round?.round_scored}
           <h1 class="text-2xl font-black font-poppins uppercase text-center">LEADERBOARD</h1>
@@ -492,8 +475,8 @@
 
 <!-- ROUND LEADERBOARD -->
 {#if round && round?.round_end && round?.round_scored && !round?.next_round_start && !round?.next_round_cancelling && !(game?.ended_at || game?.final_leaderboard_revealed)}
-  <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center px-8">
-    <div class:invisible={!show} class:fade-in={show} class="w-full flex flex-col items-center justify-center">
+  <div class="flex flex-col items-center justify-center px-8" in:fade={{ duration: 1000, easing: cubicOut }}>
+    <div class="w-full flex flex-col items-center justify-center">
       <div class="flex flex-col items-stretch py-4 gap-4 w-full">
         {#each all_players as player, index (player?._id)}
           <PlayerResult

@@ -53,7 +53,7 @@
   <div class="w-full flex flex-row justify-between items-center">
     {#each _.range(max + 1) as i}
       <div
-        class="flex flex-col items-center {parseInt(value[0]) <= i && parseInt(value[1]) >= i
+        class="flex flex-col items-center {!!value && parseInt(value[0]) <= i && parseInt(value[1]) >= i
           ? 'font-bold text-blue-600'
           : ''}"
       >

@@ -9,6 +9,7 @@
     HiveMindRoundCollection,
   } from "/imports/api/hive_mind/collections";
   import _ from "lodash";
+  import ShareGameModal from "/imports/ui/components/hive_mind/ShareGameModal.svelte";
 
   let player_id = null;
   let game_id = null;
@@ -23,6 +24,7 @@
   let subReady = false;
   let resetCounter = 0;
   let resetGameModal;
+  let showShareGameModal = false;
 
   let game;
   let latest_round = null;
@@ -105,7 +107,7 @@
     if (addPlayerName && player_code) {
       loading = true;
       addPlayerError = false;
-      Meteor.call("hive_mind.add_player", addPlayerName, player_code, (err, res) => {
+      Meteor.call("hive_mind.add_player", addPlayerName, player_code, game_id, (err, res) => {
         loading = false;
         if (!err) {
           addPlayerModal.close();
@@ -139,6 +141,24 @@
         >
       </div>
     {/if}
+    <div class="flex flex-col items-center mt-20">
+      <div
+        class="btn btn-ghost w-auto h-auto m-0 flex flex-col items-center p-6 gap-0"
+        on:click={() => (showShareGameModal = true)}
+        on:keydown={() => (showShareGameModal = true)}
+      >
+        <h1 class="text-base font-medium uppercase text-center">Hive Mind</h1>
+        <h1 class="font-poppins text-lg font-black uppercase text-center">
+          {game?.name}
+        </h1>
+        <div class="btn btn-ghost btn-sm pointer-events-none">
+          <span class="text-sm font-light"> code: </span>
+          <span class="text-sm font-bold">
+            {game?.code}
+          </span>
+        </div>
+      </div>
+    </div>
     {#if subReady}
       <slot
         scoped={{
@@ -229,3 +249,5 @@
     <button>close</button>
   </form>
 </dialog>
+
+<ShareGameModal modalOpen={showShareGameModal} gameId={game_id} closeModal={() => (showShareGameModal = false)} />

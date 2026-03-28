@@ -110,25 +110,8 @@
 </script>
 
 <!-- GAME TITLE -->
-<div
-  use:inview={options}
-  on:inview_change={handleChange}
-  class="flex flex-col items-center justify-center p-20 pt-8 pb-4 mt-4"
->
-  <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
-    <div class="flex flex-col items-center">
-      <p class="text-base font-medium uppercase text-center">Hive Mind</p>
-      <h1 class="font-poppins text-lg font-black uppercase text-center">
-        {game?.name}
-      </h1>
-      <div class="btn btn-ghost btn-sm">
-        <span class="text-sm font-light"> code: </span>
-        <span class="text-sm font-bold">
-          {game?.code}
-        </span>
-      </div>
-    </div>
-
+<div class="flex flex-col items-center justify-center p-20 pt-0 pb-4" in:fade={{ duration: 1000, easing: cubicOut }}>
+  <div class="flex flex-col items-center justify-center">
     <a class="btn btn-link btn-sm absolute top-8 left-8" href={`/hive_mind`}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -146,8 +129,8 @@
 <!-- GAME TITLE -->
 
 <!-- ROUND TITLE -->
-<div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center p-8 py-4">
-  <div class:invisible={!show} class:fade-in={show} class="flex flex-col items-center justify-center">
+<div in:fade={{ duration: 1000, easing: cubicOut }} class="flex flex-col items-center justify-center p-8 py-4">
+  <div class="flex flex-col items-center justify-center">
     <div class="flex flex-col items-center gap-2">
       <h1 class="text-2xl font-black font-poppins uppercase text-center">
         {!game?.final_leaderboard_revealed ? "REVEALING " : ""}FINAL LEADERBOARD
@@ -165,8 +148,8 @@
 <!-- ROUND TITLE -->
 
 <!-- GAME LEADERBOARD -->
-<div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center px-8">
-  <div class:invisible={!show} class:fade-in={show} class="w-full flex flex-col items-center justify-center">
+<div in:fade={{ duration: 1000, easing: cubicOut }} class="flex flex-col items-center justify-center px-8">
+  <div class="w-full flex flex-col items-center justify-center">
     <!-- WINNER -->
     <div
       class="btn h-auto w-auto m-0 border-0 flex flex-col items-center bg-white shadow-none hover:bg-white"
