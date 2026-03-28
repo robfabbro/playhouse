@@ -314,15 +314,15 @@
         {#if target_word && !round?.round_scored}
           <div class="flex justify-center items-center">
             <h1
-              class="{target_word?.word?.length > 24
+              class="{target_word?.word?.length > 22
                 ? 'text-base '
-                : target_word?.word?.length > 22
+                : target_word?.word?.length > 20
                   ? 'text-lg '
-                  : target_word?.word?.length > 20
+                  : target_word?.word?.length > 28
                     ? 'text-xl '
-                    : target_word?.word?.length > 18
+                    : target_word?.word?.length > 16
                       ? 'text-2xl'
-                      : target_word?.word?.length > 16
+                      : target_word?.word?.length > 14
                         ? 'text-3xl'
                         : 'text-4xl'} break-all hyphens-auto font-black font-poppins uppercase text-center"
             >
@@ -334,7 +334,19 @@
               viewBox="0 0 24 24"
               stroke-width="2"
               stroke="currentColor"
-              class="h-8 w-8 stroke-blue-400 self-start btn btn-circle btn-sm m-0 p-0 bg-white hover:bg-gray-200 hover:stroke-blue-800 border-0 shadow-none"
+              class="
+              {target_word?.word?.length > 22
+                ? 'h-3 w-3'
+                : target_word?.word?.length > 20
+                  ? 'h-4 w-4'
+                  : target_word?.word?.length > 28
+                    ? 'h-5 w-5'
+                    : target_word?.word?.length > 16
+                      ? 'h-6 w-6'
+                      : target_word?.word?.length > 14
+                        ? 'h-7 w-7'
+                        : 'h-8 w-8'}
+              stroke-blue-400 self-start btn btn-circle btn-sm m-0 p-0 bg-white hover:bg-gray-200 hover:stroke-blue-800 border-0 shadow-none"
               on:click={() => viewWord(target_word?.word_id)}
               on:keydown={() => viewWord(target_word?.word_id)}
             >
@@ -488,6 +500,7 @@
             {player}
             {all_players}
             {index}
+            round_number={round?.round_number}
             selectPlayer={() => {
               console.log("SELECTING PLAYER: ", player?._id);
               selectedPlayerId = player._id;

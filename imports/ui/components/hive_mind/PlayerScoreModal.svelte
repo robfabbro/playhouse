@@ -55,48 +55,59 @@
             </div>
             <!-- TOP SIDE -->
             <!-- DIVIDER -->
-            <div class="self-stretch m-0 my-2 min-w-[240px] h-1 w-full bg-gray-400"></div>
+            <div class="self-stretch m-0 my-2 min-w-[240px] h-0.5 w-full bg-gray-400"></div>
             <!-- DIVIDER -->
             <!-- BOTTOM SIDE -->
             <div class="flex flex-col gap-1 basis-1/2">
               {#each player?.game_answers as answer, idx (answer?._id)}
-                <div class="flex items-center gap-2">
-                  <span class="text-left font-poppins font-light shrink-0">R{idx + 1}:</span>
-                  <span
-                    class="font-poppins font-semibold uppercase {answer?.word === 'no answer'
-                      ? 'text-sm'
-                      : ''} flex items-center flex-wrap flex-shrink break-all hyphens-auto">{answer?.word}</span
-                  >
-                  <span class="flex items-center gap-1 shrink-0">
-                    <!-- plus -->
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="3"
-                      stroke="currentColor"
-                      class="h-3 w-3 {answer?.points_scored > 0
-                        ? 'fill-green-600 text-green-600'
-                        : 'fill-red-600 text-red-600'} -mr-1"
+                <div class="w-full flex justify-between items-center gap-4">
+                  <div class="flex items-center gap-2">
+                    <span class="text-left font-poppins font-light shrink-0">R{idx + 1}:</span>
+                    <span
+                      class="font-poppins font-semibold uppercase {answer?.word === 'no answer'
+                        ? 'text-sm'
+                        : ''} flex items-center flex-wrap flex-shrink break-all hyphens-auto">{answer?.word}</span
                     >
-                      <path
-                        in:draw={{ duration: 1000, delay: 1000, easing: quintOut }}
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 4.5v15m7.5-7.5h-15"
-                      />
-                    </svg>
-                    <!-- plus -->
+                    <span class="flex items-center gap-1 shrink-0">
+                      <!-- plus -->
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="3"
+                        stroke="currentColor"
+                        class="h-3 w-3 {answer?.points_scored > 0
+                          ? 'fill-green-600 text-green-600'
+                          : 'fill-red-600 text-red-600'} -mr-1"
+                      >
+                        <path
+                          in:draw={{ duration: 1000, delay: 1000, easing: quintOut }}
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 4.5v15m7.5-7.5h-15"
+                        />
+                      </svg>
+                      <!-- plus -->
 
-                    <DrawableNumber
-                      number={answer?.points_scored}
-                      svgClass="h-4 w-4 {answer?.points_scored > 0
-                        ? 'stroke-green-600 fill-green-600'
-                        : 'stroke-red-600 fill-red-600'}"
-                      containerClass=""
-                      drawAnimationParams={{ duration: 1000, delay: 1000, easing: quintOut }}
-                    />
-                  </span>
+                      <DrawableNumber
+                        number={answer?.points_scored}
+                        svgClass="h-4 w-4 {answer?.points_scored > 0
+                          ? 'stroke-green-600 fill-green-600'
+                          : 'stroke-red-600 fill-red-600'}"
+                        containerClass=""
+                        drawAnimationParams={{ duration: 1000, delay: 1000, easing: quintOut }}
+                      />
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <span class="font-poppins font-light shrink-0"
+                      >{player?.placement_history[`R${idx + 1}`]?.placing}:</span
+                    >
+                    <span class="font-poppins font-semibold shrink-0"
+                      >{player?.placement_history[`R${idx + 1}`]?.points_at_end_of_round} pts</span
+                    >
+                  </div>
                 </div>
               {/each}
             </div>

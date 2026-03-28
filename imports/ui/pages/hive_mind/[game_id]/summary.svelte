@@ -168,7 +168,17 @@
 <div use:inview={options} on:inview_change={handleChange} class="flex flex-col items-center justify-center px-8">
   <div class:invisible={!show} class:fade-in={show} class="w-full flex flex-col items-center justify-center">
     <!-- WINNER -->
-    <div class="flex flex-col items-center">
+    <div
+      class="btn h-auto w-auto m-0 border-0 flex flex-col items-center bg-white shadow-none hover:bg-white"
+      on:click={() => {
+        console.log("SELECTING PLAYER: ", auspicious_winner?._id);
+        selectedPlayerId = auspicious_winner?._id;
+      }}
+      on:keydown={() => {
+        console.log("SELECTING PLAYER: ", auspicious_winner?._id);
+        selectedPlayerId = auspicious_winner?._id;
+      }}
+    >
       <!-- SVG -->
       <svg
         stroke="currentColor"

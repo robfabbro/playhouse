@@ -29,6 +29,14 @@ const robot_names = [
 
 const cefr_level_map = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
+const placingth = (placing) => {
+  if ([11, 12, 13].includes(placing)) {
+    return `${placing}` + "th";
+  } else {
+    return `${placing}` + (placing % 10 === 1 ? "st" : placing % 10 === 2 ? "nd" : placing % 10 === 3 ? "rd" : "th");
+  }
+};
+
 Meteor.methods({
   "hive_mind.find_game"(searchName, player_code) {
     if (!player_code || player_code.trim() === "") {
@@ -684,6 +692,40 @@ Meteor.methods({
 
     if (most_points >= points_to_win && first_place_players.length === 1) {
       game_finished = true;
+    }
+
+    //record the current placing of the player for this round, on the game player object
+    for (let player of game_players) {
+      // Step 1: Get placing
+      let playersWithMorePoints = game_players.filter(
+        (gp) => gp.total_points > player.total_points && gp._id !== player._id
+      ).length;
+      let playersWithSamePoints = game_players.filter(
+        (gp) => gp.total_points === player.total_points && gp._id !== player._id
+      ).length;
+
+      let placing_at_end_of_round;
+
+      if (playersWithSamePoints > 0) {
+        placing_at_end_of_round = "T-" + placingth(playersWithMorePoints + 1);
+      } else {
+        placing_at_end_of_round = placingth(playersWithMorePoints + 1);
+      }
+
+      // Step 2: build the placement history array
+      let player_placement_history = player?.placement_history || {};
+      player_placement_history[`R${round?.round_number}`] = {
+        ranking: playersWithMorePoints + 1,
+        placing: placing_at_end_of_round,
+        points_at_end_of_round: player?.total_points,
+      };
+
+      // Step 3: update game player object
+
+      HiveMindGamePlayerCollection.update(
+        { _id: player?._id },
+        { $set: { placement_history: player_placement_history } }
+      );
     }
 
     if (!game_finished) {
