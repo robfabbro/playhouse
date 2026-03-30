@@ -67,30 +67,9 @@ Meteor.startup(() => {
     console.log("completed upsert of trivia_question_categories...");
   }
 
-  //Migrating Hive Mind Deutsch Words
-  const hive_mind_deutsche_words = JSON.parse(Assets.getText("fixtures/hive_mind_deutsche_words.json"));
-  if (HiveMindWordCollection.find({ is_deutsch: true }).count() === 0) {
-    console.log("upserting hive_mind_deutsche_words...");
-    for (let word of hive_mind_deutsche_words) {
-      HiveMindWordCollection.upsert(
-        { word: word.word, is_deutsch: true },
-        { $set: { ...word, is_deutsch: true, is_english: false } }
-      );
-    }
-    console.log("completed upsert of hive_mind_deutsche_words...");
-  }
-
-  //Migrating Hive Mind English Words
-  const hive_mind_english_words = JSON.parse(Assets.getText("fixtures/hive_mind_english_words.json"));
-  if (HiveMindWordCollection.find({ is_english: true }).count() === 0) {
-    console.log("upserting hive_mind_english_words...");
-    for (let word of hive_mind_english_words) {
-      HiveMindWordCollection.upsert(
-        { word: word.word, is_deutsch: { $ne: true } },
-        { $set: { ...word, is_english: true, is_deutsch: false } }
-      );
-    }
-    console.log("completed upsert of hive_mind_english_words...");
+  //  Hive Mind Word Warning
+  if (HiveMindWordCollection.find({}).count() === 0) {
+    console.warn("WARNING: No words are saved in your hive_mind_words collection!!!");
   }
 
   console.log("~~~ We are running ~~~");

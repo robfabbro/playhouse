@@ -9,11 +9,11 @@
   import { faker } from "@faker-js/faker";
 
   let games = [
-    {
-      name: "Aidan's Game",
-      route: "/aidan_game",
-      logo: "king",
-    },
+    // {
+    //   name: "Aidan's Game",
+    //   route: "/aidan_game",
+    //   logo: "king",
+    // },
     {
       name: "Secret Santa",
       route: "/secret_santa",
@@ -88,16 +88,16 @@
   <!-- ian what is this -->
   <!-- clownery-->
   <div class="flex flex-col gap-5 p-8 rounded-2xl bg-purple-800 mt-16">
-        <div class="text-lg sm:text-2xl md:text-4xl lg:text-7xl font-black uppercase flex animate-wave">
-          <div class="animate-bounce text-gray-300">Techreative</div>
-          <div class="animate-bounce ml-2 text-gray-300">Playhouse!</div>
-        </div>
-        <div class="font-poppins text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase text-gray-300">
-          W<button on:click={() => add("e")}>E</button><button on:click={() => add("l")}>L</button>c<button
-                on:click={() => add("o")}>O</button
-              >me to the
-          <span class="text-red-300 animate-pulse">clow<button on:click={() => add("n")}>N</button>house</span>
-        </div>
+    <div class="text-lg sm:text-2xl md:text-4xl lg:text-7xl font-black uppercase flex animate-wave">
+      <div class="animate-bounce text-gray-300">Techreative</div>
+      <div class="animate-bounce ml-2 text-gray-300">Playhouse!</div>
+    </div>
+    <div class="font-poppins text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase text-gray-300">
+      W<button on:click={() => add("e")}>E</button><button on:click={() => add("l")}>L</button>c<button
+        on:click={() => add("o")}>O</button
+      >me to the
+      <span class="text-red-300 animate-pulse">clow<button on:click={() => add("n")}>N</button>house</span>
+    </div>
   </div>
 
   {#if activation == "elong"}
@@ -122,7 +122,7 @@
   >
 
   <div class="grid grid-cols-2 gap-4 mx-4 z-40">
-    {#each games as game}
+    {#each games.sort((a, b) => a.name.localeCompare(b.name)) as game}
       <button
         class="btn min-h-auto min-w-auto m-0 h-auto w-auto bg-white rounded-xl px-2 sm:px-4 md:px-6 lg:px-8 pt-1 sm:pt-2 md:pt-3 lg:pt-4 pb-2 sm:pb-4 md:pb-6 lg:pb-8 flex flex-col justify-between gap-1 sm:gap-2 md:gap-3 lg:gap-4 items-center border-4 border-black hover:border-black hover:bg-gray-300"
         on:click={() => {

@@ -11,6 +11,7 @@
     HiveMindRoundCollection,
     HiveMindRoundWordCollection,
     HiveMindRoundAnswerCollection,
+    HiveMindWordCollection,
   } from "/imports/api/hive_mind/collections";
   import PlayerAvatar from "/imports/ui/components/hive_mind/PlayerAvatar.svelte";
   import Countdown from "/imports/ui/components/hive_mind/Countdown.svelte";
@@ -66,10 +67,19 @@
   $m: {
     round = HiveMindRoundCollection.findOne({ _id: round_id }, { sort: { createdAt: -1 } });
     target_word = HiveMindRoundWordCollection.findOne({ round_id: round_id, target: true });
+    if (target_word) {
+      target_word.word_obj = HiveMindWordCollection.findOne({ _id: target_word.word_id });
+    }
     round_words = HiveMindRoundWordCollection.find(
       { round_id: round_id, target: false },
       { sort: { answer_count: -1, order: 1 } }
-    ).fetch();
+    )
+      .fetch()
+      .map((rw) => {
+        rw.word_obj = HiveMindWordCollection.findOne({ _id: rw.word_id });
+        return rw;
+      });
+
     no_answer_word = HiveMindRoundWordCollection.findOne({ round_id: round_id, word_id: "no_answer" });
 
     if (!round) {
@@ -98,6 +108,7 @@
 
   $m: {
     game = HiveMindGameCollection.findOne({ _id: game_id });
+    console.log({ game });
 
     all_answers = HiveMindRoundAnswerCollection.find({ game_id: game_id }).fetch();
     all_players = HiveMindGamePlayerCollection.find({ game_id: game_id })
@@ -295,13 +306,42 @@
           </h1>
         {/if}
         {#if target_word && !round?.round_scored}
-          <div class="flex justify-center items-center">
+          <div class="flex justify-center items-center gap-1">
+            <!-- LITTLE LANGUAGE FLAG IDENTIFIER -->
+            {#if game?.language_mode?.length > 1}
+              <span
+                class={target_word?.word?.length > 22
+                  ? "text-base "
+                  : target_word?.word?.length > 20
+                    ? "text-lg "
+                    : target_word?.word?.length > 18
+                      ? "text-xl "
+                      : target_word?.word?.length > 16
+                        ? "text-2xl"
+                        : target_word?.word?.length > 14
+                          ? "text-3xl"
+                          : "text-4xl"}
+              >
+                {#if target_word?.word_obj?.is_english}
+                  🇬🇧
+                {:else if target_word?.word_obj?.is_deutsch}
+                  🇩🇪
+                {:else if target_word?.word_obj?.is_français}
+                  🇫🇷
+                {:else if target_word?.word_obj?.is_español}
+                  🇪🇸
+                {:else if target_word?.word_obj?.is_italiano}
+                  🇮🇹
+                {/if}
+              </span>
+            {/if}
+            <!-- LITTLE LANGUAGE FLAG IDENTIFIER -->
             <h1
               class="{target_word?.word?.length > 22
                 ? 'text-base '
                 : target_word?.word?.length > 20
                   ? 'text-lg '
-                  : target_word?.word?.length > 28
+                  : target_word?.word?.length > 18
                     ? 'text-xl '
                     : target_word?.word?.length > 16
                       ? 'text-2xl'
@@ -322,7 +362,7 @@
                 ? 'h-3 w-3'
                 : target_word?.word?.length > 20
                   ? 'h-4 w-4'
-                  : target_word?.word?.length > 28
+                  : target_word?.word?.length > 18
                     ? 'h-5 w-5'
                     : target_word?.word?.length > 16
                       ? 'h-6 w-6'
@@ -388,7 +428,7 @@
             <!-- Word Info Button -->
 
             <button
-              class="btn w-full border-black border-2 rounded-lg h-full {parseInt(i) % 2 === 0
+              class="btn w-full border-black border-2 rounded-lg h-full relative {parseInt(i) % 2 === 0
                 ? 'rounded-l-none'
                 : 'rounded-l-none md:rounded-r-none md:rounded-l-lg'} {loading
                 ? 'bg-gray-200 text-gray-600 pointer-events-none'
@@ -401,6 +441,27 @@
                 }
               }}
             >
+              <!-- LITTLE LANGUAGE FLAG IDENTIFIER -->
+              {#if game?.language_mode?.length > 1}
+                <span
+                  class="absolute {parseInt(i) % 2 === 0
+                    ? 'right-2 text-right'
+                    : 'right-2 text-right md:left-2 md:right-0 md:text-left'} text-xl"
+                >
+                  {#if rw?.word_obj?.is_english}
+                    🇬🇧
+                  {:else if rw?.word_obj?.is_deutsch}
+                    🇩🇪
+                  {:else if rw?.word_obj?.is_français}
+                    🇫🇷
+                  {:else if rw?.word_obj?.is_español}
+                    🇪🇸
+                  {:else if rw?.word_obj?.is_italiano}
+                    🇮🇹
+                  {/if}
+                </span>
+              {/if}
+              <!-- LITTLE LANGUAGE FLAG IDENTIFIER -->
               <span
                 class="font-bold font-poppins text-black text-center {rw?.word?.length <= 4
                   ? 'text-2xl'

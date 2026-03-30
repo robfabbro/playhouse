@@ -135,12 +135,12 @@
   use:inview={options}
   on:inview_change={handleChange}
   id="home"
-  class="hero flex justify-center items-center p-0 m-0"
+  class="h-1/2 hero flex justify-center items-center p-0 m-0"
 >
   {#if show}
     <div class="hero-content p-0 flex-col lg:flex-row-reverse">
       <div
-        class="text-center lg:text-start md:max-w-[50%] xl:max-w-[80%] min-h-screen z-1 flex items-center justify-center z-10"
+        class="text-center lg:text-start md:max-w-[50%] xl:max-w-[80%] z-1 flex items-center justify-center z-10"
       >
         <div class="flex flex-col items-center gap-4">
           <div class="flex flex-col">

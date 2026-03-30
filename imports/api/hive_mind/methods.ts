@@ -293,7 +293,7 @@ Meteor.methods({
       { multi: true }
     );
   },
-  "hive_mind.create_first_round"(game_id) {
+  async "hive_mind.create_first_round"(game_id) {
     if (!game_id) {
       throw new Meteor.Error("Game ID is required");
     }
@@ -323,11 +323,50 @@ Meteor.methods({
     }).fetch();
 
     let language_modifier = {};
+    let language_conditional_array = [];
 
-    if (game?.language_mode.includes("deutsch") && !game?.language_mode.includes("english")) {
-      language_modifier.is_deutsch = true;
-    } else if (game?.language_mode.includes("english") && !game?.language_mode.includes("deutsch")) {
-      language_modifier.is_english = true;
+    if (game?.language_mode.includes("deutsch")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_deutsch = true;
+      } else {
+        language_conditional_array.push({ is_deutsch: true });
+      }
+    }
+
+    if (game?.language_mode.includes("english")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_english = true;
+      } else {
+        language_conditional_array.push({ is_english: true });
+      }
+    }
+
+    if (game?.language_mode.includes("italiano")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_italiano = true;
+      } else {
+        language_conditional_array.push({ is_italiano: true });
+      }
+    }
+
+    if (game?.language_mode.includes("español")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_español = true;
+      } else {
+        language_conditional_array.push({ is_español: true });
+      }
+    }
+
+    if (game?.language_mode.includes("français")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_français = true;
+      } else {
+        language_conditional_array.push({ is_français: true });
+      }
+    }
+
+    if (language_conditional_array.length > 1) {
+      language_modifier.$or = language_conditional_array;
     }
 
     let cefr_modifier = {};
@@ -342,15 +381,19 @@ Meteor.methods({
 
     console.log("cefr_modifier", cefr_modifier);
 
-    let words = HiveMindWordCollection.find(
+    let rawCollectionPipeline = [
       {
-        _id: { $nin: already_used_round_words.map((w) => w._id) },
-        ...language_modifier,
-        ...cefr_modifier,
+        $match: {
+          _id: { $nin: already_used_game_words.map((w) => w.word_id) },
+          ...language_modifier,
+          ...cefr_modifier,
+        },
       },
-      { limit: 20 }
-    ).fetch();
-    let random_five_words = _.sampleSize(words, 5);
+      {
+        $sample: { size: 5 },
+      },
+    ];
+    let random_five_words = await HiveMindWordCollection.rawCollection().aggregate(rawCollectionPipeline).toArray();
 
     let game_rounds = HiveMindRoundCollection.find({ game_id: game_id }).fetch();
     let round_number = game_rounds.length + 1;
@@ -896,7 +939,7 @@ Meteor.methods({
 
     return current_round._id;
   },
-  "hive_mind.create_next_round"(game_id) {
+  async "hive_mind.create_next_round"(game_id) {
     if (!game_id) {
       throw new Meteor.Error("Game ID is required");
     }
@@ -913,11 +956,50 @@ Meteor.methods({
     }).fetch();
 
     let language_modifier = {};
+    let language_conditional_array = [];
 
-    if (game?.language_mode.includes("deutsch") && !game?.language_mode.includes("english")) {
-      language_modifier.is_deutsch = true;
-    } else if (game?.language_mode.includes("english") && !game?.language_mode.includes("deutsch")) {
-      language_modifier.is_english = true;
+    if (game?.language_mode.includes("deutsch")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_deutsch = true;
+      } else {
+        language_conditional_array.push({ is_deutsch: true });
+      }
+    }
+
+    if (game?.language_mode.includes("english")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_english = true;
+      } else {
+        language_conditional_array.push({ is_english: true });
+      }
+    }
+
+    if (game?.language_mode.includes("italiano")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_italiano = true;
+      } else {
+        language_conditional_array.push({ is_italiano: true });
+      }
+    }
+
+    if (game?.language_mode.includes("español")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_español = true;
+      } else {
+        language_conditional_array.push({ is_español: true });
+      }
+    }
+
+    if (game?.language_mode.includes("français")) {
+      if (game?.language_mode.length === 1) {
+        language_modifier.is_français = true;
+      } else {
+        language_conditional_array.push({ is_français: true });
+      }
+    }
+
+    if (language_conditional_array.length > 1) {
+      language_modifier.$or = language_conditional_array;
     }
 
     let cefr_modifier = {};
@@ -935,18 +1017,19 @@ Meteor.methods({
 
     console.log("cefr_modifier", cefr_modifier);
 
-    let words = HiveMindWordCollection.find(
+    let rawCollectionPipeline = [
       {
-        _id: { $nin: already_used_game_words.map((w) => w.word_id) },
-        ...language_modifier,
-        ...cefr_modifier,
+        $match: {
+          _id: { $nin: already_used_game_words.map((w) => w.word_id) },
+          ...language_modifier,
+          ...cefr_modifier,
+        },
       },
-      { limit: 20 }
-    ).fetch();
-
-    console.log({ words_to_choose: words.length });
-
-    let random_five_words = _.sampleSize(words, 5);
+      {
+        $sample: { size: 5 },
+      },
+    ];
+    let random_five_words = await HiveMindWordCollection.rawCollection().aggregate(rawCollectionPipeline).toArray();
 
     let game_rounds = HiveMindRoundCollection.find({ game_id: game_id }).fetch();
     let round_number = game_rounds.length + 1;
@@ -1159,7 +1242,7 @@ Meteor.methods({
       throw new Meteor.Error("Game not found");
     }
 
-    if (!language || !["english", "deutsch"].includes(language)) {
+    if (!language || !["english", "deutsch", "italiano", "español", "français"].includes(language)) {
       throw new Meteor.Error("Language not valid");
     }
 

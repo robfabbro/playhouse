@@ -1,6 +1,8 @@
 <script lang="ts">
   import { fade, draw, crossfade } from "svelte/transition";
   import { cubicOut, quintOut } from "svelte/easing";
+  import { params } from "@roxi/routify";
+
   import {
     HiveMindGameCollection,
     HiveMindGamePlayerCollection,
@@ -16,9 +18,12 @@
   export let wordIdToView = null;
 
   let word = null;
+  let game = null;
+  $: ({ game_id } = $params);
 
   $m: {
     console.log("word TO VIEW ID: ", wordIdToView);
+    game = HiveMindGameCollection.findOne({ _id: game_id });
     word = HiveMindWordCollection.findOne({ _id: wordIdToView });
     console.log("word TO VIEW: ", word);
   }
@@ -34,23 +39,38 @@
       <!-- BOTTOM RIGHT CLOSE BUTTON -->
       <h3 class="font-bold text-lg">Word Information</h3>
       {#if word}
-        <div class="pt-4 flex flex-col justify-center items-center gap-8">
+        <div class="pt-4 flex flex-col justify-center items-center gap-6">
           <!-- WORD + TRANSLATION -->
           <div class="flex flex-col items-center text-center mt-4 break-words">
             <h1 class="text-3xl font-bold break-normal hyphens-auto">{word?.word}</h1>
-            {#if word?.is_deutsch}
+            {#if !word?.is_english}
               <span class="text-2xl font-normal italic">{word?.english_translation.replaceAll(";", ", ")}</span>
             {/if}
+            <!-- LITTLE LANGUAGE FLAG IDENTIFIER -->
+            {#if game?.language_mode?.length > 1}
+              <span class="text-3xl">
+                {#if word?.is_english}
+                  🇬🇧
+                {:else if word?.is_deutsch}
+                  🇩🇪
+                {:else if word?.is_français}
+                  🇫🇷
+                {:else if word?.is_español}
+                  🇪🇸
+                {:else if word?.is_italiano}
+                  🇮🇹
+                {/if}
+              </span>
+            {/if}
+            <!-- LITTLE LANGUAGE FLAG IDENTIFIER -->
           </div>
           <!-- WORD + TRANSLATION -->
 
           <!-- WORD INFORMATION -->
           <div class="flex justify-between items-center gap-10">
             <!-- GENDER -->
-            <div class="flex flex-col items-center text-center">
-              {#if !word?.gender}
-                <span class="text-lg font-semibold uppercase">--</span>
-              {:else if word?.gender === "masculine"}
+            <div class="flex flex-col items-center text-center {!word?.gender ? 'hidden' : ''}">
+              {#if word?.gender === "masculine"}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 640 640"
@@ -116,9 +136,9 @@
           <!-- WORD INFORMATION -->
 
           <!-- EXAMPLE SENTENCE -->
-          <div class="flex flex-col items-center text-center">
+          <div class="flex flex-col items-center text-center mt-2">
             <span class="text-lg font-bold">{word?.example_sentence_native || word?.example_sentence_english}</span>
-            {#if word?.is_deutsch}
+            {#if !word?.is_english}
               <span class="text-base font-normal italic">{word?.example_sentence_english}</span>
             {/if}
           </div>

@@ -110,6 +110,30 @@
                   ? 'animate-hard-shake'
                   : ''}">🇩🇪</button
               >
+              <button
+                on:click={() => chooseLanguage("español")}
+                class="btn text-3xl border-2 {game?.language_mode?.length && game?.language_mode.includes('español')
+                  ? 'bg-blue-400 border-blue-800 hover:bg-blue-200 hover:border-blue-600 focus:bg-blue-400 focus:border-blue-800'
+                  : ''} {game?.language_mode?.length && game?.language_mode.includes('español') && languageError
+                  ? 'animate-hard-shake'
+                  : ''}">🇪🇸</button
+              >
+              <button
+                on:click={() => chooseLanguage("français")}
+                class="btn text-3xl border-2 {game?.language_mode?.length && game?.language_mode.includes('français')
+                  ? 'bg-blue-400 border-blue-800 hover:bg-blue-200 hover:border-blue-600 focus:bg-blue-400 focus:border-blue-800'
+                  : ''} {game?.language_mode?.length && game?.language_mode.includes('français') && languageError
+                  ? 'animate-hard-shake'
+                  : ''}">🇫🇷</button
+              >
+              <button
+                on:click={() => chooseLanguage("italiano")}
+                class="btn text-3xl border-2 {game?.language_mode?.length && game?.language_mode.includes('italiano')
+                  ? 'bg-blue-400 border-blue-800 hover:bg-blue-200 hover:border-blue-600 focus:bg-blue-400 focus:border-blue-800'
+                  : ''} {game?.language_mode?.length && game?.language_mode.includes('italiano') && languageError
+                  ? 'animate-hard-shake'
+                  : ''}">🇮🇹</button
+              >
             </div>
           </div>
           <!-- LANGUAGE SWITCHER -->
