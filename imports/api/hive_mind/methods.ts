@@ -11,7 +11,6 @@ import {
 import { Random } from "meteor/random";
 import _ from "lodash";
 import QRCode from "qrcode";
-import { contenteditable_truthy_values } from "svelte/internal";
 
 const robot_names = [
   "Bender",
@@ -140,7 +139,7 @@ Meteor.methods({
       HiveMindGamePlayerCollection.upsert(
         {
           game_id: game._id,
-          player_code: contenteditable_truthy_values,
+          player_code: player?.code,
         },
         {
           $set: {
@@ -317,7 +316,7 @@ Meteor.methods({
       return existing_first_round._id;
     }
 
-    let already_used_round_words = HiveMindRoundWordCollection.find({
+    let already_used_game_words = HiveMindRoundWordCollection.find({
       game_id: game_id,
       word_id: { $ne: "no_answer" },
     }).fetch();
