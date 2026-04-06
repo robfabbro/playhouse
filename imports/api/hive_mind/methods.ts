@@ -489,7 +489,7 @@ Meteor.methods({
     // Step 1: Identify non-answering players, add that as a special entry onto the unrelated_words array
     let non_answering_players = game_players.filter((gp) => !gp.did_answer);
     if (non_answering_players.length > 0) {
-      let round_words = HiveMindRoundWordCollection.findOne({ round_id: round_id });
+      let round_words = HiveMindRoundWordCollection.find({ round_id: round_id }).fetch();
       let random_word = _.sample(round_words);
 
       for (let gp of non_answering_players) {
