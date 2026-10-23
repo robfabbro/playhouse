@@ -437,7 +437,8 @@ Meteor.methods({
       let round_words = HiveMindRoundWordCollection.find({ round_id: round_id, target: false }).fetch();
       for (let robot of robots_in_game) {
         let random_word = _.sample(round_words);
-        Meteor.call("hive_mind.select_word", robot.player_code, round_id, random_word._id);
+        console.log("random_word_id", random_word?._id);
+        Meteor.call("hive_mind.select_word", robot.player_code, round_id, random_word?._id);
       }
     }
   },
